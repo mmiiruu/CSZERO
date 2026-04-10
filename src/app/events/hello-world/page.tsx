@@ -8,12 +8,12 @@ export default function HelloWorldPage() {
   return (
     <div className="min-h-screen">
       {/* Hero */}
-      <section className="relative py-32 px-4 overflow-hidden bg-gradient-to-br from-purple-50 via-pink-50 to-white dark:from-slate-900 dark:via-slate-900 dark:to-slate-800">
+      <section className="relative min-h-screen flex items-center px-4 overflow-hidden bg-gradient-to-br from-purple-50 via-pink-50 to-white dark:from-slate-900 dark:via-slate-900 dark:to-slate-800">
         <div className="absolute top-20 left-10 w-72 h-72 bg-purple-200/30 dark:bg-purple-900/20 rounded-full blur-3xl animate-pulse-slow" />
         <div className="absolute top-40 right-20 w-96 h-96 bg-pink-200/20 dark:bg-pink-900/10 rounded-full blur-3xl animate-pulse-slow" style={{ animationDelay: "1s" }} />
         <div className="absolute bottom-20 left-1/3 w-80 h-80 bg-cyan-200/20 dark:bg-cyan-900/10 rounded-full blur-3xl animate-pulse-slow" style={{ animationDelay: "2s" }} />
 
-        <div className="relative z-10 max-w-4xl mx-auto text-center animate-fade-in">
+        <div className="relative z-10 max-w-4xl mx-auto text-center -mt-32 animate-fade-in">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-purple-50 dark:bg-purple-900/30 border border-purple-200 dark:border-purple-700 rounded-full text-sm text-purple-600 dark:text-purple-400 mb-8">{hero.badge}</div>
           <h1 className="text-6xl sm:text-8xl font-bold tracking-tighter">
             <span className="bg-gradient-to-r from-purple-500 via-pink-500 to-cyan-500 bg-clip-text text-transparent">Hello</span>

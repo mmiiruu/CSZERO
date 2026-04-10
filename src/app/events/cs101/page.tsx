@@ -8,17 +8,17 @@ export default function CS101Page() {
   return (
     <div className="min-h-screen bg-white dark:bg-slate-900">
       {/* Hero */}
-      <section className="relative py-32 px-4 overflow-hidden bg-gradient-to-br from-blue-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800">
+      <section className="relative min-h-screen flex items-center px-4 overflow-hidden bg-gradient-to-br from-blue-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800">
         <div className="absolute top-20 right-10 w-72 h-72 bg-blue-100/40 dark:bg-blue-900/20 rounded-full blur-3xl" />
         <div className="absolute bottom-10 left-10 w-96 h-96 bg-emerald-50/40 dark:bg-emerald-900/10 rounded-full blur-3xl" />
 
-        <div className="relative z-10 max-w-4xl mx-auto animate-fade-in">
+        <div className="relative z-10 max-w-4xl mx-auto -mt-32 animate-fade-in ">
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 rounded-full text-xs font-mono text-blue-600 dark:text-blue-400 mb-6">
             <span className="w-1.5 h-1.5 bg-blue-500 rounded-full" />
             {hero.badge}
           </div>
 
-          <h1 className="text-6xl sm:text-8xl font-bold tracking-tighter text-slate-800 dark:text-white">
+          <h1 className="text-6xl sm:text-8xl font-bold tracking-tighter text-slate-800 dark:text-white ">
             CS<span className="text-blue-600 dark:text-blue-400">101</span>
           </h1>
 
