@@ -1,29 +1,29 @@
 export const site = {
   name: "CSKU",
   shortName: "CS",
-  fullName: "ชมรมนิสิตวิทยาการคอมพิวเตอร์",
+  fullName: "ชุมนุมนิสิตวิทยาการคอมพิวเตอร์",
   university: "มหาวิทยาลัยเกษตรศาสตร์",
   tagline: "สร้างชุมชน แบ่งปันความรู้ สร้างโอกาส",
   description:
-    "ชมรมนิสิตวิทยาการคอมพิวเตอร์ มหาวิทยาลัยเกษตรศาสตร์ สร้างชุมชน แบ่งปันความรู้ และสร้างโอกาสให้กับนิสิต CS",
-  email: "contact@csku.org",
+    "ชุมนุมนิสิตวิทยาการคอมพิวเตอร์ มหาวิทยาลัยเกษตรศาสตร์ สร้างชุมชน แบ่งปันความรู้ และสร้างโอกาสให้กับนิสิต CS",
+  email: "thitikorn.ba@ku.th",
   social: {
-    github: "https://github.com/csku",
-    instagram: "https://instagram.com/csku",
+    github: "https://github.com/mmiiruu",
+    instagram: "https://www.instagram.com/comsci40.ku/",
   },
 };
 
 export const navLinks = [
   { href: "/events/cs101", label: "CS101" },
   { href: "/events/hello-world", label: "Hello World" },
-  { href: "/team", label: "ทีมงาน" },
+  { href: "/team", label: "คณะทำงาน" },
   { href: "/vote", label: "โหวต" },
 ];
 
 export const navbar = {
   adminLink: {
-    label: "แดชบอร์ด",
-    mobileLabel: "แดชบอร์ดผู้ดูแล",
+    label: "Dashboard",
+    mobileLabel: "Dashboard",
     href: "/admin",
   },
   signOut: "ออกจากระบบ",
@@ -31,7 +31,7 @@ export const navbar = {
 };
 
 export const footer = {
-  quickLinksHeading: "ลิงก์ด่วน",
+  quickLinksHeading: "ลิงก์",
   connectHeading: "ติดต่อเรา",
   socialLinks: [
     { label: "GitHub", href: site.social.github, external: true },
@@ -45,9 +45,9 @@ export const homePage = {
     badge: "เปิดรับสมัครแล้วตอนนี้",
     title: "CSKU",
     tagline:
-      "ชมรมนิสิตวิทยาการคอมพิวเตอร์ มหาวิทยาลัยเกษตรศาสตร์\nสร้างชุมชน แบ่งปันความรู้ สร้างโอกาส",
-    primaryButton: { label: "ดู CS101", href: "/events/cs101" },
-    secondaryButton: { label: "งาน Hello World", href: "/events/hello-world" },
+      "ชุมนุมนิสิตวิทยาการคอมพิวเตอร์ มหาวิทยาลัยเกษตรศาสตร์\nสร้างชุมชน แบ่งปันความรู้ สร้างโอกาส",
+    primaryButton: { label: "CS101", href: "/events/cs101" },
+    secondaryButton: { label: "Hello World", href: "/events/hello-world" },
   },
   eventsSection: {
     eyebrow: "กิจกรรมที่กำลังจะมาถึง",
@@ -55,8 +55,8 @@ export const homePage = {
     learnMoreLabel: "ดูเพิ่มเติม",
   },
   teamSection: {
-    eyebrow: "ทีมงานของเรา",
-    title: "ทีมงาน",
+    eyebrow: "คณะทำงานของเรา",
+    title: "คณะทำงาน",
     description: "นิสิตที่มีความมุ่งมั่นในการสร้างชุมชน CS ที่ KU",
     viewAllLabel: "ดูสมาชิกทั้งหมด",
     preview: [
