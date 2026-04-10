@@ -50,7 +50,7 @@ export default function HelloWorldPage() {
 
       {/* Schedule */}
       <section className="py-20 px-4 bg-slate-50 dark:bg-slate-800/50">
-        <div className="max-w-3xl mx-auto">
+        <div className="max-w-5xl mx-auto">
           <div className="text-center mb-16">
             <p className="text-sm font-mono text-pink-500 dark:text-pink-400 uppercase tracking-widest mb-3">{schedule.eyebrow}</p>
             <h2 className="text-4xl font-bold text-slate-800 dark:text-white">{schedule.title}</h2>

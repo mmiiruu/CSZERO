@@ -55,7 +55,7 @@ export default function CS101Page() {
 
       {/* Schedule */}
       <section id="schedule" className="py-20 px-4 bg-white dark:bg-slate-900">
-        <div className="max-w-3xl mx-auto">
+        <div className="max-w-5xl mx-auto">
           <div className="text-center mb-16">
             <p className="text-sm font-mono text-blue-500 dark:text-blue-400 uppercase tracking-widest mb-3">{schedule.eyebrow}</p>
             <h2 className="text-3xl font-bold text-slate-800 dark:text-white">{schedule.title}</h2>
