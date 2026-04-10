@@ -1,27 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/mongodb";
 import Registration from "@/models/Registration";
+import { auth } from "@/lib/auth";
 
-export async function POST(req: NextRequest) {
+export async function POST(_req: NextRequest) {
   try {
-    await dbConnect();
-    const { email } = await req.json();
-
-    if (!email) {
+    const session = await auth();
+    if (!session?.user?.email) {
       return NextResponse.json(
-        { error: "Email is required" },
-        { status: 400 }
+        { error: "Authentication required" },
+        { status: 401 }
       );
     }
 
+    await dbConnect();
+
     const registration = await Registration.findOne({
-      email: email.toLowerCase().trim(),
+      email: session.user.email.toLowerCase().trim(),
       event: "hello-world",
     });
 
     if (!registration) {
       return NextResponse.json(
-        { error: "No registration found with this email. Please register first." },
+        { error: "No registration found for your account. Please register first." },
         { status: 404 }
       );
     }

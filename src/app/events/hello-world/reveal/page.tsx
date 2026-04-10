@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import Button from "@/components/ui/Button";
-import Input from "@/components/ui/Input";
 
 const houses = [
   { name: "Spade", symbol: "♠", color: "text-slate-600", bg: "from-slate-600 to-slate-800", border: "border-slate-400" },
@@ -14,12 +15,19 @@ const houses = [
 type HouseKey = "spade" | "heart" | "diamond" | "club";
 
 export default function RevealPage() {
-  const [email, setEmail] = useState("");
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isShuffling, setIsShuffling] = useState(false);
   const [revealedHouse, setRevealedHouse] = useState<HouseKey | null>(null);
   const [shuffleIndex, setShuffleIndex] = useState(0);
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/auth/signin?callbackUrl=/events/hello-world/reveal");
+    }
+  }, [status, router]);
 
   const shuffleAnimation = useCallback(() => { setShuffleIndex((prev) => (prev + 1) % 4); }, []);
 
@@ -30,11 +38,9 @@ export default function RevealPage() {
   }, [isShuffling, shuffleAnimation]);
 
   const handleReveal = async () => {
-    if (!email.trim()) { setError("Please enter your email"); return; }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setError("Please enter a valid email"); return; }
     setError(""); setIsLoading(true);
     try {
-      const res = await fetch("/api/house-reveal", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email }) });
+      const res = await fetch("/api/house-reveal", { method: "POST" });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to find house");
       const house = data.house as HouseKey;
@@ -46,6 +52,14 @@ export default function RevealPage() {
   const houseData = revealedHouse ? houses.find((h) => h.name.toLowerCase() === revealedHouse) : null;
   const shuffleHouse = houses[shuffleIndex];
 
+  if (status === "loading" || status === "unauthenticated") {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-purple-200 border-t-purple-600 rounded-full animate-spin" />
+      </div>
+    );
+  }
+
   if (revealedHouse && houseData) {
     return (
       <div className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-purple-50 to-white dark:from-slate-900 dark:to-slate-900">
@@ -55,7 +69,7 @@ export default function RevealPage() {
           </div>
           <h1 className="text-4xl font-bold text-slate-800 dark:text-white mb-2">House {houseData.name}</h1>
           <p className="text-slate-500 dark:text-slate-400 mb-8">Welcome to your new house! Wear your colors with pride.</p>
-          <button onClick={() => { setRevealedHouse(null); setEmail(""); }} className="px-6 py-3 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-sm">Try Another Email</button>
+          <button onClick={() => setRevealedHouse(null)} className="px-6 py-3 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-sm">Reveal Again</button>
         </div>
       </div>
     );
@@ -80,10 +94,13 @@ export default function RevealPage() {
       <div className="max-w-md w-full text-center animate-fade-in">
         <div className="text-6xl mb-6">🎴</div>
         <h1 className="text-3xl font-bold text-slate-800 dark:text-white mb-2">Reveal Your House</h1>
-        <p className="text-slate-500 dark:text-slate-400 mb-8">Enter the email you registered with to discover your house.</p>
+        <p className="text-slate-500 dark:text-slate-400 mb-2">Signed in as <span className="font-medium text-slate-700 dark:text-slate-300">{session?.user?.email}</span></p>
+        <p className="text-slate-400 dark:text-slate-500 text-sm mb-8">Click the button below to discover which house you belong to.</p>
 
         <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 sm:p-8 space-y-4 shadow-sm">
-          <Input type="email" placeholder="your@email.com" value={email} onChange={(e: any) => { setEmail(e.target.value); setError(""); }} error={error} />
+          {error && (
+            <p className="text-sm text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl px-4 py-3">{error}</p>
+          )}
           <Button variant="primary" size="lg" loading={isLoading} onClick={handleReveal} className="w-full !bg-gradient-to-r !from-purple-500 !to-pink-500 !shadow-lg !shadow-purple-500/20">
             Reveal My House
           </Button>
