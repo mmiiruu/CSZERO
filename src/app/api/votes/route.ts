@@ -50,7 +50,14 @@ export async function GET(_req: NextRequest) {
       hasVoted = !!existingVote;
     }
 
-    return NextResponse.json({ candidates, hasVoted });
+    // Serialize ObjectId fields to plain strings so the client can use them
+    // directly as candidateId in the vote POST body.
+    const serialized = candidates.map((c: any) => ({
+      ...c,
+      _id: c._id.toString(),
+    }));
+
+    return NextResponse.json({ candidates: serialized, hasVoted });
   } catch (error) {
     console.error("Fetch votes error:", error);
     return NextResponse.json(

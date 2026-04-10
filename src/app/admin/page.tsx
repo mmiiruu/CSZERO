@@ -17,6 +17,8 @@ export default function AdminPage() {
   const [filter, setFilter] = useState<string>("all");
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [role, setRole] = useState<string | null>(null);
+  const [seeding, setSeeding] = useState(false);
+  const [seedMsg, setSeedMsg] = useState("");
 
   useEffect(() => {
     // Check if user is admin
@@ -35,6 +37,20 @@ export default function AdminPage() {
       .catch(() => {})
       .finally(() => setLoading(false));
   }, [router]);
+
+  const handleSeedCandidates = async () => {
+    setSeeding(true);
+    setSeedMsg("");
+    try {
+      const res = await fetch("/api/admin/seed-candidates", { method: "POST" });
+      const data = await res.json();
+      setSeedMsg(res.ok ? `✓ ${data.message}` : `✗ ${data.error}`);
+    } catch {
+      setSeedMsg("✗ Failed to seed candidates");
+    } finally {
+      setSeeding(false);
+    }
+  };
 
   const handleHouseChange = async (regId: string, house: string) => {
     try {
@@ -70,7 +86,7 @@ export default function AdminPage() {
             <h1 className="text-3xl font-bold text-slate-800">Admin Dashboard</h1>
             <p className="text-slate-500 text-sm mt-1">Manage registrations and house assignments</p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2 items-center">
             {["all", "cs101", "hello-world"].map((f) => (
               <button
                 key={f}
@@ -84,8 +100,24 @@ export default function AdminPage() {
                 {f === "all" ? "All" : f === "cs101" ? "CS101" : "Hello World"}
               </button>
             ))}
+            <button
+              onClick={handleSeedCandidates}
+              disabled={seeding}
+              className="px-4 py-2 rounded-lg text-sm font-medium bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-60 transition-all cursor-pointer"
+            >
+              {seeding ? "Seeding…" : "Seed Candidates"}
+            </button>
           </div>
         </div>
+        {seedMsg && (
+          <div className={`mb-6 p-3 rounded-xl text-sm border ${
+            seedMsg.startsWith("✓")
+              ? "bg-green-50 text-green-700 border-green-200"
+              : "bg-red-50 text-red-600 border-red-200"
+          }`}>
+            {seedMsg}
+          </div>
+        )}
 
         {/* Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
