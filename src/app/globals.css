@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme inline {
   --color-background: #f8fafc;
   --color-foreground: #0f172a;
@@ -52,6 +54,12 @@ body {
   font-family: var(--font-sans), system-ui, sans-serif;
 }
 
+/* Dark mode body */
+.dark body {
+  background: #0f172a;
+  color: #f1f5f9;
+}
+
 /* Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
@@ -95,4 +103,9 @@ body {
   background-image: linear-gradient(rgba(37, 99, 235, 0.04) 1px, transparent 1px),
     linear-gradient(90deg, rgba(37, 99, 235, 0.04) 1px, transparent 1px);
   background-size: 60px 60px;
+}
+
+.dark .grid-pattern {
+  background-image: linear-gradient(rgba(96, 165, 250, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(96, 165, 250, 0.06) 1px, transparent 1px);
 }

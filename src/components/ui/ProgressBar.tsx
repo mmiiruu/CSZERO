@@ -24,8 +24,8 @@ export default function ProgressBar({
                   i < currentStep
                     ? "bg-blue-600 text-white"
                     : i === currentStep
-                    ? "bg-blue-100 text-blue-600 border-2 border-blue-600"
-                    : "bg-slate-100 text-slate-400 border border-slate-200"
+                    ? "bg-blue-100 text-blue-600 border-2 border-blue-600 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-500"
+                    : "bg-slate-100 text-slate-400 border border-slate-200 dark:bg-slate-800 dark:text-slate-500 dark:border-slate-700"
                 }`}
               >
                 {i < currentStep ? (
@@ -39,7 +39,9 @@ export default function ProgressBar({
               {labels && labels[i] && (
                 <span
                   className={`text-xs mt-1.5 text-center max-w-[80px] leading-tight hidden sm:block ${
-                    i <= currentStep ? "text-slate-700" : "text-slate-400"
+                    i <= currentStep
+                      ? "text-slate-700 dark:text-slate-300"
+                      : "text-slate-400 dark:text-slate-600"
                   }`}
                 >
                   {labels[i]}
@@ -48,7 +50,7 @@ export default function ProgressBar({
             </div>
             {i < totalSteps - 1 && (
               <div className="flex-1 mx-2">
-                <div className="h-[2px] bg-slate-200 rounded-full overflow-hidden">
+                <div className="h-[2px] bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
                   <div
                     className={`h-full bg-blue-600 transition-all duration-500 ${
                       i < currentStep ? "w-full" : "w-0"
@@ -61,7 +63,7 @@ export default function ProgressBar({
         ))}
       </div>
       {labels && labels[currentStep] && (
-        <p className="text-sm text-slate-500 text-center mt-4 sm:hidden">
+        <p className="text-sm text-slate-500 dark:text-slate-400 text-center mt-4 sm:hidden">
           Step {currentStep + 1}: {labels[currentStep]}
         </p>
       )}

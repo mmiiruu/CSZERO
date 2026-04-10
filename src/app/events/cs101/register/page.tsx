@@ -72,14 +72,14 @@ export default function CS101RegisterPage() {
     const params = new URLSearchParams(window.location.search);
     if (params.get("success") === "true") {
       return (
-        <div className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-blue-50 to-white">
+        <div className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-blue-50 to-white dark:from-slate-900 dark:to-slate-900">
           <div className="text-center animate-scale-in">
-            <div className="w-20 h-20 bg-green-50 border border-green-200 rounded-full flex items-center justify-center mx-auto mb-6">
-              <svg className="w-10 h-10 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+            <div className="w-20 h-20 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-full flex items-center justify-center mx-auto mb-6">
+              <svg className="w-10 h-10 text-green-500 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
             </div>
-            <h1 className="text-3xl font-bold text-slate-800 mb-3">Registration Complete!</h1>
-            <p className="text-slate-500 max-w-md mx-auto mb-8">Thank you for registering for CS101. We&apos;ll send you a confirmation email with all the details.</p>
-            <a href="/events/cs101" className="px-6 py-3 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100 transition-colors text-sm font-medium">Back to CS101</a>
+            <h1 className="text-3xl font-bold text-slate-800 dark:text-white mb-3">Registration Complete!</h1>
+            <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto mb-8">Thank you for registering for CS101. We&apos;ll send you a confirmation email with all the details.</p>
+            <a href="/events/cs101" className="px-6 py-3 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-xl hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors text-sm font-medium">Back to CS101</a>
           </div>
         </div>
       );
@@ -87,16 +87,16 @@ export default function CS101RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen py-20 px-4 bg-gradient-to-br from-blue-50 via-white to-slate-50">
+    <div className="min-h-screen py-20 px-4 bg-gradient-to-br from-blue-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800">
       <div className="max-w-2xl mx-auto">
         <div className="mb-8 animate-fade-in">
-          <h1 className="text-3xl font-bold text-slate-800 mb-2">Register for CS101</h1>
-          <p className="text-slate-500">Fill out the form below to secure your spot.</p>
+          <h1 className="text-3xl font-bold text-slate-800 dark:text-white mb-2">Register for CS101</h1>
+          <p className="text-slate-500 dark:text-slate-400">Fill out the form below to secure your spot.</p>
         </div>
         <div className="mb-10"><ProgressBar currentStep={step} totalSteps={6} labels={STEP_LABELS} /></div>
-        {errors.submit && (<div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm">{errors.submit}</div>)}
+        {errors.submit && (<div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl text-red-600 dark:text-red-400 text-sm">{errors.submit}</div>)}
 
-        <div className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm">
+        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 sm:p-8 shadow-sm">
           {step === 0 && (
             <FormStep title="Personal Information" description="Tell us about yourself" onNext={handleNext} isFirst>
               <Input label="Full Name" placeholder="Enter your full name" value={formData.name} onChange={(e: any) => updateField("name", e.target.value)} error={errors.name} />

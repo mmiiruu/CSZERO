@@ -75,13 +75,13 @@ export default function HelloWorldRegisterPage() {
     const params = new URLSearchParams(window.location.search);
     if (params.get("success") === "true") {
       return (
-        <div className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-purple-50 to-white">
+        <div className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-purple-50 to-white dark:from-slate-900 dark:to-slate-900">
           <div className="text-center animate-scale-in">
             <div className="text-6xl mb-6">🎉</div>
-            <h1 className="text-3xl font-bold text-slate-800 mb-3">You&apos;re in!</h1>
-            <p className="text-slate-500 max-w-md mx-auto mb-8">Welcome to Hello World! Your house will be revealed soon!</p>
+            <h1 className="text-3xl font-bold text-slate-800 dark:text-white mb-3">You&apos;re in!</h1>
+            <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto mb-8">Welcome to Hello World! Your house will be revealed soon!</p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <a href="/events/hello-world" className="px-6 py-3 bg-slate-100 text-slate-700 rounded-xl hover:bg-slate-200 transition-colors text-sm">Back to Event</a>
+              <a href="/events/hello-world" className="px-6 py-3 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-sm">Back to Event</a>
               <a href="/events/hello-world/reveal" className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl hover:opacity-90 transition-opacity text-sm">Reveal Your House</a>
             </div>
           </div>
@@ -91,21 +91,22 @@ export default function HelloWorldRegisterPage() {
   }
 
   return (
-    <div className="min-h-screen py-20 px-4 bg-gradient-to-br from-purple-50 via-pink-50 to-white">
+    <div className="min-h-screen py-20 px-4 bg-gradient-to-br from-purple-50 via-pink-50 to-white dark:from-slate-900 dark:via-slate-900 dark:to-slate-800">
       <div className="max-w-2xl mx-auto">
         <div className="mb-8 animate-fade-in text-center">
           <div className="text-4xl mb-4">👋</div>
           <h1 className="text-3xl font-bold">
-            <span className="bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent">Hello World</span> <span className="text-slate-800">Registration</span>
+            <span className="bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent">Hello World</span>{" "}
+            <span className="text-slate-800 dark:text-white">Registration</span>
           </h1>
-          <p className="text-slate-500 mt-2">4 quick steps to join the fun!</p>
+          <p className="text-slate-500 dark:text-slate-400 mt-2">4 quick steps to join the fun!</p>
         </div>
 
         <div className="mb-10"><ProgressBar currentStep={step} totalSteps={4} labels={STEP_LABELS} /></div>
 
-        {errors.submit && (<div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm">{errors.submit}</div>)}
+        {errors.submit && (<div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl text-red-600 dark:text-red-400 text-sm">{errors.submit}</div>)}
 
-        <div className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm">
+        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 sm:p-8 shadow-sm">
           {step === 0 && (
             <FormStep title="Basic Information" description="Tell us who you are" onNext={handleNext} isFirst>
               <Input label="Full Name" placeholder="Your name" value={formData.name} onChange={(e: any) => updateField("name", e.target.value)} error={errors.name} />
@@ -117,50 +118,56 @@ export default function HelloWorldRegisterPage() {
             <FormStep title="Personality & Preferences" description="What makes you, you?" onNext={handleNext} onBack={handleBack}>
               {/* Personality Type */}
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-slate-700">Personality Type</label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Personality Type</label>
                 <div className="grid grid-cols-2 gap-3">
                   {personalityTypes.map((type) => (
                     <button key={type.value} type="button" onClick={() => updateField("personalityType", type.value)}
                       className={`p-4 rounded-xl border text-left transition-all duration-200 ${
-                        formData.personalityType === type.value ? "bg-purple-50 border-purple-300 text-slate-800 shadow-sm" : "bg-slate-50 border-slate-200 text-slate-500 hover:bg-slate-100"
+                        formData.personalityType === type.value
+                          ? "bg-purple-50 dark:bg-purple-900/30 border-purple-300 dark:border-purple-600 text-slate-800 dark:text-white shadow-sm"
+                          : "bg-slate-50 dark:bg-slate-700/50 border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700"
                       }`}>
                       <div className="text-lg mb-1">{type.label}</div>
-                      <div className="text-xs text-slate-400">{type.desc}</div>
+                      <div className="text-xs text-slate-400 dark:text-slate-500">{type.desc}</div>
                     </button>
                   ))}
                 </div>
-                {errors.personalityType && <p className="text-sm text-red-500">{errors.personalityType}</p>}
+                {errors.personalityType && <p className="text-sm text-red-500 dark:text-red-400">{errors.personalityType}</p>}
               </div>
 
               {/* Coding Experience */}
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-slate-700">Any coding experience?</label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Any coding experience?</label>
                 <div className="flex gap-3">
                   {[{ value: "yes", label: "✅ Yes" }, { value: "no", label: "🙅 No" }].map((opt) => (
                     <button key={opt.value} type="button" onClick={() => updateField("codingExperience", opt.value)}
                       className={`flex-1 p-4 rounded-xl border text-center transition-all duration-200 ${
-                        formData.codingExperience === opt.value ? "bg-purple-50 border-purple-300 text-slate-800 shadow-sm" : "bg-slate-50 border-slate-200 text-slate-500 hover:bg-slate-100"
+                        formData.codingExperience === opt.value
+                          ? "bg-purple-50 dark:bg-purple-900/30 border-purple-300 dark:border-purple-600 text-slate-800 dark:text-white shadow-sm"
+                          : "bg-slate-50 dark:bg-slate-700/50 border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700"
                       }`}>{opt.label}</button>
                   ))}
                 </div>
-                {errors.codingExperience && <p className="text-sm text-red-500">{errors.codingExperience}</p>}
+                {errors.codingExperience && <p className="text-sm text-red-500 dark:text-red-400">{errors.codingExperience}</p>}
               </div>
 
               {/* Event Vibe */}
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-slate-700">Preferred event vibe</label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Preferred event vibe</label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {vibeOptions.map((vibe) => (
                     <button key={vibe.value} type="button" onClick={() => updateField("eventVibe", vibe.value)}
                       className={`p-4 rounded-xl border text-left transition-all duration-200 ${
-                        formData.eventVibe === vibe.value ? "bg-pink-50 border-pink-300 text-slate-800 shadow-sm" : "bg-slate-50 border-slate-200 text-slate-500 hover:bg-slate-100"
+                        formData.eventVibe === vibe.value
+                          ? "bg-pink-50 dark:bg-pink-900/30 border-pink-300 dark:border-pink-600 text-slate-800 dark:text-white shadow-sm"
+                          : "bg-slate-50 dark:bg-slate-700/50 border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700"
                       }`}>
                       <div className="font-medium mb-1">{vibe.label}</div>
-                      <div className="text-xs text-slate-400">{vibe.desc}</div>
+                      <div className="text-xs text-slate-400 dark:text-slate-500">{vibe.desc}</div>
                     </button>
                   ))}
                 </div>
-                {errors.eventVibe && <p className="text-sm text-red-500">{errors.eventVibe}</p>}
+                {errors.eventVibe && <p className="text-sm text-red-500 dark:text-red-400">{errors.eventVibe}</p>}
               </div>
             </FormStep>
           )}
