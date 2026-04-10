@@ -3,6 +3,8 @@ import { auth } from "@/lib/auth";
 import clientPromise from "@/lib/mongodb-client";
 import dbConnect from "@/lib/mongodb";
 import Candidate from "@/models/Candidate";
+import Vote from "@/models/Vote";
+import User from "@/models/User";
 
 const CANDIDATES = [
   {
@@ -44,12 +46,16 @@ export async function POST() {
 
     await dbConnect();
 
-    // Clear existing candidates and votes, then re-seed
+    // Clear candidates, all votes, and reset every user's hasVoted flag
+    // so everyone can vote again on the fresh set of candidates.
     await Candidate.deleteMany({});
+    await Vote.deleteMany({});
+    await User.updateMany({}, { $set: { hasVoted: false } });
+
     const inserted = await Candidate.insertMany(CANDIDATES);
 
     return NextResponse.json({
-      message: `Seeded ${inserted.length} candidates`,
+      message: `Seeded ${inserted.length} candidates and reset all votes`,
       count: inserted.length,
     });
   } catch (error) {
