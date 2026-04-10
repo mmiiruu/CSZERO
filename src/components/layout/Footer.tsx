@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import { site, navLinks, footer } from "@/config/site";
 
 export default function Footer() {
   return (
@@ -9,40 +10,50 @@ export default function Footer() {
           <div className="md:col-span-2">
             <div className="flex items-center gap-2 mb-4">
               <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">CS</span>
+                <span className="text-white font-bold text-sm">{site.shortName}</span>
               </div>
-              <span className="text-slate-800 dark:text-white font-bold text-lg">CSKU</span>
+              <span className="text-slate-800 dark:text-white font-bold text-lg">{site.name}</span>
             </div>
             <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed max-w-md">
-              Computer Science Student Organization at Kasetsart University.
-              Building community, sharing knowledge, and creating opportunities
-              for CS students.
+              {site.description}
             </p>
           </div>
 
           <div>
-            <h4 className="text-slate-800 dark:text-white font-semibold text-sm mb-4">Quick Links</h4>
+            <h4 className="text-slate-800 dark:text-white font-semibold text-sm mb-4">{footer.quickLinksHeading}</h4>
             <div className="flex flex-col gap-2">
-              <Link href="/events/cs101" className="text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 text-sm transition-colors">CS101</Link>
-              <Link href="/events/hello-world" className="text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 text-sm transition-colors">Hello World</Link>
-              <Link href="/team" className="text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 text-sm transition-colors">Team</Link>
-              <Link href="/vote" className="text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 text-sm transition-colors">Vote</Link>
+              {navLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 text-sm transition-colors"
+                >
+                  {link.label}
+                </Link>
+              ))}
             </div>
           </div>
 
           <div>
-            <h4 className="text-slate-800 dark:text-white font-semibold text-sm mb-4">Connect</h4>
+            <h4 className="text-slate-800 dark:text-white font-semibold text-sm mb-4">{footer.connectHeading}</h4>
             <div className="flex flex-col gap-2">
-              <a href="https://github.com/csku" target="_blank" rel="noopener noreferrer" className="text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 text-sm transition-colors">GitHub</a>
-              <a href="https://instagram.com/csku" target="_blank" rel="noopener noreferrer" className="text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 text-sm transition-colors">Instagram</a>
-              <a href="mailto:contact@csku.org" className="text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 text-sm transition-colors">contact@csku.org</a>
+              {footer.socialLinks.map((link) => (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  {...(link.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                  className="text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 text-sm transition-colors"
+                >
+                  {link.label}
+                </a>
+              ))}
             </div>
           </div>
         </div>
 
         <div className="border-t border-slate-200 dark:border-slate-800 mt-10 pt-6">
           <p className="text-slate-400 dark:text-slate-500 text-sm text-center">
-            © {new Date().getFullYear()} CSKU. All rights reserved.
+            © {new Date().getFullYear()} {site.name}. All rights reserved.
           </p>
         </div>
       </div>

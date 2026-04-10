@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import { teamConfig } from "@/config/team";
 
 interface TeamMember {
   _id: string;
@@ -20,9 +21,9 @@ export default function TeamPage() {
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data) && data.length > 0) { setMembers(data); }
-        else { setMembers(fallbackMembers); }
+        else { setMembers(teamConfig.fallbackMembers); }
       })
-      .catch(() => setMembers(fallbackMembers))
+      .catch(() => setMembers(teamConfig.fallbackMembers))
       .finally(() => setLoading(false));
   }, []);
 
@@ -38,9 +39,9 @@ export default function TeamPage() {
     <div className="min-h-screen py-20 px-4 bg-slate-50 dark:bg-slate-900">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-16 animate-fade-in">
-          <p className="text-sm font-mono text-blue-500 dark:text-blue-400 uppercase tracking-widest mb-3">our team</p>
-          <h1 className="text-5xl font-bold text-slate-800 dark:text-white mb-4">Meet the Team</h1>
-          <p className="text-slate-500 dark:text-slate-400 max-w-lg mx-auto">The passionate students behind CSKU, working together to build an amazing CS community.</p>
+          <p className="text-sm font-mono text-blue-500 dark:text-blue-400 uppercase tracking-widest mb-3">{teamConfig.eyebrow}</p>
+          <h1 className="text-5xl font-bold text-slate-800 dark:text-white mb-4">{teamConfig.title}</h1>
+          <p className="text-slate-500 dark:text-slate-400 max-w-lg mx-auto">{teamConfig.description}</p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {members.map((member) => (
@@ -52,7 +53,7 @@ export default function TeamPage() {
                 <h3 className="text-slate-800 dark:text-white font-semibold">{member.name}</h3>
                 <p className="text-slate-400 dark:text-slate-500 text-sm mt-1">{member.role}</p>
                 <div className="mt-4 flex items-center justify-center gap-1 text-xs text-slate-400 dark:text-slate-500 group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors">
-                  <span>View profile</span>
+                  <span>{teamConfig.viewProfileLabel}</span>
                   <svg className="w-3 h-3 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
                 </div>
               </div>
@@ -63,14 +64,3 @@ export default function TeamPage() {
     </div>
   );
 }
-
-const fallbackMembers: TeamMember[] = [
-  { _id: "1", name: "Alex Chen", role: "President", image: "", bio: "Leading CSKU with vision and passion." },
-  { _id: "2", name: "Sari Wongsakul", role: "Vice President", image: "", bio: "Organizing events and building community." },
-  { _id: "3", name: "Mike Tanaka", role: "Tech Lead", image: "", bio: "Building tools and teaching technology." },
-  { _id: "4", name: "Ploy Kittirat", role: "Events Lead", image: "", bio: "Creating memorable experiences for all." },
-  { _id: "5", name: "Nina Park", role: "Design Lead", image: "", bio: "Making everything look beautiful." },
-  { _id: "6", name: "James Liu", role: "Secretary", image: "", bio: "Keeping things organized and running smoothly." },
-  { _id: "7", name: "Fern Suthep", role: "PR Lead", image: "", bio: "Spreading the word and building connections." },
-  { _id: "8", name: "Ben Torres", role: "Academic Lead", image: "", bio: "Helping students excel in their studies." },
-];
