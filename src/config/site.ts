@@ -17,7 +17,7 @@ export const navLinks = [
   { href: "/events/cs101", label: "CS101" },
   { href: "/events/hello-world", label: "Hello World" },
   { href: "/team", label: "คณะทำงาน" },
-  { href: "/vote", label: "โหวต" },
+  { href: "/vote", label: "โหวต", adminOnly: true },
 ];
 
 export const navbar = {

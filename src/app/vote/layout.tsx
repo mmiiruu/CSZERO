@@ -12,5 +12,9 @@ export default async function VoteLayout({
     redirect("/auth/signin?callbackUrl=/vote");
   }
 
+  if ((session.user as any)?.role !== "admin") {
+    redirect("/");
+  }
+
   return <>{children}</>;
 }

@@ -9,6 +9,8 @@ import { site, navLinks, navbar } from "@/config/site";
 export default function Navbar({ session }: { session: any }) {
   const [isOpen, setIsOpen] = useState(false);
   const { theme, mounted, toggleTheme } = useTheme();
+  const isAdmin = session?.user?.role === "admin";
+  const visibleLinks = navLinks.filter((link) => !link.adminOnly || isAdmin);
 
 
   return (
@@ -27,7 +29,7 @@ export default function Navbar({ session }: { session: any }) {
 
           {/* Desktop menu */}
           <div className="hidden md:flex items-center gap-1">
-            {navLinks.map((link) => (
+            {visibleLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
@@ -129,7 +131,7 @@ export default function Navbar({ session }: { session: any }) {
         {isOpen && (
           <div className="md:hidden py-4 border-t border-slate-100 dark:border-slate-700 animate-fade-in">
             <div className="flex flex-col gap-1">
-              {navLinks.map((link) => (
+              {visibleLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
