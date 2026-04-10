@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import ProgressBar from "@/components/ui/ProgressBar";
 import FormStep from "@/components/ui/FormStep";
 import Input from "@/components/ui/Input";
@@ -22,6 +23,7 @@ const vibeOptions = [
 
 export default function HelloWorldRegisterPage() {
   const router = useRouter();
+  const { data: session } = useSession();
   const [step, setStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -30,6 +32,12 @@ export default function HelloWorldRegisterPage() {
     personalityType: "", codingExperience: "", eventVibe: "",
     whyJoin: "", expectations: "",
   });
+
+  useEffect(() => {
+    if (session?.user?.email) {
+      setFormData((prev) => ({ ...prev, email: session.user!.email! }));
+    }
+  }, [session]);
 
   const updateField = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -110,7 +118,7 @@ export default function HelloWorldRegisterPage() {
           {step === 0 && (
             <FormStep title="Basic Information" description="Tell us who you are" onNext={handleNext} isFirst>
               <Input label="Full Name" placeholder="Your name" value={formData.name} onChange={(e: any) => updateField("name", e.target.value)} error={errors.name} />
-              <Input label="Email" type="email" placeholder="your@email.com" value={formData.email} onChange={(e: any) => updateField("email", e.target.value)} error={errors.email} />
+              <Input label="Email" type="email" placeholder="your@email.com" value={formData.email} onChange={(e: any) => updateField("email", e.target.value)} error={errors.email} readOnly={!!session?.user?.email} className={session?.user?.email ? "opacity-60 cursor-not-allowed" : ""} />
             </FormStep>
           )}
 
