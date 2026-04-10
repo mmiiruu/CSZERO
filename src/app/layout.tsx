@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
+import { SessionProvider } from "@/components/providers/SessionProvider";
 import { auth } from "@/lib/auth";
 import "./globals.css";
 
@@ -43,11 +44,13 @@ export default async function RootLayout({
         />
       </head>
       <body className="min-h-full flex flex-col bg-slate-50 dark:bg-slate-900">
-        <ThemeProvider>
-          <Navbar session={session} />
-          <main className="flex-1 pt-16">{children}</main>
-          <Footer />
-        </ThemeProvider>
+        <SessionProvider>
+          <ThemeProvider>
+            <Navbar session={session} />
+            <main className="flex-1 pt-16">{children}</main>
+            <Footer />
+          </ThemeProvider>
+        </SessionProvider>
       </body>
     </html>
   );
