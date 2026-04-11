@@ -7,6 +7,7 @@ import ProgressBar from "@/components/ui/ProgressBar";
 import FormStep from "@/components/ui/FormStep";
 import Input from "@/components/ui/Input";
 import { helloWorldFormConfig, type HWFormField, type ChoiceField } from "@/config/forms/hello-world-register";
+import { useFormDraft } from "@/lib/useFormDraft";
 
 const config = helloWorldFormConfig;
 
@@ -61,20 +62,20 @@ export default function HelloWorldRegisterPage() {
   const [step, setStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [formData, setFormData] = useState<Record<string, string>>(() =>
-    Object.fromEntries(
-      config.steps.flatMap((s) => s.fields.map((f) => [f.name, ""]))
-    )
+
+  const initialData = Object.fromEntries(
+    config.steps.flatMap((s) => s.fields.map((f) => [f.name, ""]))
   );
+  const [formData, setField, clearDraft, draftRestored] = useFormDraft("hello-world-draft", initialData);
 
   useEffect(() => {
     if (session?.user?.email) {
-      setFormData((prev) => ({ ...prev, email: session.user!.email! }));
+      setField("email", session.user!.email!);
     }
-  }, [session]);
+  }, [session, setField]);
 
   const updateField = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    setField(field, value);
     if (errors[field]) { setErrors((prev) => { const next = { ...prev }; delete next[field]; return next; }); }
   };
 
@@ -108,6 +109,7 @@ export default function HelloWorldRegisterPage() {
         }),
       });
       if (!res.ok) { const d = await res.json(); throw new Error(d.error || "การสมัครไม่สำเร็จ"); }
+      clearDraft();
       router.push("/events/hello-world/register?success=true");
     } catch (err) { setErrors({ submit: err instanceof Error ? err.message : "เกิดข้อผิดพลาดบางอย่าง" }); }
     finally { setIsSubmitting(false); }
@@ -149,6 +151,15 @@ export default function HelloWorldRegisterPage() {
         </div>
 
         <div className="mb-10"><ProgressBar currentStep={step} totalSteps={config.steps.length} labels={config.stepLabels} /></div>
+
+        {draftRestored && (
+          <div className="mb-4 flex items-center gap-2 text-xs text-emerald-600 dark:text-emerald-400 animate-fade-in">
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+            กู้คืนฉบับร่างแล้ว
+          </div>
+        )}
 
         {errors.submit && (<div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl text-red-600 dark:text-red-400 text-sm">{errors.submit}</div>)}
 

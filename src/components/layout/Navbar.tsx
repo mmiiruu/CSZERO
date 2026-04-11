@@ -61,6 +61,12 @@ export default function Navbar({ session }: { session: any }) {
             <div className="ml-2 flex items-center gap-3 border-l border-slate-200 dark:border-slate-700 pl-3">
               {session ? (
                 <>
+                  <Link
+                    href={navbar.profileLink.href}
+                    className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                  >
+                    {navbar.profileLink.label}
+                  </Link>
                   {session?.user?.role === "admin" && (
                     <Link
                       href={navbar.adminLink.href}
@@ -145,6 +151,13 @@ export default function Navbar({ session }: { session: any }) {
               <div className="mt-2 pt-2 border-t border-slate-100 dark:border-slate-700 px-4">
                 {session ? (
                   <div className="flex flex-col gap-2">
+                    <Link
+                      href={navbar.profileLink.href}
+                      onClick={() => setIsOpen(false)}
+                      className="py-3 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors text-center"
+                    >
+                      {navbar.profileLink.label}
+                    </Link>
                     {session?.user?.role === "admin" && (
                       <Link
                         href={navbar.adminLink.href}

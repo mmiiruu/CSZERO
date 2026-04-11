@@ -26,6 +26,10 @@ export const navbar = {
     mobileLabel: "Dashboard",
     href: "/admin",
   },
+  profileLink: {
+    label: "โปรไฟล์",
+    href: "/profile",
+  },
   signOut: "ออกจากระบบ",
   signIn: { label: "เข้าสู่ระบบ", href: "/auth/signin" },
 };

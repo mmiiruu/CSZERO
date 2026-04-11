@@ -6,6 +6,7 @@ import ProgressBar from "@/components/ui/ProgressBar";
 import FormStep from "@/components/ui/FormStep";
 import Input from "@/components/ui/Input";
 import { cs101FormConfig } from "@/config/forms/cs101-register";
+import { useFormDraft } from "@/lib/useFormDraft";
 
 const config = cs101FormConfig;
 
@@ -14,14 +15,14 @@ export default function CS101RegisterPage() {
   const [step, setStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [formData, setFormData] = useState<Record<string, string>>(() =>
-    Object.fromEntries(
-      config.steps.flatMap((s) => s.fields.map((f) => [f.name, ""]))
-    )
+
+  const initialData = Object.fromEntries(
+    config.steps.flatMap((s) => s.fields.map((f) => [f.name, ""]))
   );
+  const [formData, setField, clearDraft, draftRestored] = useFormDraft("cs101-draft", initialData);
 
   const updateField = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    setField(field, value);
     if (errors[field]) { setErrors((prev) => { const next = { ...prev }; delete next[field]; return next; }); }
   };
 
@@ -52,6 +53,7 @@ export default function CS101RegisterPage() {
         body: JSON.stringify({ event: "cs101", name: formData.name, email: formData.email, answers: formData }),
       });
       if (!res.ok) { const d = await res.json(); throw new Error(d.error || "การสมัครไม่สำเร็จ"); }
+      clearDraft();
       router.push("/events/cs101/register?success=true");
     } catch (err) { setErrors({ submit: err instanceof Error ? err.message : "เกิดข้อผิดพลาดบางอย่าง" }); }
     finally { setIsSubmitting(false); }
@@ -86,6 +88,14 @@ export default function CS101RegisterPage() {
           <p className="text-slate-500 dark:text-slate-400">{config.pageSubtitle}</p>
         </div>
         <div className="mb-10"><ProgressBar currentStep={step} totalSteps={config.steps.length} labels={config.stepLabels} /></div>
+        {draftRestored && (
+          <div className="mb-4 flex items-center gap-2 text-xs text-emerald-600 dark:text-emerald-400 animate-fade-in">
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+            กู้คืนฉบับร่างแล้ว
+          </div>
+        )}
         {errors.submit && (<div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl text-red-600 dark:text-red-400 text-sm">{errors.submit}</div>)}
 
         <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 sm:p-8 shadow-sm">
