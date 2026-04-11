@@ -10,7 +10,8 @@ export default function Navbar({ session }: { session: any }) {
   const [isOpen, setIsOpen] = useState(false);
   const { theme, mounted, toggleTheme } = useTheme();
   const isAdmin = session?.user?.role === "admin";
-  const visibleLinks = navLinks.filter((link) => !link.adminOnly || isAdmin);
+  const canAccessAdmin = isAdmin || session?.user?.role === "staff";
+  const visibleLinks = navLinks.filter((link) => !link.adminOnly || canAccessAdmin);
 
 
   return (
@@ -67,7 +68,7 @@ export default function Navbar({ session }: { session: any }) {
                   >
                     {navbar.profileLink.label}
                   </Link>
-                  {session?.user?.role === "admin" && (
+                  {canAccessAdmin && (
                     <Link
                       href={navbar.adminLink.href}
                       className="text-sm font-medium text-pink-600 hover:text-pink-700 transition-colors"
@@ -158,7 +159,7 @@ export default function Navbar({ session }: { session: any }) {
                     >
                       {navbar.profileLink.label}
                     </Link>
-                    {session?.user?.role === "admin" && (
+                    {canAccessAdmin && (
                       <Link
                         href={navbar.adminLink.href}
                         onClick={() => setIsOpen(false)}
