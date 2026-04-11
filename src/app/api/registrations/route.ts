@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/mongodb";
 import Registration from "@/models/Registration";
+import { notifyRegistration } from "@/lib/discord";
 
 export async function POST(req: NextRequest) {
   try {
@@ -37,6 +38,9 @@ export async function POST(req: NextRequest) {
       email,
       answers: answers || {},
     });
+
+    // Fire-and-forget — does not block or affect the response
+    notifyRegistration({ event, name, email, answers });
 
     return NextResponse.json(
       { message: "Registration successful", id: registration._id },
