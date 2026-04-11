@@ -322,8 +322,8 @@ function UsersTab({ callerEmail }: { callerEmail: string }) {
 
                     {/* Current role badge */}
                     <td className="px-6 py-4">
-                      <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${roleBadge[u.role]}`}>
-                        {u.role.charAt(0).toUpperCase() + u.role.slice(1)}
+                      <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${roleBadge[u.role || "user"]}`}>
+                        {(u.role || "user").charAt(0).toUpperCase() + (u.role || "user").slice(1)}
                       </span>
                     </td>
 
@@ -339,7 +339,7 @@ function UsersTab({ callerEmail }: { callerEmail: string }) {
                       ) : (
                         <div className="relative inline-flex items-center gap-2">
                           <select
-                            value={u.role}
+                            value={u.role || "user"}
                             disabled={updating === u._id}
                             onChange={(e) => handleRoleChange(u._id, e.target.value as Role)}
                             className="pl-3 pr-8 py-1.5 border border-slate-200 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 disabled:opacity-60 cursor-pointer appearance-none"
