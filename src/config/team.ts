@@ -7,8 +7,8 @@ export interface FallbackMember {
 }
 
 export const teamConfig = {
-  eyebrow: "ทีมงานของเรา",
-  title: "พบกับทีมงาน",
+  eyebrow: "คณะทำงานของเรา",
+  title: "พบกับคณะทำงาน",
   description:
     "นิสิตที่มีความมุ่งมั่นเบื้องหลัง CSKU ร่วมกันสร้างชุมชน CS ที่ยอดเยี่ยม",
   viewProfileLabel: "ดูโปรไฟล์",
