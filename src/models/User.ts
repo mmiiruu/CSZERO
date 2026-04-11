@@ -6,7 +6,7 @@ export interface IUser extends Document {
   emailVerified: Date | null;
   hasVoted: boolean;
   image?: string;
-  role: "user" | "admin";
+  role: "user" | "staff" | "admin";
 }
 
 const UserSchema = new Schema<IUser>(
@@ -16,7 +16,7 @@ const UserSchema = new Schema<IUser>(
     emailVerified: { type: Date, default: null },
     hasVoted: { type: Boolean, default: false },
     image: { type: String },
-    role: { type: String, enum: ["user", "admin"], default: "user" },
+    role: { type: String, enum: ["user", "staff", "admin"], default: "user" },
   },
   { timestamps: true }
 );
