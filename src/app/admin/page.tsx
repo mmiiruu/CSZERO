@@ -215,7 +215,7 @@ function RegistrationsTab({ dark }: { dark: boolean }) {
 }
 
 /* ─── Users Tab ──────────────────────────────────────────────────── */
-function UsersTab({ callerEmail }: { callerEmail: string }) {
+function UsersTab({ callerEmail, callerRole }: { callerEmail: string; callerRole: Role }) {
   const [users, setUsers] = useState<ManagedUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState<string | null>(null);
@@ -289,7 +289,7 @@ function UsersTab({ callerEmail }: { callerEmail: string }) {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-700/50">
-                  {["User","Email","Role","Joined","Change Role"].map((h) => (
+                  {["User","Email","Role","Joined", callerRole === "admin" ? "Change Role" : "Access"].map((h) => (
                     <th key={h} className="text-left px-6 py-4 text-slate-500 dark:text-slate-400 font-medium">{h}</th>
                   ))}
                 </tr>
@@ -332,9 +332,16 @@ function UsersTab({ callerEmail }: { callerEmail: string }) {
                       {new Date(u.createdAt).toLocaleDateString()}
                     </td>
 
-                    {/* Role dropdown */}
+                    {/* Role dropdown — admin only; staff sees read-only lock */}
                     <td className="px-6 py-4">
-                      {isSelf(u) ? (
+                      {callerRole !== "admin" ? (
+                        <span className="inline-flex items-center gap-1.5 text-xs text-slate-400 dark:text-slate-500">
+                          <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                          </svg>
+                          Read-only
+                        </span>
+                      ) : isSelf(u) ? (
                         <span className="text-xs text-slate-400 dark:text-slate-500 italic">Cannot edit own role</span>
                       ) : (
                         <div className="relative inline-flex items-center gap-2">
@@ -348,7 +355,6 @@ function UsersTab({ callerEmail }: { callerEmail: string }) {
                               <option key={r} value={r}>{r.charAt(0).toUpperCase() + r.slice(1)}</option>
                             ))}
                           </select>
-                          {/* Custom chevron */}
                           <svg className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                           </svg>
@@ -393,7 +399,7 @@ export default function AdminPage() {
     fetch("/api/admin/check")
       .then((r) => r.json())
       .then((d) => {
-        if (d.role !== "admin") { router.push("/"); return; }
+        if (d.role !== "admin" && d.role !== "staff") { router.push("/"); return; }
         setRole(d.role);
       })
       .catch(() => router.push("/"));
@@ -424,7 +430,9 @@ export default function AdminPage() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
             <div>
               <h1 className="text-3xl font-bold text-slate-800 dark:text-slate-100">Admin Dashboard</h1>
-              <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Manage registrations, houses, and user roles</p>
+              <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
+                {role === "admin" ? "Manage registrations, houses, and user roles" : "View registrations and user list (read-only)"}
+              </p>
             </div>
             {/* Dark mode toggle */}
             <button onClick={toggleDark}
@@ -456,7 +464,7 @@ export default function AdminPage() {
           {tab === "registrations" ? (
             <RegistrationsTab dark={dark} />
           ) : (
-            <UsersTab callerEmail={callerEmail} />
+            <UsersTab callerEmail={callerEmail} callerRole={(role as Role) ?? "staff"} />
           )}
 
         </div>

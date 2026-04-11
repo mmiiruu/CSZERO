@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
+import clientPromise from "@/lib/mongodb-client";
 import dbConnect from "@/lib/mongodb";
 import Registration from "@/models/Registration";
 import { notifyRegistration } from "@/lib/discord";
@@ -57,6 +59,18 @@ export async function POST(req: NextRequest) {
 
 export async function GET() {
   try {
+    // Only admin and staff may read all registrations
+    const session = await auth();
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    const db = (await clientPromise).db();
+    const caller = await db.collection("users").findOne({ email: session.user.email });
+    const role: string = caller?.role || "user";
+    if (role !== "admin" && role !== "staff") {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
     await dbConnect();
     const registrations = await Registration.find()
       .sort({ createdAt: -1 })
