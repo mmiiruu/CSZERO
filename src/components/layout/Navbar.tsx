@@ -13,7 +13,6 @@ export default function Navbar({ session }: { session: any }) {
   const canAccessAdmin = isAdmin || session?.user?.role === "staff";
   const visibleLinks = navLinks.filter((link) => !link.adminOnly || canAccessAdmin);
 
-
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200/60 dark:border-slate-700/60 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -34,7 +33,7 @@ export default function Navbar({ session }: { session: any }) {
               <Link
                 key={link.href}
                 href={link.href}
-                className="px-4 py-2 text-sm text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-all duration-200"
+                className="px-4 py-2.5 text-sm text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-all duration-200 min-h-[44px] inline-flex items-center"
               >
                 {link.label}
               </Link>
@@ -43,17 +42,16 @@ export default function Navbar({ session }: { session: any }) {
             <button
               onClick={toggleTheme}
               aria-label="Toggle theme"
-              className="p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-all duration-200 cursor-pointer"
+              className="p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-all duration-200 cursor-pointer min-h-[44px] min-w-[44px] inline-flex items-center justify-center"
             >
-              {/* Placeholder keeps button size stable before mount; avoids hydration mismatch */}
               {!mounted ? (
                 <div className="w-5 h-5" />
               ) : theme === "dark" ? (
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg aria-hidden="true" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
                 </svg>
               ) : (
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg aria-hidden="true" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
                 </svg>
               )}
@@ -98,16 +96,16 @@ export default function Navbar({ session }: { session: any }) {
           <button
             onClick={toggleTheme}
             aria-label="Toggle theme"
-            className="md:hidden p-2 text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer"
+            className="md:hidden p-3 text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer min-h-[44px] min-w-[44px] inline-flex items-center justify-center"
           >
             {!mounted ? (
               <div className="w-5 h-5" />
             ) : theme === "dark" ? (
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg aria-hidden="true" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
               </svg>
             ) : (
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg aria-hidden="true" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
               </svg>
             )}
@@ -115,11 +113,14 @@ export default function Navbar({ session }: { session: any }) {
 
           {/* Mobile menu button */}
           <button
-            className="md:hidden p-2 text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer"
+            className="md:hidden p-2 text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer min-h-[44px] min-w-[44px] inline-flex items-center justify-center"
             onClick={() => setIsOpen(!isOpen)}
             aria-label="Toggle menu"
+            aria-expanded={isOpen}
+            aria-controls="mobile-menu"
           >
             <svg
+              aria-hidden="true"
               className="w-6 h-6"
               fill="none"
               viewBox="0 0 24 24"
@@ -136,13 +137,13 @@ export default function Navbar({ session }: { session: any }) {
 
         {/* Mobile menu */}
         {isOpen && (
-          <div className="md:hidden py-4 border-t border-slate-100 dark:border-slate-700 animate-fade-in">
+          <div id="mobile-menu" className="md:hidden py-4 border-t border-slate-100 dark:border-slate-700 animate-fade-in">
             <div className="flex flex-col gap-1">
               {visibleLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="px-4 py-3 text-sm text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors"
+                  className="px-4 py-3.5 text-sm text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors min-h-[44px] flex items-center"
                   onClick={() => setIsOpen(false)}
                 >
                   {link.label}
@@ -155,7 +156,7 @@ export default function Navbar({ session }: { session: any }) {
                     <Link
                       href={navbar.profileLink.href}
                       onClick={() => setIsOpen(false)}
-                      className="py-3 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors text-center"
+                      className="py-3.5 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors text-center min-h-[44px] flex items-center justify-center"
                     >
                       {navbar.profileLink.label}
                     </Link>
@@ -163,14 +164,14 @@ export default function Navbar({ session }: { session: any }) {
                       <Link
                         href={navbar.adminLink.href}
                         onClick={() => setIsOpen(false)}
-                        className="py-3 text-sm font-medium text-pink-600 hover:text-pink-700 transition-colors text-center"
+                        className="py-3.5 text-sm font-medium text-pink-600 hover:text-pink-700 transition-colors text-center min-h-[44px] flex items-center justify-center"
                       >
                         {navbar.adminLink.mobileLabel}
                       </Link>
                     )}
                     <button
                       onClick={() => signOut({ callbackUrl: "/" })}
-                      className="w-full py-2.5 text-sm bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg font-medium cursor-pointer"
+                      className="w-full py-3 text-sm bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg font-medium cursor-pointer min-h-[44px]"
                     >
                       {navbar.signOut}
                     </button>
@@ -179,7 +180,7 @@ export default function Navbar({ session }: { session: any }) {
                   <Link
                     href={navbar.signIn.href}
                     onClick={() => setIsOpen(false)}
-                    className="block w-full py-2.5 text-sm bg-blue-600 text-white rounded-lg text-center font-medium"
+                    className="flex items-center justify-center w-full py-3 text-sm bg-blue-600 text-white rounded-lg text-center font-medium min-h-[44px]"
                   >
                     {navbar.signIn.label}
                   </Link>

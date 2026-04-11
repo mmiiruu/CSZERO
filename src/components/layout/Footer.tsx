@@ -45,6 +45,9 @@ export default function Footer() {
                   className="text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 text-sm transition-colors"
                 >
                   {link.label}
+                  {link.external && (
+                    <span className="sr-only"> (เปิดในแท็บใหม่)</span>
+                  )}
                 </a>
               ))}
             </div>
@@ -52,7 +55,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-slate-200 dark:border-slate-800 mt-10 pt-6">
-          <p className="text-slate-400 dark:text-slate-500 text-sm text-center">
+          <p className="text-slate-500 dark:text-slate-400 text-sm text-center">
             © {new Date().getFullYear()} {site.name}. All rights reserved.
           </p>
         </div>

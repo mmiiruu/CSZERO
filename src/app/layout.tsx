@@ -32,7 +32,7 @@ export default async function RootLayout({
 
   return (
     <html
-      lang="en"
+      lang="th"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
@@ -44,10 +44,16 @@ export default async function RootLayout({
         />
       </head>
       <body className="min-h-full flex flex-col bg-slate-50 dark:bg-slate-900">
+        <a
+          href="#main-content"
+          className="sr-only focus-visible:not-sr-only focus-visible:fixed focus-visible:top-4 focus-visible:left-4 focus-visible:z-[100] focus-visible:px-4 focus-visible:py-2 focus-visible:bg-white focus-visible:text-blue-700 focus-visible:rounded-lg focus-visible:shadow-lg focus-visible:text-sm focus-visible:font-medium focus-visible:border focus-visible:border-blue-200"
+        >
+          ข้ามไปยังเนื้อหาหลัก
+        </a>
         <SessionProvider>
           <ThemeProvider>
             <Navbar session={session} />
-            <main className="flex-1 pt-16">{children}</main>
+            <main id="main-content" className="flex-1 pt-16">{children}</main>
             <Footer />
           </ThemeProvider>
         </SessionProvider>
