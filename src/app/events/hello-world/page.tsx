@@ -1,72 +1,459 @@
+"use client";
+
 import Link from "next/link";
-import Timeline from "@/components/ui/Timeline";
 import { helloWorldConfig } from "@/config/events/hello-world";
 
 const { hero, houses, schedule, cta } = helloWorldConfig;
 
+/* ── Casino palette ────────────────────────────────────────────── */
+const GOLD   = "#f5c842";
+const NEON_G = "#00e87a";
+const NEON_R = "#ff2d55";
+
+/* House → neon accent map */
+const houseNeon: Record<string, { neon: string; glow: string; border: string; badge: string }> = {
+  spade:   { neon: "#e2e8f0", glow: "rgba(226,232,240,0.35)", border: "border-slate-300/40",  badge: "bg-slate-700/60 text-slate-200"  },
+  heart:   { neon: NEON_R,   glow: "rgba(255,45,85,0.40)",   border: "border-rose-400/40",    badge: "bg-rose-900/60 text-rose-300"    },
+  diamond: { neon: "#38bdf8", glow: "rgba(56,189,248,0.40)", border: "border-sky-400/40",     badge: "bg-sky-900/60 text-sky-300"      },
+  club:    { neon: NEON_G,   glow: "rgba(0,232,122,0.40)",   border: "border-emerald-400/40", badge: "bg-emerald-900/60 text-emerald-300" },
+};
+
+/* Timeline type → casino style */
+const casinoTypeStyles: Record<string, string> = {
+  talk:     "bg-amber-900/40 text-amber-300 border-amber-600/40",
+  workshop: "bg-emerald-900/40 text-emerald-300 border-emerald-600/40",
+  break:    "bg-slate-700/40 text-slate-300 border-slate-500/40",
+  social:   "bg-rose-900/40 text-rose-300 border-rose-600/40",
+};
+
+/* ── Decorative floating card ────────────────────────────────── */
+function FloatingCard({
+  suit, size, style, animClass,
+}: {
+  suit: string; size: string; style?: React.CSSProperties; animClass: string;
+}) {
+  const isRed = suit === "♥" || suit === "♦";
+  return (
+    <div
+      className={`absolute select-none pointer-events-none ${animClass} opacity-20`}
+      style={style}
+    >
+      <div
+        className={`${size} rounded-lg flex items-center justify-center
+          bg-white/10 backdrop-blur-sm border border-white/20 shadow-lg`}
+      >
+        <span className={`font-bold ${isRed ? "text-rose-400" : "text-slate-200"}`} style={{ fontSize: "inherit" }}>
+          {suit}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+/* ── Dice SVG ────────────────────────────────────────────────── */
+function Dice({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 48 48" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="4" y="4" width="40" height="40" rx="8" fill="white" fillOpacity="0.08" stroke="white" strokeOpacity="0.2" strokeWidth="1.5"/>
+      <circle cx="16" cy="16" r="3" fill="white" fillOpacity="0.6"/>
+      <circle cx="32" cy="16" r="3" fill="white" fillOpacity="0.6"/>
+      <circle cx="24" cy="24" r="3" fill="white" fillOpacity="0.6"/>
+      <circle cx="16" cy="32" r="3" fill="white" fillOpacity="0.6"/>
+      <circle cx="32" cy="32" r="3" fill="white" fillOpacity="0.6"/>
+    </svg>
+  );
+}
+
+/* ── Chip SVG ────────────────────────────────────────────────── */
+function Chip({ color, className }: { color: string; className?: string }) {
+  return (
+    <svg viewBox="0 0 48 48" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="24" cy="24" r="20" fill={color} fillOpacity="0.15" stroke={color} strokeOpacity="0.4" strokeWidth="2"/>
+      <circle cx="24" cy="24" r="14" fill={color} fillOpacity="0.1" stroke={color} strokeOpacity="0.3" strokeWidth="1"/>
+      <circle cx="24" cy="24" r="8"  fill={color} fillOpacity="0.2"/>
+      {[0, 60, 120, 180, 240, 300].map((deg) => (
+        <rect
+          key={deg}
+          x="22" y="4" width="4" height="6" rx="1"
+          fill={color} fillOpacity="0.5"
+          transform={`rotate(${deg} 24 24)`}
+        />
+      ))}
+    </svg>
+  );
+}
+
 export default function HelloWorldPage() {
   return (
-    <div className="min-h-screen">
-      {/* Hero */}
-      <section className="relative min-h-screen flex items-center px-4 overflow-hidden bg-gradient-to-br from-purple-50 via-pink-50 to-white dark:from-slate-900 dark:via-slate-900 dark:to-slate-800">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-purple-200/30 dark:bg-purple-900/20 rounded-full blur-3xl animate-pulse-slow" />
-        <div className="absolute top-40 right-20 w-96 h-96 bg-pink-200/20 dark:bg-pink-900/10 rounded-full blur-3xl animate-pulse-slow" style={{ animationDelay: "1s" }} />
-        <div className="absolute bottom-20 left-1/3 w-80 h-80 bg-cyan-200/20 dark:bg-cyan-900/10 rounded-full blur-3xl animate-pulse-slow" style={{ animationDelay: "2s" }} />
+    <div className="min-h-screen bg-[#080b10] text-white overflow-x-hidden">
 
-        <div className="relative z-10 max-w-4xl mx-auto text-center -mt-32 animate-fade-in">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-purple-50 dark:bg-purple-900/30 border border-purple-200 dark:border-purple-700 rounded-full text-sm text-purple-600 dark:text-purple-400 mb-8">{hero.badge}</div>
-          <h1 className="text-6xl sm:text-8xl font-bold tracking-tighter">
-            <span className="bg-gradient-to-r from-purple-500 via-pink-500 to-cyan-500 bg-clip-text text-transparent">Hello</span>
-            <br /><span className="text-slate-800 dark:text-white">World</span>
-          </h1>
-          <p className="mt-6 text-lg text-slate-500 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed">
-            {hero.description}
-          </p>
-          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href={hero.primaryButton.href} className="px-8 py-3.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl font-medium hover:opacity-90 transition-opacity text-sm text-center w-full sm:w-auto shadow-lg shadow-purple-500/20">{hero.primaryButton.label}</Link>
-            <Link href={hero.secondaryButton.href} className="px-8 py-3.5 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-xl font-medium hover:shadow-md dark:hover:bg-slate-700 transition-all text-sm text-center w-full sm:w-auto">{hero.secondaryButton.label}</Link>
-          </div>
+      {/* ══════════════════════ HERO ══════════════════════ */}
+      <section className="relative min-h-screen flex items-center px-4 overflow-hidden">
+
+        {/* Dark felt background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#0a1a0e] via-[#080b10] to-[#0e0810]" />
+
+        {/* Radial glows */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[500px] rounded-full blur-[120px]"
+            style={{ background: `radial-gradient(ellipse, ${NEON_G}18 0%, transparent 70%)` }} />
+          <div className="absolute bottom-0 left-10 w-96 h-96 rounded-full blur-[100px]"
+            style={{ background: `radial-gradient(ellipse, ${NEON_R}12 0%, transparent 70%)` }} />
+          <div className="absolute top-10 right-10 w-80 h-80 rounded-full blur-[90px]"
+            style={{ background: `radial-gradient(ellipse, ${GOLD}14 0%, transparent 70%)` }} />
         </div>
-      </section>
 
-      {/* Houses */}
-      <section className="py-20 px-4 bg-white dark:bg-slate-900">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <p className="text-sm font-mono text-purple-500 dark:text-purple-400 uppercase tracking-widest mb-3">{houses.eyebrow}</p>
-            <h2 className="text-4xl font-bold text-slate-800 dark:text-white">{houses.title}</h2>
+        {/* Subtle grid */}
+        <div className="absolute inset-0 opacity-[0.03]"
+          style={{ backgroundImage: "linear-gradient(rgba(255,255,255,0.8) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.8) 1px,transparent 1px)", backgroundSize: "40px 40px" }} />
+
+        {/* Floating cards background */}
+        <FloatingCard suit="♠" size="w-14 h-20 text-2xl" animClass="animate-[float-slow_8s_ease-in-out_infinite]" style={{ top: "12%", left: "6%"  }} />
+        <FloatingCard suit="♥" size="w-16 h-24 text-3xl" animClass="animate-[float-mid_6s_ease-in-out_infinite]"  style={{ top: "8%",  right: "8%", animationDelay: "1s"  }} />
+        <FloatingCard suit="♦" size="w-12 h-18 text-xl" animClass="animate-[float-fast_4s_ease-in-out_infinite]" style={{ bottom: "20%", left: "12%", animationDelay: "2s" }} />
+        <FloatingCard suit="♣" size="w-14 h-20 text-2xl" animClass="animate-[float-slow_7s_ease-in-out_infinite]" style={{ bottom: "15%", right: "6%", animationDelay: "1.5s" }} />
+        <FloatingCard suit="♠" size="w-10 h-14 text-lg" animClass="animate-[float-mid_5s_ease-in-out_infinite]"  style={{ top: "55%", left: "3%",  animationDelay: "0.5s" }} />
+        <FloatingCard suit="♥" size="w-12 h-16 text-xl" animClass="animate-[float-fast_4.5s_ease-in-out_infinite]" style={{ top: "40%", right: "4%", animationDelay: "3s" }} />
+
+        {/* Floating chips */}
+        <div className="absolute top-[18%] left-[22%] w-12 h-12 opacity-30 animate-[float-fast_5s_ease-in-out_infinite]" style={{ animationDelay: "0.8s" }}>
+          <Chip color={GOLD} className="w-full h-full" />
+        </div>
+        <div className="absolute bottom-[25%] right-[20%] w-10 h-10 opacity-25 animate-[float-slow_9s_ease-in-out_infinite]" style={{ animationDelay: "2.2s" }}>
+          <Chip color={NEON_G} className="w-full h-full" />
+        </div>
+        <div className="absolute top-[60%] right-[18%] w-10 h-10 opacity-20 animate-[float-mid_7s_ease-in-out_infinite]" style={{ animationDelay: "1.2s" }}>
+          <Chip color={NEON_R} className="w-full h-full" />
+        </div>
+
+        {/* Floating dice */}
+        <div className="absolute top-[30%] right-[22%] w-10 h-10 opacity-25 animate-[float-slow_8s_ease-in-out_infinite]" style={{ animationDelay: "1.7s" }}>
+          <Dice className="w-full h-full" />
+        </div>
+        <div className="absolute bottom-[30%] left-[20%] w-9 h-9 opacity-20 animate-[float-mid_6s_ease-in-out_infinite]" style={{ animationDelay: "0.3s" }}>
+          <Dice className="w-full h-full" />
+        </div>
+
+        {/* Hero content */}
+        <div className="relative z-10 max-w-4xl mx-auto text-center -mt-16 animate-fade-in">
+
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full text-sm font-medium mb-10 border"
+            style={{ background: `${GOLD}18`, borderColor: `${GOLD}50`, color: GOLD }}>
+            <span className="animate-[flicker_3s_ease-in-out_infinite]">♦</span>
+            {hero.badge}
+            <span className="animate-[flicker_3s_ease-in-out_infinite]" style={{ animationDelay: "0.5s" }}>♦</span>
           </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {houses.items.map((house) => (
-              <div key={house.name} className={`relative overflow-hidden ${house.cardBg} border rounded-2xl p-6 text-center hover:scale-105 transition-all duration-300 group`}>
-                <div className="text-5xl mb-4">{house.symbol}</div>
-                <h3 className="text-slate-800 dark:text-white font-bold text-lg mb-1">{house.name}</h3>
-                <p className="text-slate-500 dark:text-slate-400 text-sm">{house.desc}</p>
-              </div>
+
+          {/* Title */}
+          <h1 className="text-7xl sm:text-[8rem] font-black tracking-tight leading-none mb-2">
+            <span
+              className="block"
+              style={{
+                background: `linear-gradient(135deg, ${GOLD} 0%, #fff8dc 40%, ${GOLD} 60%, #b8860b 100%)`,
+                backgroundSize: "200% auto",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+                animation: "shimmer 3s linear infinite",
+                textShadow: "none",
+                filter: `drop-shadow(0 0 30px ${GOLD}60)`,
+              }}
+            >
+              Hello
+            </span>
+            <span className="block text-white" style={{ textShadow: `0 0 40px rgba(255,255,255,0.15)` }}>
+              World
+            </span>
+          </h1>
+
+          {/* Suit row */}
+          <div className="flex items-center justify-center gap-6 my-6 text-3xl">
+            {["♠","♥","♦","♣"].map((s, i) => (
+              <span
+                key={s}
+                className="opacity-70 hover:opacity-100 hover:scale-125 transition-all duration-300 cursor-default"
+                style={{ color: s === "♥" || s === "♦" ? NEON_R : "#e2e8f0", animationDelay: `${i * 0.15}s` }}
+              >
+                {s}
+              </span>
             ))}
           </div>
-        </div>
-      </section>
 
-      {/* Schedule */}
-      <section className="py-20 px-4 bg-slate-50 dark:bg-slate-800/50">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-16">
-            <p className="text-sm font-mono text-pink-500 dark:text-pink-400 uppercase tracking-widest mb-3">{schedule.eyebrow}</p>
-            <h2 className="text-4xl font-bold text-slate-800 dark:text-white">{schedule.title}</h2>
+          {/* Description */}
+          <p className="text-lg max-w-xl mx-auto leading-relaxed mb-10"
+            style={{ color: "rgba(255,255,255,0.55)" }}>
+            {hero.description}
+          </p>
+
+          {/* CTA buttons */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            {/* Primary — glossy gold */}
+            <Link
+              href={hero.primaryButton.href}
+              className="group relative px-8 py-4 rounded-xl font-bold text-sm overflow-hidden w-full sm:w-auto text-center transition-all duration-300 hover:scale-105"
+              style={{ background: `linear-gradient(135deg, #b8860b, ${GOLD}, #fffacd, ${GOLD}, #b8860b)`, backgroundSize: "300% auto", color: "#1a0a00" }}
+            >
+              <span className="relative z-10 tracking-wide">{hero.primaryButton.label}</span>
+              <span className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl" />
+            </Link>
+
+            {/* Secondary — neon green glass */}
+            <Link
+              href={hero.secondaryButton.href}
+              className="group px-8 py-4 rounded-xl font-bold text-sm w-full sm:w-auto text-center transition-all duration-300 hover:scale-105 border backdrop-blur-sm"
+              style={{ borderColor: `${NEON_G}60`, background: `${NEON_G}12`, color: NEON_G, boxShadow: `0 0 20px ${NEON_G}20` }}
+            >
+              {hero.secondaryButton.label}
+            </Link>
           </div>
-          <Timeline days={schedule.days} accentColor={schedule.accentColor} />
+        </div>
+
+        {/* Bottom border glow */}
+        <div className="absolute bottom-0 left-0 right-0 h-px"
+          style={{ background: `linear-gradient(90deg, transparent, ${GOLD}60, transparent)` }} />
+      </section>
+
+      {/* ══════════════════════ HOUSES ══════════════════════ */}
+      <section className="py-24 px-4 relative overflow-hidden" style={{ background: "linear-gradient(180deg,#080b10 0%,#0a0e14 100%)" }}>
+
+        {/* Section accent glow */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-32 blur-[80px] pointer-events-none"
+          style={{ background: `radial-gradient(ellipse, ${GOLD}20, transparent 70%)` }} />
+
+        <div className="max-w-6xl mx-auto relative z-10">
+          {/* Section header */}
+          <div className="text-center mb-16">
+            <p className="text-xs font-mono uppercase tracking-[0.3em] mb-3"
+              style={{ color: GOLD }}>
+              — {houses.eyebrow} —
+            </p>
+            <h2 className="text-4xl sm:text-5xl font-black text-white">{houses.title}</h2>
+            <div className="mt-4 mx-auto w-24 h-0.5 rounded-full"
+              style={{ background: `linear-gradient(90deg, transparent, ${GOLD}, transparent)` }} />
+          </div>
+
+          {/* House cards */}
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {houses.items.map((house) => {
+              const style = houseNeon[house.key] ?? houseNeon.club;
+              return (
+                <div
+                  key={house.key}
+                  className={`group relative overflow-hidden rounded-2xl p-7 text-center border ${style.border}
+                    backdrop-blur-sm transition-all duration-500
+                    hover:scale-[1.04] hover:-translate-y-1 cursor-default`}
+                  style={{
+                    background: "rgba(255,255,255,0.04)",
+                    boxShadow: `0 0 0 0 ${style.glow}`,
+                    transition: "transform 0.3s, box-shadow 0.4s",
+                  }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.boxShadow = `0 0 30px 4px ${style.glow}, 0 20px 40px rgba(0,0,0,0.4)`; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.boxShadow = "0 0 0 0 transparent"; }}
+                >
+                  {/* Corner pip top-left */}
+                  <span className="absolute top-3 left-3 text-xs font-bold opacity-40" style={{ color: style.neon }}>{house.symbol}</span>
+                  {/* Corner pip bottom-right (rotated) */}
+                  <span className="absolute bottom-3 right-3 text-xs font-bold opacity-40 rotate-180" style={{ color: style.neon }}>{house.symbol}</span>
+
+                  {/* Glow blob behind symbol */}
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                    <div className="w-24 h-24 rounded-full blur-2xl" style={{ background: style.glow }} />
+                  </div>
+
+                  {/* Symbol */}
+                  <div
+                    className="text-6xl mb-5 relative z-10 transition-all duration-300 group-hover:scale-110"
+                    style={{ filter: `drop-shadow(0 0 12px ${style.neon}80)` }}
+                  >
+                    {house.symbol}
+                  </div>
+
+                  {/* Badge */}
+                  <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold mb-2 ${style.badge}`}>
+                    {house.name}
+                  </span>
+
+                  <p className="text-sm mt-1" style={{ color: "rgba(255,255,255,0.45)" }}>{house.desc}</p>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="py-20 px-4 bg-white dark:bg-slate-900">
-        <div className="max-w-2xl mx-auto text-center">
-          <h2 className="text-3xl font-bold text-slate-800 dark:text-white mb-4">{cta.title}</h2>
-          <p className="text-slate-500 dark:text-slate-400 mb-8">{cta.description}</p>
-          <Link href={cta.button.href} className="inline-flex px-8 py-3.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl font-medium hover:opacity-90 transition-opacity text-sm shadow-lg shadow-purple-500/20">{cta.button.label}</Link>
+      {/* ══════════════════════ SCHEDULE ══════════════════════ */}
+      <section className="py-24 px-4 relative overflow-hidden" style={{ background: "linear-gradient(180deg,#0a0e14 0%,#060c09 50%,#0a0e14 100%)" }}>
+
+        {/* Felt texture hint */}
+        <div className="absolute inset-0 opacity-[0.025]"
+          style={{ backgroundImage: `radial-gradient(${NEON_G} 1px, transparent 1px)`, backgroundSize: "20px 20px" }} />
+
+        <div className="max-w-5xl mx-auto relative z-10">
+          <div className="text-center mb-16">
+            <p className="text-xs font-mono uppercase tracking-[0.3em] mb-3" style={{ color: NEON_G }}>
+              — {schedule.eyebrow} —
+            </p>
+            <h2 className="text-4xl sm:text-5xl font-black text-white">{schedule.title}</h2>
+            <div className="mt-4 mx-auto w-24 h-0.5 rounded-full"
+              style={{ background: `linear-gradient(90deg, transparent, ${NEON_G}, transparent)` }} />
+          </div>
+
+          {/* Custom casino timeline */}
+          {schedule.days.map((day, di) => (
+            <div key={di}>
+              {/* Day header */}
+              <div className="flex items-center gap-4 mb-10">
+                <div className="w-3 h-3 rounded-full shadow-lg" style={{ background: NEON_G, boxShadow: `0 0 12px ${NEON_G}` }} />
+                <div>
+                  <h3 className="text-lg font-bold text-white">{day.day}</h3>
+                  <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>{day.date}</p>
+                </div>
+              </div>
+
+              {/* Desktop zigzag */}
+              <div className="hidden md:block relative">
+                <div className="absolute left-1/2 top-0 bottom-0 w-px -translate-x-1/2"
+                  style={{ background: `linear-gradient(180deg, ${NEON_G}00, ${NEON_G}60, ${NEON_G}00)` }} />
+
+                <div className="space-y-5">
+                  {day.items.map((item, ii) => {
+                    const isLeft = ii % 2 === 0;
+                    const typeClass = casinoTypeStyles[item.type ?? ""] ?? casinoTypeStyles.social;
+                    return (
+                      <div key={ii} className="relative grid grid-cols-[1fr_auto_1fr] items-center group">
+
+                        {/* Left */}
+                        <div className={`pr-10 ${isLeft ? "" : "invisible"}`}>
+                          <div className="text-right">
+                            <div className="flex items-center justify-end gap-2 flex-wrap mb-1">
+                              {item.type && (
+                                <span className={`text-xs px-2 py-0.5 rounded-full border ${typeClass}`}>{item.type}</span>
+                              )}
+                              <span className="text-xs font-mono" style={{ color: NEON_G }}>{item.time}</span>
+                            </div>
+                            <h4 className="font-semibold text-white">{item.title}</h4>
+                            {item.description && (
+                              <p className="text-sm mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>{item.description}</p>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Center dot */}
+                        <div className="flex justify-center w-6">
+                          <div
+                            className="w-3 h-3 rounded-full border-2 z-10 transition-all duration-300 group-hover:scale-125 shrink-0"
+                            style={{ borderColor: NEON_G, background: "#060c09", boxShadow: `0 0 8px ${NEON_G}60` }}
+                          />
+                        </div>
+
+                        {/* Right */}
+                        <div className={`pl-10 ${!isLeft ? "" : "invisible"}`}>
+                          <div className="flex items-center gap-2 flex-wrap mb-1">
+                            <span className="text-xs font-mono" style={{ color: NEON_G }}>{item.time}</span>
+                            {item.type && (
+                              <span className={`text-xs px-2 py-0.5 rounded-full border ${typeClass}`}>{item.type}</span>
+                            )}
+                          </div>
+                          <h4 className="font-semibold text-white">{item.title}</h4>
+                          {item.description && (
+                            <p className="text-sm mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>{item.description}</p>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Mobile list */}
+              <div className="md:hidden relative ml-1.5 pl-8 space-y-6"
+                style={{ borderLeft: `2px solid ${NEON_G}30` }}>
+                {day.items.map((item, ii) => {
+                  const typeClass = casinoTypeStyles[item.type ?? ""] ?? casinoTypeStyles.social;
+                  return (
+                    <div key={ii} className="relative group">
+                      <div
+                        className="absolute -left-[calc(2rem+5px)] top-1.5 w-2.5 h-2.5 rounded-full border-2 transition-all duration-200 group-hover:scale-125"
+                        style={{ borderColor: NEON_G, background: "#060c09", boxShadow: `0 0 6px ${NEON_G}60` }}
+                      />
+                      <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-4">
+                        <span className="text-xs font-mono min-w-[52px]" style={{ color: NEON_G }}>{item.time}</span>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 flex-wrap mb-0.5">
+                            <h4 className="font-semibold text-white text-sm">{item.title}</h4>
+                            {item.type && (
+                              <span className={`text-xs px-2 py-0.5 rounded-full border ${typeClass}`}>{item.type}</span>
+                            )}
+                          </div>
+                          {item.description && (
+                            <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>{item.description}</p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
         </div>
       </section>
+
+      {/* ══════════════════════ CTA ══════════════════════ */}
+      <section className="py-28 px-4 relative overflow-hidden" style={{ background: "#080b10" }}>
+
+        {/* Gold glow centre */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div className="w-[600px] h-[300px] rounded-full blur-[120px]"
+            style={{ background: `radial-gradient(ellipse, ${GOLD}22, transparent 70%)` }} />
+        </div>
+
+        {/* Decorative suits */}
+        <div className="absolute top-8 left-8 text-6xl opacity-10 select-none text-white">♠</div>
+        <div className="absolute top-8 right-8 text-6xl opacity-10 select-none" style={{ color: NEON_R }}>♥</div>
+        <div className="absolute bottom-8 left-8 text-6xl opacity-10 select-none" style={{ color: NEON_R }}>♦</div>
+        <div className="absolute bottom-8 right-8 text-6xl opacity-10 select-none text-white">♣</div>
+
+        <div className="max-w-2xl mx-auto text-center relative z-10">
+          {/* Divider line */}
+          <div className="flex items-center gap-4 justify-center mb-8">
+            <div className="h-px flex-1 max-w-[80px]" style={{ background: `linear-gradient(90deg, transparent, ${GOLD}60)` }} />
+            <span className="text-xl" style={{ color: GOLD }}>♦</span>
+            <div className="h-px flex-1 max-w-[80px]" style={{ background: `linear-gradient(90deg, ${GOLD}60, transparent)` }} />
+          </div>
+
+          <h2 className="text-4xl sm:text-5xl font-black mb-4 text-white"
+            style={{ textShadow: `0 0 30px rgba(255,255,255,0.1)` }}>
+            {cta.title}
+          </h2>
+          <p className="mb-10 text-base leading-relaxed" style={{ color: "rgba(255,255,255,0.5)" }}>
+            {cta.description}
+          </p>
+
+          {/* Glossy gold CTA */}
+          <Link
+            href={cta.button.href}
+            className="group relative inline-flex items-center gap-2 px-10 py-4 rounded-2xl font-black text-base tracking-wide overflow-hidden transition-all duration-300 hover:scale-105"
+            style={{
+              background: `linear-gradient(135deg, #7c5c00, ${GOLD}, #fffacd, ${GOLD}, #7c5c00)`,
+              backgroundSize: "300% auto",
+              color: "#1a0800",
+              boxShadow: `0 0 30px ${GOLD}40, 0 10px 30px rgba(0,0,0,0.5)`,
+              animation: "shimmer 3s linear infinite",
+            }}
+          >
+            <span className="text-lg">🃏</span>
+            {cta.button.label}
+            <span className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl" />
+          </Link>
+
+          <p className="mt-6 text-xs" style={{ color: `${GOLD}70` }}>
+            ♠ ♥ ♦ ♣ — ค้นพบบ้านของคุณ
+          </p>
+        </div>
+      </section>
+
     </div>
   );
 }

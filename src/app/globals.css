@@ -45,6 +45,38 @@
     50% { transform: rotateY(180deg) scale(1); }
     75% { transform: rotateY(270deg) scale(0.9); }
   }
+
+  --animate-float-slow: float-slow 8s ease-in-out infinite;
+  --animate-float-mid:  float-mid  6s ease-in-out infinite;
+  --animate-float-fast: float-fast 4s ease-in-out infinite;
+  --animate-shimmer:    shimmer    2.5s linear infinite;
+  --animate-flicker:    flicker    3s ease-in-out infinite;
+
+  @keyframes float-slow {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    33%  { transform: translateY(-18px) rotate(3deg); }
+    66%  { transform: translateY(-8px) rotate(-2deg); }
+  }
+  @keyframes float-mid {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50%  { transform: translateY(-14px) rotate(-4deg); }
+  }
+  @keyframes float-fast {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50%  { transform: translateY(-10px) rotate(5deg); }
+  }
+  @keyframes shimmer {
+    0%   { background-position: -200% center; }
+    100% { background-position:  200% center; }
+  }
+  @keyframes flicker {
+    0%, 100% { opacity: 1; }
+    92%  { opacity: 1; }
+    93%  { opacity: 0.4; }
+    94%  { opacity: 1; }
+    96%  { opacity: 0.6; }
+    97%  { opacity: 1; }
+  }
 }
 
 /* Base styles - Light blue theme */
