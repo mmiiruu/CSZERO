@@ -186,7 +186,7 @@ function EntryCard({ item, entryDelay, index }: { item: TimelineItem; entryDelay
   return (
     <div
       ref={ref}
-      className="relative rounded-xl p-4 border backdrop-blur-md overflow-hidden group"
+      className="relative rounded-xl p-4 border overflow-hidden group"
       style={{
         background: "rgba(255,255,255,0.04)",
         borderColor: `${cfg.nodeColor}30`,
@@ -537,11 +537,6 @@ export default function HelloWorldPage() {
           <div className="w-[600px] h-[300px] rounded-full blur-[120px]"
             style={{ background: `radial-gradient(ellipse, ${GOLD}22, transparent 70%)` }} />
         </div>
-
-        <div aria-hidden="true" className="absolute top-8 left-8 text-6xl opacity-10 select-none text-white">♠</div>
-        <div aria-hidden="true" className="absolute top-8 right-8 text-6xl opacity-10 select-none" style={{ color: NEON_R }}>♥</div>
-        <div aria-hidden="true" className="absolute bottom-8 left-8 text-6xl opacity-10 select-none" style={{ color: NEON_R }}>♦</div>
-        <div aria-hidden="true" className="absolute bottom-8 right-8 text-6xl opacity-10 select-none text-white">♣</div>
 
         <div className="max-w-2xl mx-auto text-center relative z-10">
           <div className="flex items-center gap-4 justify-center mb-8">

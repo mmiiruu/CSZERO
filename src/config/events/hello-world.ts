@@ -5,10 +5,6 @@ export interface HouseConfig {
   name: string;
   symbol: string;
   desc: string;
-  // Event page card styles
-  cardBg: string;
-  cardGradient: string;
-  // Reveal page styles
   revealGradient: string;
   revealTextColor: string;
 }
@@ -79,8 +75,6 @@ export const helloWorldConfig: HelloWorldConfig = {
         name: "สเปด",
         symbol: "♠",
         desc: "มีกลยุทธ์และวิเคราะห์เก่ง",
-        cardBg: "bg-slate-50 border-slate-200 dark:bg-slate-800 dark:border-slate-600",
-        cardGradient: "from-slate-500 to-slate-700",
         revealGradient: "from-slate-600 to-slate-800",
         revealTextColor: "text-slate-600",
       },
@@ -89,8 +83,6 @@ export const helloWorldConfig: HelloWorldConfig = {
         name: "หัวใจ",
         symbol: "♥",
         desc: "มีความหลงใหลและสร้างสรรค์",
-        cardBg: "bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800",
-        cardGradient: "from-red-400 to-pink-500",
         revealGradient: "from-red-500 to-pink-600",
         revealTextColor: "text-red-500",
       },
@@ -99,8 +91,6 @@ export const helloWorldConfig: HelloWorldConfig = {
         name: "ไดมอนด์",
         symbol: "♦",
         desc: "ฉลาดและนวัตกรรม",
-        cardBg: "bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800",
-        cardGradient: "from-blue-400 to-cyan-500",
         revealGradient: "from-blue-500 to-cyan-500",
         revealTextColor: "text-blue-500",
       },
@@ -109,8 +99,6 @@ export const helloWorldConfig: HelloWorldConfig = {
         name: "คลับ",
         symbol: "♣",
         desc: "ทำงานร่วมกันและยืดหยุ่น",
-        cardBg: "bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800",
-        cardGradient: "from-green-400 to-emerald-500",
         revealGradient: "from-green-500 to-emerald-600",
         revealTextColor: "text-green-500",
       },
