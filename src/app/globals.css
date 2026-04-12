@@ -2,48 +2,115 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-@theme inline {
-  --color-background: #f8fafc;
-  --color-foreground: #0f172a;
-  --color-primary: #2563eb;
-  --color-primary-light: #3b82f6;
-  --color-primary-dark: #1d4ed8;
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* ─────────────────────────────────────────────────────────────────────────────
+   DESIGN TOKENS
+   All semantic color values live here as CSS custom properties.
+   Light values in :root, dark overrides in .dark.
+   Tailwind utilities are wired up in @theme inline below.
 
-  --animate-fade-in: fade-in 0.5s ease-out;
-  --animate-slide-up: slide-up 0.5s ease-out;
+   Neutrals are tinted toward hue 250 (blue-violet) with very low chroma
+   (0.005–0.02) — creates subconscious cohesion with the blue primary accent
+   without being perceivably "blue."
+──────────────────────────────────────────────────────────────────────────────*/
+
+:root {
+  /* Surfaces */
+  --bg-page:       oklch(0.98 0.005 250);   /* page background  ≈ slate-50 */
+  --bg-card:       oklch(1.00 0.003 250);   /* card / elevated surface ≈ white */
+  --bg-hover:      oklch(0.96 0.007 250);   /* hover state */
+
+  /* Text */
+  --tx-base:       oklch(0.17 0.020 250);   /* primary text  ≈ slate-900 */
+  --tx-sub:        oklch(0.45 0.018 250);   /* secondary text ≈ slate-500 */
+  --tx-muted:      oklch(0.60 0.012 250);   /* muted text ≈ slate-400 */
+
+  /* Borders */
+  --bd-base:       oklch(0.90 0.010 250);   /* default border ≈ slate-200 */
+  --bd-subtle:     oklch(0.94 0.007 250);   /* subtle border ≈ slate-100 */
+
+  /* Accent — blue primary */
+  --ac-base:       oklch(0.54 0.200 260);   /* primary accent ≈ blue-600 */
+  --ac-hover:      oklch(0.48 0.210 260);   /* accent hover ≈ blue-700 */
+  --ac-text:       oklch(0.54 0.200 260);   /* accent text on light bg */
+  --ac-dim:        oklch(0.62 0.170 260);   /* dimmer accent text ≈ blue-500 */
+  --ac-subtle:     oklch(0.97 0.030 260);   /* accent tinted bg ≈ blue-50 */
+}
+
+.dark {
+  --bg-page:       oklch(0.15 0.020 250);   /* ≈ slate-900 */
+  --bg-card:       oklch(0.22 0.020 250);   /* ≈ slate-800 */
+  --bg-hover:      oklch(0.26 0.018 250);
+
+  --tx-base:       oklch(0.96 0.005 250);   /* ≈ slate-100 */
+  --tx-sub:        oklch(0.65 0.018 250);   /* ≈ slate-400 */
+  --tx-muted:      oklch(0.52 0.015 250);   /* ≈ slate-500 */
+
+  --bd-base:       oklch(0.32 0.018 250);   /* ≈ slate-700 */
+  --bd-subtle:     oklch(0.26 0.015 250);   /* ≈ slate-800 */
+
+  --ac-base:       oklch(0.65 0.150 260);   /* ≈ blue-400 */
+  --ac-hover:      oklch(0.72 0.130 260);   /* ≈ blue-300 */
+  --ac-text:       oklch(0.65 0.150 260);
+  --ac-dim:        oklch(0.55 0.160 260);   /* ≈ blue-500 */
+  --ac-subtle:     oklch(0.20 0.050 260);   /* ≈ blue-900/30 */
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   TAILWIND THEME
+   Maps font stacks and semantic tokens to Tailwind utilities.
+   font-display, font-sans, font-mono → set via font-* class
+   bg-card, text-tx-sub, etc. → usable as bg-[--bg-card] or via Tailwind tokens
+──────────────────────────────────────────────────────────────────────────────*/
+
+@theme inline {
+  /* ── Surfaces (bg-background, bg-card, etc.) */
+  --color-background: var(--bg-page);
+  --color-foreground: var(--tx-base);
+  --color-card:       var(--bg-card);
+
+  /* ── Primary accent */
+  --color-primary:       var(--ac-base);
+  --color-primary-light: var(--ac-dim);
+  --color-primary-dark:  var(--ac-hover);
+
+  /* ── Typography tokens — Tailwind utilities: font-sans, font-mono, font-display */
+  /* body + Thai fallback: Geist for Latin, Prompt for Thai, then system */
+  --font-sans:    var(--font-geist-sans), var(--font-prompt), system-ui, sans-serif;
+  /* mono: Geist Mono for code/labels */
+  --font-mono:    var(--font-geist-mono), ui-monospace, "Cascadia Code", monospace;
+  /* display: Epilogue for Latin headings, Prompt for Thai headings */
+  --font-display: var(--font-epilogue), var(--font-prompt), system-ui, sans-serif;
+
+  /* ── Animations (unchanged) */
+  --animate-fade-in:    fade-in    0.5s ease-out;
+  --animate-slide-up:   slide-up   0.5s ease-out;
   --animate-slide-down: slide-down 0.3s ease-out;
-  --animate-scale-in: scale-in 0.3s ease-out;
-  --animate-pulse-slow: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  --animate-spin-slow: spin 3s linear infinite;
-  --animate-shuffle: shuffle 0.15s ease-in-out infinite;
+  --animate-scale-in:   scale-in   0.3s ease-out;
+  --animate-pulse-slow: pulse      3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-spin-slow:  spin       3s linear infinite;
+  --animate-shuffle:    shuffle    0.15s ease-in-out infinite;
 
   @keyframes fade-in {
     from { opacity: 0; }
-    to { opacity: 1; }
+    to   { opacity: 1; }
   }
-
   @keyframes slide-up {
     from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
+    to   { opacity: 1; transform: translateY(0); }
   }
-
   @keyframes slide-down {
     from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
+    to   { opacity: 1; transform: translateY(0); }
   }
-
   @keyframes scale-in {
     from { opacity: 0; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1); }
+    to   { opacity: 1; transform: scale(1); }
   }
-
   @keyframes shuffle {
-    0%, 100% { transform: rotateY(0deg) scale(1); }
-    25% { transform: rotateY(90deg) scale(0.9); }
-    50% { transform: rotateY(180deg) scale(1); }
-    75% { transform: rotateY(270deg) scale(0.9); }
+    0%, 100% { transform: rotateY(0deg)   scale(1);   }
+    25%       { transform: rotateY(90deg)  scale(0.9); }
+    50%       { transform: rotateY(180deg) scale(1);   }
+    75%       { transform: rotateY(270deg) scale(0.9); }
   }
 
   --animate-float-slow: float-slow 8s ease-in-out infinite;
@@ -53,120 +120,151 @@
   --animate-flicker:    flicker    3s ease-in-out infinite;
 
   @keyframes float-slow {
-    0%, 100% { transform: translateY(0px) rotate(0deg); }
-    33%  { transform: translateY(-18px) rotate(3deg); }
-    66%  { transform: translateY(-8px) rotate(-2deg); }
+    0%, 100% { transform: translateY(0px)   rotate(0deg);  }
+    33%       { transform: translateY(-18px) rotate(3deg);  }
+    66%       { transform: translateY(-8px)  rotate(-2deg); }
   }
   @keyframes float-mid {
-    0%, 100% { transform: translateY(0px) rotate(0deg); }
-    50%  { transform: translateY(-14px) rotate(-4deg); }
+    0%, 100% { transform: translateY(0px)   rotate(0deg);  }
+    50%       { transform: translateY(-14px) rotate(-4deg); }
   }
   @keyframes float-fast {
-    0%, 100% { transform: translateY(0px) rotate(0deg); }
-    50%  { transform: translateY(-10px) rotate(5deg); }
+    0%, 100% { transform: translateY(0px)   rotate(0deg); }
+    50%       { transform: translateY(-10px) rotate(5deg); }
   }
   @keyframes shimmer {
     0%   { background-position: -200% center; }
     100% { background-position:  200% center; }
   }
   @keyframes flicker {
-    0%, 100% { opacity: 1; }
-    92%  { opacity: 1; }
-    93%  { opacity: 0.4; }
-    94%  { opacity: 1; }
-    96%  { opacity: 0.6; }
-    97%  { opacity: 1; }
+    0%, 100% { opacity: 1;   }
+    92%       { opacity: 1;   }
+    93%       { opacity: 0.4; }
+    94%       { opacity: 1;   }
+    96%       { opacity: 0.6; }
+    97%       { opacity: 1;   }
   }
 
   --animate-slot-reveal: slot-reveal 0.55s cubic-bezier(0.22,1,0.36,1) both;
   --animate-card-fly:    card-fly    1.2s ease-in-out forwards;
   --animate-tube-pulse:  tube-pulse  2.5s ease-in-out infinite;
   --animate-node-pop:    node-pop    0.4s cubic-bezier(0.34,1.56,0.64,1) both;
-  --animate-roulette:    roulette   3s linear infinite;
+  --animate-roulette:    roulette    3s linear infinite;
 
   @keyframes slot-reveal {
-    0%   { transform: translateY(110%) scaleY(1.3); opacity: 0; filter: blur(6px); }
-    55%  { transform: translateY(-6%) scaleY(0.94); opacity: 1; filter: blur(0); }
-    75%  { transform: translateY(3%)  scaleY(1.02); }
-    100% { transform: translateY(0)   scaleY(1);    opacity: 1; filter: blur(0); }
+    0%   { transform: translateY(110%) scaleY(1.3);  opacity: 0; filter: blur(6px); }
+    55%  { transform: translateY(-6%)  scaleY(0.94); opacity: 1; filter: blur(0);   }
+    75%  { transform: translateY(3%)   scaleY(1.02);             }
+    100% { transform: translateY(0)    scaleY(1);    opacity: 1; filter: blur(0);   }
   }
   @keyframes card-fly {
-    0%   { transform: translateX(-30px) translateY(10px) rotate(-15deg); opacity: 0; }
-    20%  { opacity: 1; }
-    80%  { opacity: 0.7; }
-    100% { transform: translateX(120px) translateY(-20px) rotate(20deg); opacity: 0; }
+    0%   { transform: translateX(-30px) translateY(10px)  rotate(-15deg); opacity: 0;   }
+    20%  {                                                                 opacity: 1;   }
+    80%  {                                                                 opacity: 0.7; }
+    100% { transform: translateX(120px) translateY(-20px) rotate(20deg);  opacity: 0;   }
   }
   @keyframes tube-pulse {
-    0%, 100% { opacity: 0.7; box-shadow: 0 0 6px currentColor, 0 0 18px currentColor; }
+    0%, 100% { opacity: 0.7; box-shadow: 0 0  6px currentColor, 0 0 18px currentColor;                           }
     50%       { opacity: 1;   box-shadow: 0 0 10px currentColor, 0 0 30px currentColor, 0 0 50px currentColor; }
   }
   @keyframes node-pop {
-    0%   { transform: scale(0) rotate(-30deg); opacity: 0; }
-    70%  { transform: scale(1.2) rotate(5deg); }
-    100% { transform: scale(1) rotate(0deg);   opacity: 1; }
+    0%   { transform: scale(0)   rotate(-30deg); opacity: 0; }
+    70%  { transform: scale(1.2) rotate(5deg);               }
+    100% { transform: scale(1)   rotate(0deg);   opacity: 1; }
   }
   @keyframes roulette {
-    from { transform: rotate(0deg); }
+    from { transform: rotate(0deg);   }
     to   { transform: rotate(360deg); }
   }
 }
 
-/* Base styles - Light blue theme */
+/* ─────────────────────────────────────────────────────────────────────────────
+   BASE STYLES
+──────────────────────────────────────────────────────────────────────────────*/
+
 body {
-  background: #f8fafc;
-  color: #0f172a;
+  background: var(--bg-page);
+  color: var(--tx-base);
   font-family: var(--font-sans), system-ui, sans-serif;
 }
 
-/* Dark mode body */
-.dark body {
-  background: #0f172a;
-  color: #f1f5f9;
-}
-
 /* Scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
+::-webkit-scrollbar       { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-  background: rgba(37, 99, 235, 0.2);
+  background: oklch(0.54 0.200 260 / 0.2);
   border-radius: 3px;
 }
-
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(37, 99, 235, 0.4);
-}
+::-webkit-scrollbar-thumb:hover { background: oklch(0.54 0.200 260 / 0.4); }
 
 /* Selection */
 ::selection {
-  background: rgba(37, 99, 235, 0.2);
-  color: #1e3a8a;
+  background: oklch(0.54 0.200 260 / 0.15);
+  color: oklch(0.25 0.100 260);
 }
 
-/* Focus visible */
+/* Focus ring */
 :focus-visible {
-  outline: 2px solid rgba(37, 99, 235, 0.75);
+  outline: 2px solid var(--ac-base);
   outline-offset: 2px;
 }
 
-/* Grid pattern - subtle blue */
+/* Subtle dot grid background — used on hero sections */
 .grid-pattern {
-  background-image: linear-gradient(rgba(37, 99, 235, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(37, 99, 235, 0.04) 1px, transparent 1px);
+  background-image:
+    linear-gradient(oklch(0.54 0.200 260 / 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, oklch(0.54 0.200 260 / 0.04) 1px, transparent 1px);
   background-size: 60px 60px;
 }
 
 .dark .grid-pattern {
-  background-image: linear-gradient(rgba(96, 165, 250, 0.06) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(96, 165, 250, 0.06) 1px, transparent 1px);
+  background-image:
+    linear-gradient(oklch(0.65 0.150 260 / 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, oklch(0.65 0.150 260 / 0.06) 1px, transparent 1px);
 }
 
-/* Respect reduced motion preferences */
+/* ── Skeleton loading ────────────────────────��─────────────────────────────*/
+/* Separate keyframe name avoids any conflict with the shimmer in @theme above */
+@keyframes sk-shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+
+/* Skeleton on theme-responsive surfaces (light/dark) */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    oklch(0.90 0.008 250) 25%,
+    oklch(0.94 0.005 250) 50%,
+    oklch(0.90 0.008 250) 75%
+  );
+  background-size: 200% 100%;
+  animation: sk-shimmer 1.8s linear infinite;
+}
+
+.dark .skeleton {
+  background: linear-gradient(
+    90deg,
+    oklch(0.22 0.018 250) 25%,
+    oklch(0.27 0.015 250) 50%,
+    oklch(0.22 0.018 250) 75%
+  );
+  background-size: 200% 100%;
+}
+
+/* Skeleton on permanently-dark surfaces (always-dark heroes, backdrops) */
+.skeleton-dark {
+  background: linear-gradient(
+    90deg,
+    oklch(0.23 0.016 250) 25%,
+    oklch(0.30 0.013 250) 50%,
+    oklch(0.23 0.016 250) 75%
+  );
+  background-size: 200% 100%;
+  animation: sk-shimmer 1.8s linear infinite;
+}
+
+/* Respect reduced motion */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;

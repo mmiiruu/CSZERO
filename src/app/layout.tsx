@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Epilogue, Prompt } from "next/font/google";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
@@ -15,6 +15,25 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+});
+
+// Display typeface: Epilogue — geometric grotesque with editorial character.
+// Used for large headings where Latin text appears (member names, site H1s).
+const epilogue = Epilogue({
+  subsets: ["latin"],
+  variable: "--font-epilogue",
+  display: "swap",
+  weight: "variable",
+});
+
+// Thai typeface: Prompt — geometric, premium Thai sans-serif.
+// Covers Thai characters that Geist doesn't include.
+// Used as the body and heading fallback for Thai text throughout the site.
+const prompt = Prompt({
+  weight: ["400", "700", "800"],
+  subsets: ["thai", "latin"],
+  variable: "--font-prompt",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -33,7 +52,7 @@ export default async function RootLayout({
   return (
     <html
       lang="th"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${epilogue.variable} ${prompt.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <head>
