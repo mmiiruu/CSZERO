@@ -57,8 +57,8 @@ function RouletteNode({ color }: { color: string }) {
   const wedges = Array.from({ length: segments }, (_, i) => {
     const a1 = (i / segments) * 2 * Math.PI - Math.PI / 2;
     const a2 = ((i + 1) / segments) * 2 * Math.PI - Math.PI / 2;
-    const x1 = cx + r * Math.cos(a1), y1 = cy + r * Math.sin(a1);
-    const x2 = cx + r * Math.cos(a2), y2 = cy + r * Math.sin(a2);
+    const x1 = +(cx + r * Math.cos(a1)).toFixed(3), y1 = +(cy + r * Math.sin(a1)).toFixed(3);
+    const x2 = +(cx + r * Math.cos(a2)).toFixed(3), y2 = +(cy + r * Math.sin(a2)).toFixed(3);
     return { d: `M${cx},${cy} L${x1},${y1} A${r},${r} 0 0,1 ${x2},${y2} Z`, alt: i % 2 === 0 };
   });
   return (
@@ -85,7 +85,9 @@ function ChipNode({ color }: { color: string }) {
           <ellipse cx="18" cy={cy} rx="14" ry="6" fill={i === 0 ? "#1a1f2e" : i === 1 ? "#141820" : "#0f1218"} stroke={color} strokeWidth="1" strokeOpacity={0.6 + i * 0.15} />
           {[0, 60, 120, 180, 240, 300].map((deg) => {
             const rad = (deg * Math.PI) / 180;
-            return <rect key={deg} x={18 + 11 * Math.cos(rad) - 1.5} y={cy + 5 * Math.sin(rad) - 2} width="3" height="4" rx="1" fill={color} fillOpacity={0.5 + i * 0.15} transform={`rotate(${deg} 18 ${cy})`} />;
+            const x = +(18 + 11 * Math.cos(rad) - 1.5).toFixed(3);
+            const y = +(cy + 5 * Math.sin(rad) - 2).toFixed(3);
+            return <rect key={deg} x={x} y={y} width="3" height="4" rx="1" fill={color} fillOpacity={0.5 + i * 0.15} transform={`rotate(${deg} 18 ${cy})`} />;
           })}
         </g>
       ))}
@@ -120,25 +122,15 @@ function TimelineNode({ type }: { type?: string }) {
 /* ═══════════════════════════════════════════════════════════════
    Slot-machine text reveal (IntersectionObserver triggered)
 ═══════════════════════════════════════════════════════════════ */
-function SlotReveal({ text, delay = 0, className = "" }: { text: string; delay?: number; className?: string }) {
-  const ref = useRef<HTMLSpanElement>(null);
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setVisible(true); obs.disconnect(); } }, { threshold: 0.3 });
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, []);
-
+/* Observer lifted to EntryCard — one per card instead of one per word */
+function SlotReveal({ text, delay = 0, className = "", triggered }: { text: string; delay?: number; className?: string; triggered: boolean }) {
   return (
-    <span ref={ref} className={`inline-block overflow-hidden align-bottom ${className}`}>
+    <span className={`inline-block overflow-hidden align-bottom ${className}`}>
       <span
         style={{
           display: "inline-block",
-          animation: visible ? `slot-reveal 0.55s cubic-bezier(0.22,1,0.36,1) ${delay}ms both` : "none",
-          opacity: visible ? 1 : 0,
+          animation: triggered ? `slot-reveal 0.55s cubic-bezier(0.22,1,0.36,1) ${delay}ms both` : "none",
+          opacity: triggered ? 1 : 0,
         }}
       >
         {text}
@@ -150,12 +142,12 @@ function SlotReveal({ text, delay = 0, className = "" }: { text: string; delay?:
 /* ═══════════════════════════════════════════════════════════════
    Flying card suit that animates across an entry
 ═══════════════════════════════════════════════════════════════ */
-function FlyingSuit({ suit, delay, color }: { suit: string; delay: number; color: string }) {
+function FlyingSuit({ suit, delay, color, top }: { suit: string; delay: number; color: string; top: number }) {
   return (
     <span
       className="absolute pointer-events-none select-none text-sm font-bold"
       style={{
-        top: `${20 + Math.random() * 40}%`,
+        top: `${top}%`,
         left: "5%",
         color,
         opacity: 0,
@@ -170,14 +162,30 @@ function FlyingSuit({ suit, delay, color }: { suit: string; delay: number; color
 /* ═══════════════════════════════════════════════════════════════
    Entry card (glass, with slot reveal + flying suits)
 ═══════════════════════════════════════════════════════════════ */
-function EntryCard({ item, entryDelay }: { item: TimelineItem; entryDelay: number }) {
+function EntryCard({ item, entryDelay, index }: { item: TimelineItem; entryDelay: number; index: number }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [triggered, setTriggered] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting) { setTriggered(true); obs.disconnect(); } },
+      { threshold: 0.3 },
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
   const cfg = typeConfig[item.type ?? "social"];
   const suits = ["♠", "♥", "♦", "♣"];
-  const randomSuit = suits[Math.floor(Math.random() * suits.length)];
-  const isRed = randomSuit === "♥" || randomSuit === "♦";
+  const suit = suits[index % suits.length]; // deterministic — no SSR mismatch
+  const isRed = suit === "♥" || suit === "♦";
+  const flyingTop = 20 + ((index * 17) % 41); // deterministic pseudo-random top position
 
   return (
     <div
+      ref={ref}
       className="relative rounded-xl p-4 border backdrop-blur-md overflow-hidden group"
       style={{
         background: "rgba(255,255,255,0.04)",
@@ -190,9 +198,10 @@ function EntryCard({ item, entryDelay }: { item: TimelineItem; entryDelay: numbe
     >
       {/* Flying suit — replays on hover via group */}
       <FlyingSuit
-        suit={randomSuit}
+        suit={suit}
         delay={entryDelay + 100}
         color={isRed ? NEON_R : "#e2e8f0"}
+        top={flyingTop}
       />
 
       {/* Top meta row */}
@@ -208,14 +217,14 @@ function EntryCard({ item, entryDelay }: { item: TimelineItem; entryDelay: numbe
       </div>
 
       {/* Slot-machine title */}
-      <h4 className="font-bold text-white text-sm leading-snug mb-1 overflow-hidden">
+      <h4 className="font-display font-bold text-white text-sm leading-snug mb-1 overflow-hidden">
         {item.title.split(" ").map((word, wi) => (
-          <SlotReveal key={wi} text={word + "\u00a0"} delay={entryDelay + wi * 60} />
+          <SlotReveal key={wi} text={word + "\u00a0"} delay={entryDelay + wi * 60} triggered={triggered} />
         ))}
       </h4>
 
       {item.description && (
-        <p className="text-xs leading-relaxed" style={{ color: "rgba(255,255,255,0.4)" }}>
+        <p className="text-xs leading-relaxed" style={{ color: "rgba(255,255,255,0.6)" }}>
           {item.description}
         </p>
       )}
@@ -280,18 +289,18 @@ function CasinoTimeline({ days }: { days: TimelineDay[] }) {
 
                     {/* Left card */}
                     <div className={`pr-6 ${isLeft ? "" : "invisible"}`}>
-                      <EntryCard item={item} entryDelay={entryDelay} />
+                      <EntryCard item={item} entryDelay={entryDelay} index={ii} />
                     </div>
 
                     {/* Central node */}
                     <div className="flex justify-center items-center z-20 relative"
-                      style={{ animation: `node-pop 0.4s cubic-bezier(0.34,1.56,0.64,1) ${entryDelay}ms both` }}>
+                      style={{ animation: `node-pop 0.4s cubic-bezier(0.22,1,0.36,1) ${entryDelay}ms both` }}>
                       <TimelineNode type={item.type} />
                     </div>
 
                     {/* Right card */}
                     <div className={`pl-6 ${!isLeft ? "" : "invisible"}`}>
-                      <EntryCard item={item} entryDelay={entryDelay} />
+                      <EntryCard item={item} entryDelay={entryDelay} index={ii} />
                     </div>
 
                   </div>
@@ -313,16 +322,15 @@ function CasinoTimeline({ days }: { days: TimelineDay[] }) {
 
             <div className="pl-14 space-y-6">
               {day.items.map((item, ii) => {
-                const cfg = typeConfig[item.type ?? "social"];
                 const entryDelay = ii * 80;
                 return (
                   <div key={ii} className="relative">
                     {/* Node on rail */}
                     <div className="absolute -left-10 top-1/2 -translate-y-1/2 z-20"
-                      style={{ animation: `node-pop 0.4s cubic-bezier(0.34,1.56,0.64,1) ${entryDelay}ms both` }}>
+                      style={{ animation: `node-pop 0.4s cubic-bezier(0.22,1,0.36,1) ${entryDelay}ms both` }}>
                       <TimelineNode type={item.type} />
                     </div>
-                    <EntryCard item={item} entryDelay={entryDelay} />
+                    <EntryCard item={item} entryDelay={entryDelay} index={ii} />
                   </div>
                 );
               })}
@@ -341,7 +349,7 @@ function CasinoTimeline({ days }: { days: TimelineDay[] }) {
 function FloatingCard({ suit, size, style, animClass }: { suit: string; size: string; style?: React.CSSProperties; animClass: string }) {
   const isRed = suit === "♥" || suit === "♦";
   return (
-    <div className={`absolute select-none pointer-events-none ${animClass} opacity-20`} style={style}>
+    <div aria-hidden="true" className={`absolute select-none pointer-events-none ${animClass} opacity-20`} style={style}>
       <div className={`${size} rounded-lg flex items-center justify-center bg-white/10 backdrop-blur-sm border border-white/20 shadow-lg`}>
         <span className={`font-bold ${isRed ? "text-rose-400" : "text-slate-200"}`} style={{ fontSize: "inherit" }}>{suit}</span>
       </div>
@@ -386,7 +394,7 @@ export default function HelloWorldPage() {
       <ForceTheme theme="dark" />
 
       {/* ══════════════════════ HERO ══════════════════════ */}
-      <section className="relative min-h-screen flex items-center px-4 overflow-hidden">
+      <section aria-labelledby="hw-hero-heading" className="relative min-h-screen flex items-center px-4 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-[#0a1a0e] via-[#080b10] to-[#0e0810]" />
 
         {/* Radial glows */}
@@ -412,35 +420,33 @@ export default function HelloWorldPage() {
         <FloatingCard suit="♥" size="w-12 h-16 text-xl"  animClass="animate-[float-fast_4.5s_ease-in-out_infinite]" style={{ top: "40%", right: "4%", animationDelay: "3s" }} />
 
         {/* Chips */}
-        <div className="absolute top-[18%] left-[22%] w-12 h-12 opacity-30 animate-[float-fast_5s_ease-in-out_infinite]" style={{ animationDelay: "0.8s" }}><Chip color={GOLD} className="w-full h-full" /></div>
-        <div className="absolute bottom-[25%] right-[20%] w-10 h-10 opacity-25 animate-[float-slow_9s_ease-in-out_infinite]" style={{ animationDelay: "2.2s" }}><Chip color={NEON_G} className="w-full h-full" /></div>
-        <div className="absolute top-[60%] right-[18%] w-10 h-10 opacity-20 animate-[float-mid_7s_ease-in-out_infinite]" style={{ animationDelay: "1.2s" }}><Chip color={NEON_R} className="w-full h-full" /></div>
+        <div aria-hidden="true" className="absolute top-[18%] left-[22%] w-12 h-12 opacity-30 animate-[float-fast_5s_ease-in-out_infinite]" style={{ animationDelay: "0.8s" }}><Chip color={GOLD} className="w-full h-full" /></div>
+        <div aria-hidden="true" className="absolute bottom-[25%] right-[20%] w-10 h-10 opacity-25 animate-[float-slow_9s_ease-in-out_infinite]" style={{ animationDelay: "2.2s" }}><Chip color={NEON_G} className="w-full h-full" /></div>
+        <div aria-hidden="true" className="absolute top-[60%] right-[18%] w-10 h-10 opacity-20 animate-[float-mid_7s_ease-in-out_infinite]" style={{ animationDelay: "1.2s" }}><Chip color={NEON_R} className="w-full h-full" /></div>
 
         {/* Dice */}
-        <div className="absolute top-[30%] right-[22%] w-10 h-10 opacity-25 animate-[float-slow_8s_ease-in-out_infinite]" style={{ animationDelay: "1.7s" }}><Dice className="w-full h-full" /></div>
-        <div className="absolute bottom-[30%] left-[20%] w-9 h-9 opacity-20 animate-[float-mid_6s_ease-in-out_infinite]" style={{ animationDelay: "0.3s" }}><Dice className="w-full h-full" /></div>
+        <div aria-hidden="true" className="absolute top-[30%] right-[22%] w-10 h-10 opacity-25 animate-[float-slow_8s_ease-in-out_infinite]" style={{ animationDelay: "1.7s" }}><Dice className="w-full h-full" /></div>
+        <div aria-hidden="true" className="absolute bottom-[30%] left-[20%] w-9 h-9 opacity-20 animate-[float-mid_6s_ease-in-out_infinite]" style={{ animationDelay: "0.3s" }}><Dice className="w-full h-full" /></div>
 
         {/* Hero content */}
         <div className="relative z-10 max-w-4xl mx-auto text-center -mt-16 animate-fade-in">
           <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full text-sm font-medium mb-10 border"
             style={{ background: `${GOLD}18`, borderColor: `${GOLD}50`, color: GOLD }}>
-            <span className="animate-[flicker_3s_ease-in-out_infinite]">♦</span>
+            <span aria-hidden="true" className="animate-[flicker_3s_ease-in-out_infinite]">♦</span>
             {hero.badge}
-            <span className="animate-[flicker_3s_ease-in-out_infinite]" style={{ animationDelay: "0.5s" }}>♦</span>
+            <span aria-hidden="true" className="animate-[flicker_3s_ease-in-out_infinite]" style={{ animationDelay: "0.5s" }}>♦</span>
           </div>
 
-          <h1 className="text-7xl sm:text-[8rem] font-black tracking-tight leading-none mb-2">
+          <h1 id="hw-hero-heading" className="font-display text-7xl sm:text-[8rem] font-black tracking-tight leading-none mb-2">
+            {/* Solid gold with layered text-shadow glow — no gradient fill, no background-clip */}
             <span className="block" style={{
-              background: `linear-gradient(135deg, ${GOLD} 0%, #fff8dc 40%, ${GOLD} 60%, #b8860b 100%)`,
-              backgroundSize: "200% auto",
-              WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text",
-              animation: "shimmer 3s linear infinite",
-              filter: `drop-shadow(0 0 30px ${GOLD}60)`,
+              color: GOLD,
+              textShadow: `0 0 18px ${GOLD}90, 0 0 50px ${GOLD}50, 0 0 90px ${GOLD}25`,
             }}>Hello</span>
             <span className="block text-white" style={{ textShadow: "0 0 40px rgba(255,255,255,0.15)" }}>World</span>
           </h1>
 
-          <div className="flex items-center justify-center gap-6 my-6 text-3xl">
+          <div aria-hidden="true" className="flex items-center justify-center gap-6 my-6 text-3xl">
             {["♠","♥","♦","♣"].map((s) => (
               <span key={s} className="opacity-70 hover:opacity-100 hover:scale-125 transition-all duration-300 cursor-default"
                 style={{ color: s === "♥" || s === "♦" ? NEON_R : "#e2e8f0" }}>{s}</span>
@@ -471,14 +477,14 @@ export default function HelloWorldPage() {
       </section>
 
       {/* ══════════════════════ HOUSES ══════════════════════ */}
-      <section className="py-24 px-4 relative overflow-hidden" style={{ background: "linear-gradient(180deg,#080b10 0%,#0a0e14 100%)" }}>
+      <section aria-labelledby="hw-houses-heading" className="py-24 px-4 relative overflow-hidden" style={{ background: "linear-gradient(180deg,#080b10 0%,#0a0e14 100%)" }}>
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-32 blur-[80px] pointer-events-none"
           style={{ background: `radial-gradient(ellipse, ${GOLD}20, transparent 70%)` }} />
 
         <div className="max-w-6xl mx-auto relative z-10">
           <div className="text-center mb-16">
             <p className="text-xs font-mono uppercase tracking-[0.3em] mb-3" style={{ color: GOLD }}>— {houses.eyebrow} —</p>
-            <h2 className="text-4xl sm:text-5xl font-black text-white">{houses.title}</h2>
+            <h2 id="hw-houses-heading" className="font-display text-4xl sm:text-5xl font-black text-white">{houses.title}</h2>
             <div className="mt-4 mx-auto w-24 h-0.5 rounded-full" style={{ background: `linear-gradient(90deg, transparent, ${GOLD}, transparent)` }} />
           </div>
 
@@ -500,7 +506,7 @@ export default function HelloWorldPage() {
                   <div className="text-6xl mb-5 relative z-10 transition-all duration-300 group-hover:scale-110"
                     style={{ filter: `drop-shadow(0 0 12px ${hs.neon}80)` }}>{house.symbol}</div>
                   <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold mb-2 ${hs.badge}`}>{house.name}</span>
-                  <p className="text-sm mt-1" style={{ color: "rgba(255,255,255,0.45)" }}>{house.desc}</p>
+                  <p className="text-sm mt-1" style={{ color: "rgba(255,255,255,0.6)" }}>{house.desc}</p>
                 </div>
               );
             })}
@@ -509,7 +515,7 @@ export default function HelloWorldPage() {
       </section>
 
       {/* ══════════════════════ SCHEDULE ══════════════════════ */}
-      <section className="py-24 px-4 relative overflow-hidden" style={{ background: "linear-gradient(180deg,#0a0e14 0%,#060c09 50%,#0a0e14 100%)" }}>
+      <section aria-labelledby="hw-schedule-heading" className="py-24 px-4 relative overflow-hidden" style={{ background: "linear-gradient(180deg,#0a0e14 0%,#060c09 50%,#0a0e14 100%)" }}>
         {/* Felt dot texture */}
         <div className="absolute inset-0 opacity-[0.025]"
           style={{ backgroundImage: `radial-gradient(${NEON_G} 1px, transparent 1px)`, backgroundSize: "20px 20px" }} />
@@ -517,7 +523,7 @@ export default function HelloWorldPage() {
         <div className="max-w-5xl mx-auto relative z-10">
           <div className="text-center mb-20">
             <p className="text-xs font-mono uppercase tracking-[0.3em] mb-3" style={{ color: NEON_G }}>— {schedule.eyebrow} —</p>
-            <h2 className="text-4xl sm:text-5xl font-black text-white">{schedule.title}</h2>
+            <h2 id="hw-schedule-heading" className="font-display text-4xl sm:text-5xl font-black text-white">{schedule.title}</h2>
             <div className="mt-4 mx-auto w-24 h-0.5 rounded-full" style={{ background: `linear-gradient(90deg, transparent, ${NEON_G}, transparent)` }} />
           </div>
 
@@ -526,37 +532,42 @@ export default function HelloWorldPage() {
       </section>
 
       {/* ══════════════════════ CTA ══════════════════════ */}
-      <section className="py-28 px-4 relative overflow-hidden" style={{ background: "#080b10" }}>
+      <section aria-labelledby="hw-cta-heading" className="py-28 px-4 relative overflow-hidden" style={{ background: "#080b10" }}>
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <div className="w-[600px] h-[300px] rounded-full blur-[120px]"
             style={{ background: `radial-gradient(ellipse, ${GOLD}22, transparent 70%)` }} />
         </div>
 
-        <div className="absolute top-8 left-8 text-6xl opacity-10 select-none text-white">♠</div>
-        <div className="absolute top-8 right-8 text-6xl opacity-10 select-none" style={{ color: NEON_R }}>♥</div>
-        <div className="absolute bottom-8 left-8 text-6xl opacity-10 select-none" style={{ color: NEON_R }}>♦</div>
-        <div className="absolute bottom-8 right-8 text-6xl opacity-10 select-none text-white">♣</div>
+        <div aria-hidden="true" className="absolute top-8 left-8 text-6xl opacity-10 select-none text-white">♠</div>
+        <div aria-hidden="true" className="absolute top-8 right-8 text-6xl opacity-10 select-none" style={{ color: NEON_R }}>♥</div>
+        <div aria-hidden="true" className="absolute bottom-8 left-8 text-6xl opacity-10 select-none" style={{ color: NEON_R }}>♦</div>
+        <div aria-hidden="true" className="absolute bottom-8 right-8 text-6xl opacity-10 select-none text-white">♣</div>
 
         <div className="max-w-2xl mx-auto text-center relative z-10">
           <div className="flex items-center gap-4 justify-center mb-8">
             <div className="h-px flex-1 max-w-[80px]" style={{ background: `linear-gradient(90deg, transparent, ${GOLD}60)` }} />
-            <span className="text-xl" style={{ color: GOLD }}>♦</span>
+            <span aria-hidden="true" className="text-xl" style={{ color: GOLD }}>♦</span>
             <div className="h-px flex-1 max-w-[80px]" style={{ background: `linear-gradient(90deg, ${GOLD}60, transparent)` }} />
           </div>
-          <h2 className="text-4xl sm:text-5xl font-black mb-4 text-white" style={{ textShadow: "0 0 30px rgba(255,255,255,0.1)" }}>
+          <h2 id="hw-cta-heading" className="font-display text-4xl sm:text-5xl font-black mb-4 text-white" style={{ textShadow: "0 0 30px rgba(255,255,255,0.1)" }}>
             {cta.title}
           </h2>
-          <p className="mb-10 text-base leading-relaxed" style={{ color: "rgba(255,255,255,0.5)" }}>{cta.description}</p>
+          <p className="mb-10 text-base leading-relaxed" style={{ color: "rgba(255,255,255,0.6)" }}>{cta.description}</p>
           <Link href={cta.button.href}
             className="group relative inline-flex items-center gap-2 px-10 py-4 rounded-2xl font-black text-base tracking-wide overflow-hidden transition-all duration-300 hover:scale-105"
             style={{
-              background: `linear-gradient(135deg, #7c5c00, ${GOLD}, #fffacd, ${GOLD}, #7c5c00)`,
-              backgroundSize: "300% auto", color: "#1a0800",
+              background: `linear-gradient(135deg, #7c5c00, ${GOLD}, #fffacd, ${GOLD})`,
+              color: "#1a0800",
               boxShadow: `0 0 30px ${GOLD}40, 0 10px 30px rgba(0,0,0,0.5)`,
-              animation: "shimmer 3s linear infinite",
             }}>
             <span className="text-lg">🃏</span>
             {cta.button.label}
+            {/* Composited shimmer — only animates transform, GPU-accelerated */}
+            <span
+              aria-hidden="true"
+              className="absolute inset-y-0 w-1/2 pointer-events-none"
+              style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)", animation: "shimmer-slide 2.5s linear infinite" }}
+            />
             <span className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl" />
           </Link>
           <p className="mt-6 text-xs" style={{ color: `${GOLD}70` }}>♠ ♥ ♦ ♣ — ค้นพบบ้านของคุณ</p>
