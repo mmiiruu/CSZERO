@@ -4,7 +4,7 @@ import Registration from "@/models/Registration";
 import { auth } from "@/lib/auth";
 
 export async function POST(_req: NextRequest) {
-  try {
+    try {
     const session = await auth();
     if (!session?.user?.email) {
       return NextResponse.json(

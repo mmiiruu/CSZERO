@@ -188,6 +188,15 @@
     0%, 100% { opacity: 1; }
     50%       { opacity: 0; }
   }
+
+  /* Card dealt face-up — scales in from above with a slight rotation settle */
+  --animate-deal-in: deal-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+
+  @keyframes deal-in {
+    0%   { transform: scale(0.65) translateY(-16px) rotate(-6deg); opacity: 0; filter: blur(2px); }
+    65%  { transform: scale(1.03) translateY(2px)   rotate(0.5deg); opacity: 1; filter: blur(0);   }
+    100% { transform: scale(1)    translateY(0)     rotate(0deg);   opacity: 1; filter: blur(0);   }
+  }
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────

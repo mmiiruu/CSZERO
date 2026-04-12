@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import clientPromise from "@/lib/mongodb-client";
 import dbConnect from "@/lib/mongodb";
 import Registration from "@/models/Registration";
+import { Types } from "mongoose";
 
 export async function POST(req: NextRequest) {
   try {
@@ -26,11 +27,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing fields" }, { status: 400 });
     }
 
+    if (!Types.ObjectId.isValid(registrationId)) {
+      return NextResponse.json({ error: "Invalid registration ID" }, { status: 400 });
+    }
+
     if (!["spade", "heart", "diamond", "club"].includes(house)) {
       return NextResponse.json({ error: "Invalid house" }, { status: 400 });
     }
 
-    await Registration.findByIdAndUpdate(registrationId, { house });
+    const updated = await Registration.findByIdAndUpdate(registrationId, { house }, { new: true });
+    if (!updated) {
+      return NextResponse.json({ error: "Registration not found" }, { status: 404 });
+    }
 
     return NextResponse.json({ message: "House assigned successfully" });
   } catch (error) {

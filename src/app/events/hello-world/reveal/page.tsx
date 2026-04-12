@@ -13,25 +13,26 @@ const GOLD = "#f5c842";
 type HouseKey = "spade" | "heart" | "diamond" | "club";
 
 /**
- * Face-down playing card — the visual anchor for the idle state.
- * Matches the Hello World casino language: dark surface, gold border,
- * diamond-tile back pattern, glowing drop-shadow.
+ * Face-down playing card — one card in the idle-state fan.
+ * delay  : animationDelay in seconds — staggers the tube-pulse glow per card
+ * index  : used to generate a unique SVG pattern id (avoids duplicate-id issues)
  */
-function MysteryCard() {
+function MysteryCard({ delay = 0, index = 0 }: { delay?: number; index?: number }) {
+  const patternId = `hw-card-back-${index}`;
   return (
     <svg
       aria-hidden="true"
       viewBox="0 0 80 112"
-      className="w-20 h-28 mb-6"
+      className="w-20 h-28"
       fill="none"
       style={{
-        filter: `drop-shadow(0 0 14px ${GOLD}90) drop-shadow(0 0 32px ${GOLD}35)`,
         animation: "tube-pulse 3.5s ease-in-out infinite",
+        animationDelay: `${delay}s`,
       }}
     >
       <defs>
         {/* Repeating diamond tile — classic card back pattern */}
-        <pattern id="hw-card-back" x="0" y="0" width="11" height="11" patternUnits="userSpaceOnUse">
+        <pattern id={patternId} x="0" y="0" width="11" height="11" patternUnits="userSpaceOnUse">
           <path d="M5.5 0 L11 5.5 L5.5 11 L0 5.5 Z"
             fill={GOLD} fillOpacity="0.09"
             stroke={GOLD} strokeOpacity="0.22" strokeWidth="0.5" />
@@ -47,16 +48,15 @@ function MysteryCard() {
         fill="none" stroke={GOLD} strokeWidth="0.75" strokeOpacity="0.3" />
 
       {/* Diamond-tile back fill */}
-      <rect x="8" y="8" width="64" height="96" rx="4" fill="url(#hw-card-back)" />
+      <rect x="8" y="8" width="64" height="96" rx="4" fill={`url(#${patternId})`} />
 
       {/* Centre focal diamond */}
       <path d="M40 36 L57 56 L40 76 L23 56 Z"
         fill={GOLD} fillOpacity="0.80"
         stroke={GOLD} strokeWidth="0.75" strokeOpacity="0.6" />
 
-      {/* Corner accent diamonds — top-left */}
+      {/* Corner accent diamonds */}
       <path d="M14 15 L18 19 L14 23 L10 19 Z" fill={GOLD} fillOpacity="0.65" />
-      {/* Corner accent diamonds — bottom-right (rotated 180°) */}
       <path d="M66 89 L70 93 L66 97 L62 93 Z" fill={GOLD} fillOpacity="0.65" />
     </svg>
   );
@@ -155,52 +155,134 @@ export default function RevealPage() {
 
       {/* ── Revealed ─────────────────────────────────────────────────── */}
       {revealedHouse && houseData && (
-        <div className="text-center animate-scale-in">
-          <div className={`inline-flex items-center justify-center w-40 h-40 rounded-3xl bg-gradient-to-br ${houseData.revealGradient} mb-8 shadow-2xl`}>
-            <span aria-hidden="true" className="text-7xl text-white">{houseData.symbol}</span>
+        <div className="text-center">
+
+          {/* Playing card — dealt face-up with gold glow */}
+          <div
+            className="relative inline-block mb-10"
+            style={{ filter: `drop-shadow(0 0 20px ${GOLD}55) drop-shadow(0 0 52px ${GOLD}22)` }}
+          >
+            <div
+              className={`relative flex items-center justify-center w-44 h-60 rounded-2xl bg-gradient-to-br ${houseData.revealGradient} animate-deal-in`}
+              style={{
+                border: `2px solid ${GOLD}75`,
+                boxShadow: `inset 0 0 48px rgba(0,0,0,0.28)`,
+              }}
+            >
+              {/* Inset card border — classic playing card detail */}
+              <div aria-hidden="true" className="absolute inset-3 rounded-xl border border-white/15 pointer-events-none" />
+              {/* Corner pip — top-left */}
+              <span aria-hidden="true" className="absolute top-3 left-3.5 text-sm text-white/75 font-bold leading-none">{houseData.symbol}</span>
+              {/* Corner pip — bottom-right (rotated 180°) */}
+              <span aria-hidden="true" className="absolute bottom-3 right-3.5 text-sm text-white/75 font-bold leading-none rotate-180">{houseData.symbol}</span>
+              {/* Hero suit symbol */}
+              <span aria-hidden="true" className="text-8xl text-white drop-shadow-lg">{houseData.symbol}</span>
+            </div>
           </div>
-          <h1
-            ref={revealHeadingRef}
-            tabIndex={-1}
-            className="text-4xl font-bold text-slate-800 dark:text-white mb-2 outline-none"
-          >
-            House {houseData.name}
-          </h1>
-          <p className="text-slate-500 dark:text-slate-400 mb-8">{reveal.revealedMessage}</p>
-          <button
-            onClick={handleReset}
-            className="px-6 py-3 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors duration-200 text-sm"
-          >
-            {reveal.revealAgainButton}
-          </button>
+
+          {/* Text — fades in after the card lands */}
+          <div className="animate-fade-in" style={{ animationDelay: "0.3s", animationFillMode: "both" }}>
+            <h1
+              ref={revealHeadingRef}
+              tabIndex={-1}
+              className="text-4xl font-bold text-white mb-2 outline-none"
+            >
+              บ้าน{houseData.name}
+            </h1>
+            <p className="text-slate-400 mb-8">{reveal.revealedMessage}</p>
+            <button
+              onClick={handleReset}
+              className="px-6 py-3 bg-slate-800 text-slate-300 rounded-xl hover:bg-slate-700 active:bg-slate-600 transition-colors duration-200 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#080b10]"
+            >
+              {reveal.revealAgainButton}
+            </button>
+          </div>
+
         </div>
       )}
 
       {/* ── Shuffling ────────────────────────────────────────────────── */}
       {isShuffling && !revealedHouse && (
-        <div className="text-center">
-          <div className={`inline-flex items-center justify-center w-40 h-40 rounded-3xl bg-gradient-to-br ${shuffleHouse.revealGradient} mb-8 animate-shuffle shadow-2xl`}>
-            <span aria-hidden="true" className="text-7xl text-white">{shuffleHouse.symbol}</span>
+        <div aria-busy="true" className="text-center">
+
+          {/* Playing card — portrait, smaller than revealed, spinning face-down */}
+          <div
+            className={`relative inline-flex items-center justify-center w-28 h-40 rounded-xl bg-gradient-to-br ${shuffleHouse.revealGradient} mb-8 animate-shuffle`}
+            style={{
+              border: `1.5px solid ${GOLD}45`,
+              boxShadow: `0 8px 32px rgba(0,0,0,0.55)`,
+            }}
+          >
+            {/* Inset border */}
+            <div aria-hidden="true" className="absolute inset-2.5 rounded-lg border border-white/12 pointer-events-none" />
+            {/* Corner pip — top-left */}
+            <span aria-hidden="true" className="absolute top-2 left-2.5 text-xs text-white/65 font-bold leading-none">{shuffleHouse.symbol}</span>
+            {/* Corner pip — bottom-right */}
+            <span aria-hidden="true" className="absolute bottom-2 right-2.5 text-xs text-white/65 font-bold leading-none rotate-180">{shuffleHouse.symbol}</span>
+            {/* Centre suit */}
+            <span aria-hidden="true" className="text-5xl text-white">{shuffleHouse.symbol}</span>
           </div>
-          <h1 className="text-2xl font-bold text-slate-800 dark:text-white animate-pulse">{reveal.shufflingTitle}</h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-2">{reveal.shufflingSubtitle}</p>
+
+          <h1 className="text-2xl font-bold text-white animate-flicker">{reveal.shufflingTitle}</h1>
+          <p className="text-slate-400 mt-2">{reveal.shufflingSubtitle}</p>
         </div>
       )}
 
       {/* ── Idle ─────────────────────────────────────────────────────── */}
       {!isShuffling && !revealedHouse && (
         <div className="max-w-md w-full text-center animate-fade-in">
-          <MysteryCard />
-          <h1 className="text-3xl font-bold text-slate-800 dark:text-white mb-2">{reveal.title}</h1>
-          <p className="text-slate-500 dark:text-slate-400 mb-2">
-            เข้าสู่ระบบในชื่อ{" "}
-            <span className="font-medium text-slate-700 dark:text-slate-300">{session?.user?.email}</span>
-          </p>
-          <p className="text-slate-400 dark:text-slate-500 text-sm mb-8">{reveal.description}</p>
+          {/* 4-card fan — spreads on group hover, individual cards pop on direct hover.
+              origin-bottom rotates from the base so cards fan like a held hand.
+              hover:!-translate-y-6 uses !important to beat the group-hover translate. */}
+          <div className="group flex items-end justify-center -space-x-4 mb-6 select-none">
 
-          <div className="bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 sm:p-8 space-y-4 shadow-sm">
+            {/* Card 1 — leftmost */}
+            <div className="relative origin-bottom transition-all duration-300 ease-out z-[1] transform-gpu
+              drop-shadow-[0_0_15px_rgba(245,200,66,0.5)]
+              -rotate-[8deg]
+              group-hover:-rotate-[14deg] group-hover:-translate-x-3 group-hover:-translate-y-2
+              hover:!-translate-y-6 hover:z-10">
+              <MysteryCard index={0} delay={0} />
+            </div>
+
+            {/* Card 2 */}
+            <div className="relative origin-bottom transition-all duration-300 ease-out z-[2] transform-gpu
+              drop-shadow-[0_0_15px_rgba(245,200,66,0.5)]
+              -rotate-[3deg]
+              group-hover:-rotate-[5deg] group-hover:-translate-x-1 group-hover:-translate-y-1
+              hover:!-translate-y-6 hover:z-10">
+              <MysteryCard index={1} delay={0.35} />
+            </div>
+
+            {/* Card 3 */}
+            <div className="relative origin-bottom transition-all duration-300 ease-out z-[3] transform-gpu
+              drop-shadow-[0_0_15px_rgba(245,200,66,0.5)]
+              rotate-[3deg]
+              group-hover:rotate-[5deg] group-hover:translate-x-1 group-hover:-translate-y-1
+              hover:!-translate-y-6 hover:z-10">
+              <MysteryCard index={2} delay={0.7} />
+            </div>
+
+            {/* Card 4 — rightmost */}
+            <div className="relative origin-bottom transition-all duration-300 ease-out z-[4] transform-gpu
+              drop-shadow-[0_0_15px_rgba(245,200,66,0.5)]
+              rotate-[8deg]
+              group-hover:rotate-[14deg] group-hover:translate-x-3 group-hover:-translate-y-2
+              hover:!-translate-y-6 hover:z-10">
+              <MysteryCard index={3} delay={1.05} />
+            </div>
+
+          </div>
+          <h1 className="text-3xl font-bold text-white mb-2">{reveal.title}</h1>
+          <p className="text-slate-400 mb-2">
+            เข้าสู่ระบบในชื่อ{" "}
+            <span className="font-medium text-slate-300">{session?.user?.email}</span>
+          </p>
+          <p className="text-slate-500 text-sm mb-8">{reveal.description}</p>
+
+          <div className="bg-slate-800/80 border border-slate-700 rounded-2xl p-6 sm:p-8 space-y-4 shadow-sm">
             {error && (
-              <p role="alert" className="text-sm text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl px-4 py-3">
+              <p role="alert" className="text-sm text-red-400 bg-red-900/20 border border-red-800 rounded-xl px-4 py-3">
                 {error}
               </p>
             )}
@@ -208,7 +290,7 @@ export default function RevealPage() {
             <button
               disabled={isLoading}
               onClick={handleReveal}
-              className="w-full inline-flex items-center justify-center px-8 py-3.5 rounded-xl font-bold text-base transition-[filter] duration-200 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer hover:brightness-110 active:brightness-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-800"
+              className="w-full inline-flex items-center justify-center px-8 py-3.5 rounded-xl font-bold text-base transition-[filter] duration-200 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer hover:brightness-110 active:brightness-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-800"
               style={{ background: GOLD, color: "#1a0800", boxShadow: `0 4px 20px ${GOLD}40` }}
             >
               {isLoading && (
