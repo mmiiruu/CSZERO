@@ -1,73 +1,154 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useEffect, useState, useRef } from "react";
 
+/* ── Constants ────────────────────────────────────────────────────── */
+const TOTAL       = 41;
+const START_DELAY = 300;
+const SEGMENTS    = 7;     // pill segments in progress bar
+const EASE        = "cubic-bezier(0.22, 1, 0.36, 1)";
+
+// Variable delay: starts at MIN_MS, slows quadratically to MAX_MS near 41
+const MIN_MS = 20;
+const MAX_MS = 130;
+
+/* ── Component ────────────────────────────────────────────────────── */
 interface LoadingScreenProps {
   onComplete: () => void;
 }
 
 export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
-  const [progress, setProgress] = useState(1);
-  const [isFading, setIsFading] = useState(false);
+  const [count,   setCount]   = useState(0);
+  const [visible, setVisible] = useState(false);
+  const [exiting, setExiting] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    const target = 41; // เลขเป้าหมาย
-    const duration = 2000; // เวลาที่ใช้โหลด (มิลลิวินาที) -> 2 วินาที
-    const intervalTime = duration / target;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      onComplete();
+      return;
+    }
 
-    const timer = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= target) {
-          clearInterval(timer);
-          // เมื่อถึง 41 ให้รอสักแป๊บ แล้วค่อยเฟดหน้าจอออก
-          setTimeout(() => {
-            setIsFading(true);
-            setTimeout(() => onComplete(), 500); // รอเฟดเสร็จค่อยเรียก onComplete
-          }, 300);
-          return target;
+    const fadeIn = setTimeout(() => setVisible(true), 60);
+
+    // Recursive setTimeout: delay grows quadratically so counting
+    // starts fast and decelerates naturally as it approaches 41.
+    const scheduleNext = (current: number) => {
+      const progress = current / TOTAL;
+      const delay    = Math.round(MIN_MS + (MAX_MS - MIN_MS) * progress * progress);
+      timerRef.current = setTimeout(() => {
+        const next = current + 1;
+        setCount(next);
+        if (next < TOTAL) {
+          scheduleNext(next);
+        } else {
+          // Hold at 41 for 1.5 s, then fade out
+          timerRef.current = setTimeout(() => {
+            setExiting(true);
+            setTimeout(onComplete, 550);
+          }, 1500);
         }
-        return prev + 1;
-      });
-    }, intervalTime);
+      }, delay);
+    };
 
-    return () => clearInterval(timer);
+    const startDelay = setTimeout(() => scheduleNext(0), START_DELAY);
+
+    return () => {
+      clearTimeout(fadeIn);
+      clearTimeout(startDelay);
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
   }, [onComplete]);
 
-  // คำนวณเปอร์เซ็นต์ของหลอดโหลด (1 ถึง 41 = 0% ถึง 100%)
-  const percentage = ((progress - 1) / 40) * 100;
+  const pct         = Math.round((count / TOTAL) * 100);
+  const litSegments = Math.ceil((count / TOTAL) * SEGMENTS);
 
   return (
-    <div 
-      className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black transition-opacity duration-500 ease-in-out ${
-        isFading ? "opacity-0 pointer-events-none" : "opacity-100"
-      }`}
+    <div
+      className="fixed inset-0 z-[9999] flex flex-col items-center justify-center select-none"
+      style={{
+        background:
+          "radial-gradient(ellipse 90% 70% at 50% 55%, #0d1b2e 0%, #080f1c 55%, #040a12 100%)",
+        opacity:      exiting ? 0 : visible ? 1 : 0,
+        pointerEvents: exiting ? "none" : "auto",
+        transition:   `opacity ${exiting ? "0.5s" : "0.35s"} ${EASE}`,
+      }}
     >
-      {/* ตัวเลขวิ่งเรืองแสง */}
-      <div 
-        className="text-8xl md:text-[9rem] font-bold mb-8 select-none"
-        style={{
-          color: "#39ff14", // สีหลักเขียวนีออน
-          textShadow: "0 0 10px #39ff14, 0 0 20px #39ff14, 0 0 40px #39ff14, 0 0 80px #00ff00",
-        }}
-      >
-        {progress}
+      {/* AT: single announcement on completion */}
+      <div role="status" aria-live="polite" className="sr-only">
+        {count >= TOTAL ? "Loading complete." : ""}
       </div>
 
-      {/* กรอบของแถบโหลด */}
-      <div 
-        className="w-64 md:w-96 h-2 md:h-3 rounded-full overflow-hidden relative bg-gray-900 border border-[#39ff14]/30"
-        style={{
-          boxShadow: "0 0 15px rgba(57, 255, 20, 0.2)"
-        }}
-      >
-        {/* หลอดที่วิ่ง */}
-        <div 
-          className="h-full rounded-full transition-all duration-75 ease-linear bg-[#39ff14]"
-          style={{ 
-            width: `${percentage}%`,
-            boxShadow: "0 0 10px #39ff14, 0 0 20px #39ff14"
+      <div aria-hidden="true" className="flex flex-col items-center" style={{ gap: "2rem" }}>
+
+        {/* ── Top label ────────────────────────────────────────── */}
+        <p
+          className="font-mono text-xs uppercase"
+          style={{
+            letterSpacing: "0.55em",
+            color: "#4d6a84",
           }}
-        />
+        >
+          C S · K U
+        </p>
+
+        {/* ── Main counter ─────────────────────────────────────── */}
+        <div className="flex items-end">
+          {/* Large italic gradient number — decorative counter */}
+          <span
+            className="font-display font-black italic tabular-nums leading-none"
+            style={{
+              fontSize: "clamp(72px, 14vw, 160px)",
+              background: "linear-gradient(175deg, #b8ddf8 0%, #5aaae8 40%, #2e78c8 100%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+              letterSpacing: "-0.04em",
+              /* Padding extends the gradient region to cover italic overhang */
+              padding: "0.05em 0.2em",
+            }}
+          >
+            {String(count).padStart(2, "0")}
+          </span>
+        </div>
+
+        {/* ── Segmented pill progress bar ───────────────────────── */}
+        <div
+          role="progressbar"
+          aria-valuenow={pct}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label="Loading progress"
+          className="flex"
+          style={{ gap: "clamp(6px, 1.2vw, 12px)" }}
+        >
+          {Array.from({ length: SEGMENTS }, (_, i) => (
+            <div
+              key={i}
+              style={{
+                width:        "clamp(44px, 8.5vw, 88px)",
+                height:       "7px",
+                borderRadius: "4px",
+                background:   i < litSegments ? "#4a9de8" : "#12243a",
+                boxShadow:    i < litSegments ? "0 0 8px rgba(74, 157, 232, 0.5)" : "none",
+                transition:   "background 100ms linear, box-shadow 100ms linear",
+              }}
+            />
+          ))}
+        </div>
+
+        {/* ── Bottom label ─────────────────────────────────────── */}
+        <p
+          className="font-display font-semibold"
+          style={{
+            fontSize: "clamp(14px, 2vw, 18px)",
+            color: "#4a9de8",
+            letterSpacing: "0.02em",
+          }}
+        >
+          Computer Science Kasetsart
+        </p>
+
       </div>
     </div>
   );
