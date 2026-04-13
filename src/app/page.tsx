@@ -1,17 +1,29 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 import { homePage } from "@/config/site";
 import { cs101Config } from "@/config/events/cs101";
 import { helloWorldConfig } from "@/config/events/hello-world";
 import { getMemberColor, DOT_PATTERN } from "@/config/team";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
+import LoadingScreen from "@/components/ui/LoadingScreen";
 
 const { hero, eventsSection, teamSection, cta } = homePage;
 const cs101Card = cs101Config.homeCard;
 const hwCard = helloWorldConfig.homeCard;
 
 export default function Home() {
+  const [isLoading, setIsLoading] = useState(true);
+
   return (
     <div className="relative">
+      {isLoading && (
+        <LoadingScreen onComplete={() => setIsLoading(false)} />
+      )}
+
+      {/* Main content wrapper with fade-in */}
+      <div className={`transition-opacity duration-1000 ${isLoading ? "opacity-0" : "opacity-100"}`}>
       {/* Hero Section */}
       <section aria-labelledby="hero-heading" className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-white dark:bg-slate-900 grid-pattern">
         {/* Code bracket ghosts — technical identity without decorative noise */}
@@ -166,6 +178,7 @@ export default function Home() {
           </div>
         </div>
       </section>
+    </div>
     </div>
   );
 }
