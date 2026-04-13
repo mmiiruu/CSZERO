@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { useTheme } from "@/components/providers/ThemeProvider";
 
 /* ─── Types ─────────────────────────────────────────────────────── */
 type Registration = {
@@ -28,8 +29,35 @@ const roleBadge: Record<Role, string> = {
 
 /* ─── Response Modal ─────────────────────────────────────────────── */
 function ResponseModal({ reg, onClose }: { reg: Registration; onClose: () => void }) {
+  const closeRef = useRef<HTMLButtonElement>(null);
+
+  // Move focus into the dialog on mount; restore it to the trigger on unmount
   useEffect(() => {
-    const h = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    const trigger = document.activeElement as HTMLElement | null;
+    closeRef.current?.focus();
+    return () => { trigger?.focus(); };
+  }, []);
+
+  // Escape closes; Tab is trapped within the dialog
+  useEffect(() => {
+    const h = (e: KeyboardEvent) => {
+      if (e.key === "Escape") { onClose(); return; }
+      if (e.key !== "Tab") return;
+      const dialog = closeRef.current?.closest('[role="dialog"]');
+      if (!dialog) return;
+      const focusable = Array.from(
+        dialog.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
+        )
+      );
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey) {
+        if (document.activeElement === first) { e.preventDefault(); last?.focus(); }
+      } else {
+        if (document.activeElement === last) { e.preventDefault(); first?.focus(); }
+      }
+    };
     window.addEventListener("keydown", h);
     return () => window.removeEventListener("keydown", h);
   }, [onClose]);
@@ -37,13 +65,18 @@ function ResponseModal({ reg, onClose }: { reg: Registration; onClose: () => voi
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
-      <div className="relative w-full max-w-lg max-h-[80vh] flex flex-col rounded-2xl shadow-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-title"
+        className="relative w-full max-w-lg max-h-[80vh] flex flex-col rounded-2xl shadow-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700"
+      >
         <div className="flex items-start justify-between gap-4 px-6 py-5 border-b border-slate-100 dark:border-slate-700">
           <div>
-            <h3 className="text-base font-semibold text-slate-800 dark:text-slate-100">{reg.name}</h3>
+            <h3 id="modal-title" className="text-base font-semibold text-slate-800 dark:text-slate-100">{reg.name}</h3>
             <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">{reg.email}</p>
           </div>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors cursor-pointer" aria-label="Close">
+          <button ref={closeRef} onClick={onClose} className="p-3 -mr-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors cursor-pointer" aria-label="Close">
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -70,7 +103,7 @@ function ResponseModal({ reg, onClose }: { reg: Registration; onClose: () => voi
 }
 
 /* ─── Registrations Tab ──────────────────────────────────────────── */
-function RegistrationsTab({ dark }: { dark: boolean }) {
+function RegistrationsTab() {
   const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>("all");
@@ -104,7 +137,16 @@ function RegistrationsTab({ dark }: { dark: boolean }) {
     if (res.ok) setRegistrations((p) => p.map((r) => r._id === regId ? { ...r, house } : r));
   };
 
-  const filtered = filter === "all" ? registrations : registrations.filter((r) => r.event === filter);
+  const filtered = useMemo(
+    () => filter === "all" ? registrations : registrations.filter((r) => r.event === filter),
+    [registrations, filter]
+  );
+
+  const regStats = useMemo(() => ({
+    total: registrations.length,
+    cs101: registrations.filter((r) => r.event === "cs101").length,
+    helloWorld: registrations.filter((r) => r.event === "hello-world").length,
+  }), [registrations]);
 
   const handleExportCSV = () => {
     if (filtered.length === 0) return;
@@ -125,17 +167,18 @@ function RegistrationsTab({ dark }: { dark: boolean }) {
       <div className="flex flex-wrap gap-2 items-center mb-6">
         {["all", "cs101", "hello-world"].map((f) => (
           <button key={f} onClick={() => setFilter(f)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer ${filter === f ? "bg-blue-600 text-white shadow-sm" : "bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700"}`}>
+            aria-pressed={filter === f}
+            className={`px-4 py-3 rounded-lg text-sm font-medium transition-colors cursor-pointer ${filter === f ? "bg-blue-600 text-white shadow-sm" : "bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700"}`}>
             {f === "all" ? "All" : f === "cs101" ? "CS101" : "Hello World"}
           </button>
         ))}
         <button onClick={handleExportCSV} disabled={filtered.length === 0}
-          className="px-4 py-2 rounded-lg text-sm font-medium bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-60 transition-all cursor-pointer flex items-center gap-1.5">
+          className="px-4 py-3 rounded-lg text-sm font-medium bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-60 transition-colors cursor-pointer flex items-center gap-1.5">
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
           Export CSV
         </button>
         <button onClick={handleSeedCandidates} disabled={seeding}
-          className="px-4 py-2 rounded-lg text-sm font-medium bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-60 transition-all cursor-pointer">
+          className="px-4 py-3 rounded-lg text-sm font-medium bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-60 transition-colors cursor-pointer">
           {seeding ? "Seeding…" : "Seed Candidates"}
         </button>
       </div>
@@ -146,23 +189,27 @@ function RegistrationsTab({ dark }: { dark: boolean }) {
         </div>
       )}
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-        {[
-          { label: "Total Registrations", value: registrations.length, color: "text-slate-800 dark:text-slate-100" },
-          { label: "CS101", value: registrations.filter((r) => r.event === "cs101").length, color: "text-blue-600" },
-          { label: "Hello World", value: registrations.filter((r) => r.event === "hello-world").length, color: "text-purple-600" },
-        ].map(({ label, value, color }) => (
-          <div key={label} className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6">
-            <p className="text-sm text-slate-400 dark:text-slate-500">{label}</p>
-            <p className={`text-3xl font-bold mt-1 ${color}`}>{value}</p>
-          </div>
-        ))}
+      {/* Summary strip */}
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mb-6 text-sm">
+        <span>
+          <strong className="font-semibold text-slate-800 dark:text-slate-100">{regStats.total}</strong>
+          <span className="ml-1.5 text-slate-400 dark:text-slate-500">registrations</span>
+        </span>
+        <span aria-hidden="true" className="hidden sm:block w-px h-4 bg-slate-200 dark:bg-slate-700" />
+        <span>
+          <strong className="font-semibold text-blue-600 dark:text-blue-400">{regStats.cs101}</strong>
+          <span className="ml-1.5 text-slate-400 dark:text-slate-500">CS101</span>
+        </span>
+        <span aria-hidden="true" className="hidden sm:block w-px h-4 bg-slate-200 dark:bg-slate-700" />
+        <span>
+          <strong className="font-semibold text-amber-600 dark:text-amber-400">{regStats.helloWorld}</strong>
+          <span className="ml-1.5 text-slate-400 dark:text-slate-500">Hello World</span>
+        </span>
       </div>
 
       {/* Table */}
       {loading ? (
-        <div className="flex items-center justify-center py-20"><div className="w-8 h-8 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin" /></div>
+        <div role="status" aria-label="กำลังโหลด..." className="flex items-center justify-center py-20"><div aria-hidden="true" className="w-8 h-8 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin" /></div>
       ) : filtered.length === 0 ? (
         <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-12 text-center">
           <p className="text-slate-400 dark:text-slate-500">No registrations found.</p>
@@ -184,7 +231,7 @@ function RegistrationsTab({ dark }: { dark: boolean }) {
                     <td className="px-6 py-4 text-slate-800 dark:text-slate-200 font-medium">{reg.name}</td>
                     <td className="px-6 py-4 text-slate-500 dark:text-slate-400">{reg.email}</td>
                     <td className="px-6 py-4">
-                      <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${reg.event === "cs101" ? "bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400" : "bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400"}`}>
+                      <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${reg.event === "cs101" ? "bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400" : "bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400"}`}>
                         {reg.event === "cs101" ? "CS101" : "Hello World"}
                       </span>
                     </td>
@@ -199,7 +246,7 @@ function RegistrationsTab({ dark }: { dark: boolean }) {
                     </td>
                     <td className="px-6 py-4 text-slate-400 dark:text-slate-500 text-xs">{new Date(reg.createdAt).toLocaleDateString()}</td>
                     <td className="px-6 py-4">
-                      <button onClick={() => setModalReg(reg)} className="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-medium cursor-pointer transition-colors">View</button>
+                      <button onClick={() => setModalReg(reg)} aria-label={`View responses for ${reg.name}`} className="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-medium cursor-pointer transition-colors">View</button>
                     </td>
                   </tr>
                 ))}
@@ -258,31 +305,41 @@ function UsersTab({ callerEmail, callerRole }: { callerEmail: string; callerRole
 
   const isSelf = (u: ManagedUser) => u.email === callerEmail;
 
+  const userStats = useMemo(() => ({
+    total: users.length,
+    staff: users.filter((u) => u.role === "staff").length,
+    admins: users.filter((u) => u.role === "admin").length,
+  }), [users]);
+
   return (
     <>
       {/* Toast */}
       {toast && (
-        <div className={`fixed bottom-6 right-6 z-50 px-5 py-3 rounded-xl text-sm font-medium shadow-lg transition-all animate-slide-up ${toast.ok ? "bg-green-600 text-white" : "bg-red-600 text-white"}`}>
+        <div className={`fixed bottom-6 right-6 z-50 px-5 py-3 rounded-xl text-sm font-medium shadow-lg transition-colors animate-slide-up ${toast.ok ? "bg-green-600 text-white" : "bg-red-600 text-white"}`}>
           {toast.msg}
         </div>
       )}
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-        {([
-          { label: "Total Users",  value: users.length,                                    color: "text-slate-800 dark:text-slate-100" },
-          { label: "Staff",        value: users.filter((u) => u.role === "staff").length,   color: "text-amber-600" },
-          { label: "Admins",       value: users.filter((u) => u.role === "admin").length,   color: "text-pink-600" },
-        ] as const).map(({ label, value, color }) => (
-          <div key={label} className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6">
-            <p className="text-sm text-slate-400 dark:text-slate-500">{label}</p>
-            <p className={`text-3xl font-bold mt-1 ${color}`}>{value}</p>
-          </div>
-        ))}
+      {/* Summary strip */}
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mb-6 text-sm">
+        <span>
+          <strong className="font-semibold text-slate-800 dark:text-slate-100">{userStats.total}</strong>
+          <span className="ml-1.5 text-slate-400 dark:text-slate-500">users</span>
+        </span>
+        <span aria-hidden="true" className="hidden sm:block w-px h-4 bg-slate-200 dark:bg-slate-700" />
+        <span>
+          <strong className="font-semibold text-amber-600 dark:text-amber-400">{userStats.staff}</strong>
+          <span className="ml-1.5 text-slate-400 dark:text-slate-500">staff</span>
+        </span>
+        <span aria-hidden="true" className="hidden sm:block w-px h-4 bg-slate-200 dark:bg-slate-700" />
+        <span>
+          <strong className="font-semibold text-pink-600 dark:text-pink-400">{userStats.admins}</strong>
+          <span className="ml-1.5 text-slate-400 dark:text-slate-500">admins</span>
+        </span>
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center py-20"><div className="w-8 h-8 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin" /></div>
+        <div role="status" aria-label="กำลังโหลด..." className="flex items-center justify-center py-20"><div aria-hidden="true" className="w-8 h-8 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin" /></div>
       ) : (
         <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
@@ -359,7 +416,9 @@ function UsersTab({ callerEmail, callerRole }: { callerEmail: string; callerRole
                             <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                           </svg>
                           {updating === u._id && (
-                            <div className="w-4 h-4 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
+                            <div role="status" aria-label="กำลังบันทึก...">
+                              <div aria-hidden="true" className="w-4 h-4 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
+                            </div>
                           )}
                         </div>
                       )}
@@ -380,20 +439,11 @@ type Tab = "registrations" | "users";
 
 export default function AdminPage() {
   const router = useRouter();
+  const { theme, toggleTheme } = useTheme();
+  const dark = theme === "dark";
   const [tab, setTab] = useState<Tab>("registrations");
   const [role, setRole] = useState<string | null>(null);
   const [callerEmail, setCallerEmail] = useState("");
-  const [dark, setDark] = useState(false);
-
-  useEffect(() => {
-    const saved = localStorage.getItem("admin-dark");
-    if (saved === "true") setDark(true);
-  }, []);
-
-  const toggleDark = () => setDark((d) => {
-    localStorage.setItem("admin-dark", String(!d));
-    return !d;
-  });
 
   useEffect(() => {
     fetch("/api/admin/check")
@@ -413,61 +463,64 @@ export default function AdminPage() {
 
   if (role === null) {
     return (
-      <div className={dark ? "dark" : ""}>
-        <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900">
-          <div className="w-8 h-8 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900">
+        <div role="status" aria-label="กำลังโหลด...">
+          <div aria-hidden="true" className="w-8 h-8 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
         </div>
       </div>
     );
   }
 
   return (
-    <div className={dark ? "dark" : ""}>
-      <div className="min-h-screen py-20 px-4 bg-slate-50 dark:bg-slate-900 transition-colors duration-300">
-        <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen py-20 px-4 bg-slate-50 dark:bg-slate-900 transition-colors duration-300">
+      <div className="max-w-7xl mx-auto">
 
-          {/* Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
-            <div>
-              <h1 className="text-3xl font-bold text-slate-800 dark:text-slate-100">Admin Dashboard</h1>
-              <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
-                {role === "admin" ? "Manage registrations, houses, and user roles" : "View registrations and user list (read-only)"}
-              </p>
-            </div>
-            {/* Dark mode toggle */}
-            <button onClick={toggleDark}
-              className="p-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all cursor-pointer self-end sm:self-auto"
-              aria-label="Toggle dark mode">
-              {dark ? (
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
-              ) : (
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
-              )}
-            </button>
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-slate-800 dark:text-slate-100">Admin Dashboard</h1>
+            <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
+              {role === "admin" ? "Manage registrations, houses, and user roles" : "View registrations and user list (read-only)"}
+            </p>
           </div>
-
-          {/* Tabs */}
-          <div className="flex gap-1 mb-8 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-1 w-fit">
-            {([
-              { id: "registrations" as Tab, label: "Registrations", icon: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" },
-              { id: "users" as Tab,         label: "Users",         icon: "M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" },
-            ]).map(({ id, label, icon }) => (
-              <button key={id} onClick={() => setTab(id)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer ${tab === id ? "bg-blue-600 text-white shadow-sm" : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"}`}>
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d={icon} /></svg>
-                {label}
-              </button>
-            ))}
-          </div>
-
-          {/* Tab content */}
-          {tab === "registrations" ? (
-            <RegistrationsTab dark={dark} />
-          ) : (
-            <UsersTab callerEmail={callerEmail} callerRole={(role as Role) ?? "staff"} />
-          )}
-
+          {/* Dark mode toggle */}
+          <button onClick={toggleTheme}
+            aria-label="Toggle dark mode"
+            aria-pressed={dark}
+            className="p-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors cursor-pointer self-end sm:self-auto">
+            {dark ? (
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+            ) : (
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+            )}
+          </button>
         </div>
+
+        {/* Tabs */}
+        <div role="tablist" aria-label="Dashboard sections" className="flex gap-1 mb-8 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-1 w-fit">
+          {([
+            { id: "registrations" as Tab, label: "Registrations", icon: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" },
+            { id: "users" as Tab,         label: "Users",         icon: "M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" },
+          ]).map(({ id, label, icon }) => (
+            <button key={id} id={`tab-${id}`} onClick={() => setTab(id)}
+              role="tab"
+              aria-selected={tab === id}
+              aria-controls={`panel-${id}`}
+              className={`flex items-center gap-2 px-4 py-3 rounded-lg text-sm font-medium transition-colors cursor-pointer ${tab === id ? "bg-blue-600 text-white shadow-sm" : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"}`}>
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d={icon} /></svg>
+              {label}
+            </button>
+          ))}
+        </div>
+
+        {/* Tab content */}
+        <div role="tabpanel" id="panel-registrations" aria-labelledby="tab-registrations" hidden={tab !== "registrations"}>
+          <RegistrationsTab />
+        </div>
+        <div role="tabpanel" id="panel-users" aria-labelledby="tab-users" hidden={tab !== "users"}>
+          <UsersTab callerEmail={callerEmail} callerRole={(role as Role) ?? "staff"} />
+        </div>
+
       </div>
     </div>
   );
