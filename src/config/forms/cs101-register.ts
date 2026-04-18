@@ -42,10 +42,11 @@ export const cs101FormConfig: CS101FormConfig = {
       title: "ข้อมูลส่วนตัว",
       description: "บอกเราเกี่ยวกับตัวคุณ",
       fields: [
-        { name: "name", label: "ชื่อ-นามสกุล", type: "text", placeholder: "กรอกชื่อ-นามสกุลของคุณ", required: true },
+        { name: "name", label: "ชื่อ-นามสกุล ไม่ต้องใส่คำนำหน้า", type: "text", placeholder: "เช่น เก่ง ดีใจ", required: true },
+        { name: "nickname", label: "ชื่อเล่น", type: "text", placeholder: "เช่น อาร์ม", required: true },
         { name: "email", label: "อีเมล", type: "email", placeholder: "your@email.com", required: true },
         { name: "phone", label: "เบอร์โทรศัพท์ (ไม่บังคับ)", type: "tel", placeholder: "0xx-xxx-xxxx" },
-        { name: "university", label: "มหาวิทยาลัย", type: "text", placeholder: "เช่น มหาวิทยาลัยเกษตรศาสตร์", required: true },
+        { name: "type" , label: "ภาค", type: "select", required: true, options: [{ value: "regular", label: "ปกติ" }, { value: "special", label: "พิเศษ" }] },
       ],
     },
     {
@@ -54,14 +55,14 @@ export const cs101FormConfig: CS101FormConfig = {
       fields: [
         {
           name: "experienceLevel",
-          label: "ระดับประสบการณ์",
+          label: "ปัจจุบันมีพื้นฐานด้านนี้มากน้อยแค่ไหน",
           type: "select",
           required: true,
           options: [
             { value: "none", label: "ไม่มีประสบการณ์" },
-            { value: "beginner", label: "เริ่มต้น (น้อยกว่า 6 เดือน)" },
-            { value: "intermediate", label: "ปานกลาง (6 เดือน - 2 ปี)" },
-            { value: "advanced", label: "ขั้นสูง (มากกว่า 2 ปี)" },
+            { value: "beginner", label: "พื้นฐานเล็กน้อย" },
+            { value: "intermediate", label: "พอทำได้" },
+            { value: "advanced", label: "เคยทำโปรเจกต์" },
           ],
         },
         { name: "languages", label: "ภาษาโปรแกรมที่รู้จัก (ถ้ามี)", type: "text", placeholder: "เช่น Python, JavaScript, C++", helperText: "คั่นด้วยเครื่องหมายจุลภาค" },
@@ -82,34 +83,6 @@ export const cs101FormConfig: CS101FormConfig = {
       fields: [
         { name: "whyCS101", label: "ทำไมคุณถึงอยากเข้าร่วม CS101?", type: "textarea", placeholder: "บอกแรงจูงใจของคุณ...", required: true },
         { name: "whatToGain", label: "คุณหวังจะได้อะไรจากโปรแกรมนี้?", type: "textarea", placeholder: "ทักษะ ความรู้ การเชื่อมต่อ..." },
-      ],
-    },
-    {
-      title: "รูปแบบการเรียนรู้",
-      description: "คุณเรียนรู้ได้ดีที่สุดแบบไหน?",
-      fields: [
-        {
-          name: "learningStyle",
-          label: "รูปแบบการเรียนที่ชื่นชอบ",
-          type: "select",
-          required: true,
-          options: [
-            { value: "lecture", label: "การบรรยายและทฤษฎี" },
-            { value: "hands-on", label: "การฝึกปฏิบัติ" },
-            { value: "mixed", label: "ผสมผสานทั้งสองแบบ" },
-          ],
-        },
-        {
-          name: "collaboration",
-          label: "คุณชอบทำงานคนเดียวหรือเป็นกลุ่ม?",
-          type: "select",
-          required: true,
-          options: [
-            { value: "solo", label: "คนเดียว" },
-            { value: "group", label: "เป็นกลุ่ม" },
-            { value: "both", label: "ทั้งสองแบบก็ได้" },
-          ],
-        },
       ],
     },
     {
