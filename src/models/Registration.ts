@@ -30,6 +30,9 @@ const RegistrationSchema = new Schema<IRegistration>(
 // Unique constraint: one registration per email per event
 RegistrationSchema.index({ email: 1, event: 1 }, { unique: true });
 
+// Optimize dashboard sorting
+RegistrationSchema.index({ createdAt: -1 });
+
 const Registration: Model<IRegistration> =
   mongoose.models.Registration ||
   mongoose.model<IRegistration>("Registration", RegistrationSchema);

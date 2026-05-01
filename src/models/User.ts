@@ -21,6 +21,9 @@ const UserSchema = new Schema<IUser>(
   { timestamps: true }
 );
 
+// Optimize dashboard sorting
+UserSchema.index({ createdAt: -1 });
+
 const User: Model<IUser> =
   mongoose.models.User || mongoose.model<IUser>("User", UserSchema);
 
