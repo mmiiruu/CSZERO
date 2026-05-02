@@ -451,14 +451,9 @@ export default function AdminPage() {
       .then((d) => {
         if (d.role !== "admin" && d.role !== "staff") { router.push("/"); return; }
         setRole(d.role);
+        if (d.email) setCallerEmail(d.email);
       })
       .catch(() => router.push("/"));
-
-    // Also grab current user email for the self-edit guard in UsersTab
-    fetch("/api/profile")
-      .then((r) => r.json())
-      .then((d) => { if (d.user?.email) setCallerEmail(d.user.email); })
-      .catch(() => {});
   }, [router]);
 
   if (role === null) {

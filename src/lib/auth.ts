@@ -15,16 +15,22 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     signIn: "/auth/signin",
   },
   session: {
-    strategy: "database",
+    strategy: "jwt",
   },
   callbacks: {
-    async session({ session, user }) {
-      if (session.user) {
-        session.user.id = user.id;
-        // Fetch role from DB
+    async jwt({ token, user }) {
+      if (user) {
         const db = (await clientPromise).db();
         const dbUser = await db.collection("users").findOne({ email: user.email });
-        (session.user as any).role = dbUser?.role || "user";
+        token.role = dbUser?.role || "user";
+        token.id = user.id;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (session.user) {
+        (session.user as any).role = token.role;
+        (session.user as any).id = token.sub;
       }
       return session;
     },
