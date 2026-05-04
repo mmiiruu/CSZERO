@@ -40,7 +40,9 @@ export default function ProfilePage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800">
-        <div className="w-8 h-8 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
+        <div role="status" aria-label="กำลังโหลด...">
+          <div aria-hidden="true" className="w-8 h-8 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
+        </div>
       </div>
     );
   }
@@ -62,7 +64,7 @@ export default function ProfilePage() {
       <div className="max-w-3xl mx-auto">
 
         {/* Profile Card */}
-        <div className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-8 shadow-sm mb-8 animate-fade-in">
+        <div className="bg-card border border-border rounded-3xl p-8 shadow-sm mb-8 animate-fade-in">
           <div className="flex items-center gap-5">
             {user.image ? (
               <img
@@ -113,7 +115,7 @@ export default function ProfilePage() {
           <h2 className="text-lg font-semibold text-slate-800 dark:text-white animate-fade-in">กิจกรรมที่ลงทะเบียน</h2>
 
           {registrations.length === 0 ? (
-            <div className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border border-slate-200/60 dark:border-slate-700/60 rounded-2xl p-10 text-center animate-fade-in">
+            <div className="bg-card border border-border rounded-2xl p-10 text-center animate-fade-in">
               <div className="text-4xl mb-4">📋</div>
               <p className="text-slate-500 dark:text-slate-400 mb-4">คุณยังไม่ได้ลงทะเบียนกิจกรรมใดเลย</p>
               <Link
@@ -127,7 +129,7 @@ export default function ProfilePage() {
             registrations.map((reg) => (
               <div
                 key={reg._id}
-                className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border border-slate-200/60 dark:border-slate-700/60 rounded-2xl p-6 shadow-sm animate-slide-up"
+                className="bg-card border border-border rounded-2xl p-6 shadow-sm animate-slide-up"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1">
@@ -167,7 +169,7 @@ export default function ProfilePage() {
           {!cs101Reg && (
             <Link
               href="/events/cs101/register"
-              className="group bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border border-slate-200/60 dark:border-slate-700/60 rounded-2xl p-5 hover:border-blue-300 dark:hover:border-blue-600 transition-all"
+              className="group bg-card border border-border rounded-2xl p-5 hover:border-blue-300 dark:hover:border-blue-600 transition-all"
             >
               <p className="text-sm font-medium text-slate-800 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">สมัคร CS101</p>
               <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">เรียนรู้พื้นฐานวิทยาการคอมพิวเตอร์</p>
@@ -176,7 +178,7 @@ export default function ProfilePage() {
           {!helloWorldReg && (
             <Link
               href="/events/hello-world/register"
-              className="group bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border border-slate-200/60 dark:border-slate-700/60 rounded-2xl p-5 hover:border-purple-300 dark:hover:border-purple-600 transition-all"
+              className="group bg-card border border-border rounded-2xl p-5 hover:border-purple-300 dark:hover:border-purple-600 transition-all"
             >
               <p className="text-sm font-medium text-slate-800 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">สมัคร Hello World</p>
               <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">ค้นพบบ้านและพบเพื่อนใหม่</p>

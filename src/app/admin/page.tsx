@@ -69,7 +69,7 @@ function ResponseModal({ reg, onClose }: { reg: Registration; onClose: () => voi
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-title"
-        className="relative w-full max-w-lg max-h-[80vh] flex flex-col rounded-2xl shadow-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700"
+        className="relative w-full max-w-lg max-h-[80vh] flex flex-col rounded-2xl shadow-2xl bg-card border border-border"
       >
         <div className="flex items-start justify-between gap-4 px-6 py-5 border-b border-slate-100 dark:border-slate-700">
           <div>
@@ -211,49 +211,101 @@ function RegistrationsTab() {
       {loading ? (
         <div role="status" aria-label="กำลังโหลด..." className="flex items-center justify-center py-20"><div aria-hidden="true" className="w-8 h-8 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin" /></div>
       ) : filtered.length === 0 ? (
-        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-12 text-center">
+        <div className="bg-card border border-border rounded-2xl p-12 text-center">
           <p className="text-slate-400 dark:text-slate-500">No registrations found.</p>
         </div>
       ) : (
-        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden shadow-sm">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-700/50">
-                  {["Name","Email","Event","House","Date","Actions"].map((h) => (
-                    <th key={h} className="text-left px-6 py-4 text-slate-500 dark:text-slate-400 font-medium">{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((reg) => (
-                  <tr key={reg._id} className="border-b border-slate-50 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
-                    <td className="px-6 py-4 text-slate-800 dark:text-slate-200 font-medium">{reg.name}</td>
-                    <td className="px-6 py-4 text-slate-500 dark:text-slate-400">{reg.email}</td>
-                    <td className="px-6 py-4">
-                      <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${reg.event === "cs101" ? "bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400" : "bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400"}`}>
-                        {reg.event === "cs101" ? "CS101" : "Hello World"}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      {reg.event === "hello-world" ? (
-                        <select value={reg.house || ""} onChange={(e) => handleHouseChange(reg._id, e.target.value)}
-                          className="px-3 py-1.5 border border-slate-200 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500">
-                          <option value="">Unassigned</option>
-                          {houseOptions.map((h) => <option key={h} value={h}>{h.charAt(0).toUpperCase() + h.slice(1)}</option>)}
-                        </select>
-                      ) : <span className="text-slate-300 dark:text-slate-600">—</span>}
-                    </td>
-                    <td className="px-6 py-4 text-slate-400 dark:text-slate-500 text-xs">{new Date(reg.createdAt).toLocaleDateString()}</td>
-                    <td className="px-6 py-4">
-                      <button onClick={() => setModalReg(reg)} aria-label={`View responses for ${reg.name}`} className="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-medium cursor-pointer transition-colors">View</button>
-                    </td>
+        <>
+          {/* Desktop / tablet ≥ md — full table */}
+          <div className="hidden md:block bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-700/50">
+                    {["Name","Email","Event","House","Date","Actions"].map((h) => (
+                      <th key={h} className="text-left px-6 py-4 text-slate-500 dark:text-slate-400 font-medium">{h}</th>
+                    ))}
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {filtered.map((reg) => (
+                    <tr key={reg._id} className="border-b border-slate-50 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
+                      <td className="px-6 py-4 text-slate-800 dark:text-slate-200 font-medium">{reg.name}</td>
+                      <td className="px-6 py-4 text-slate-500 dark:text-slate-400">{reg.email}</td>
+                      <td className="px-6 py-4">
+                        <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${reg.event === "cs101" ? "bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400" : "bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400"}`}>
+                          {reg.event === "cs101" ? "CS101" : "Hello World"}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        {reg.event === "hello-world" ? (
+                          <select value={reg.house || ""} onChange={(e) => handleHouseChange(reg._id, e.target.value)}
+                            aria-label={`House for ${reg.name}`}
+                            className="px-3 py-1.5 border border-slate-200 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500">
+                            <option value="">Unassigned</option>
+                            {houseOptions.map((h) => <option key={h} value={h}>{h.charAt(0).toUpperCase() + h.slice(1)}</option>)}
+                          </select>
+                        ) : <span className="text-slate-300 dark:text-slate-600">—</span>}
+                      </td>
+                      <td className="px-6 py-4 text-slate-400 dark:text-slate-500 text-xs">{new Date(reg.createdAt).toLocaleDateString()}</td>
+                      <td className="px-6 py-4">
+                        <button onClick={() => setModalReg(reg)} aria-label={`View responses for ${reg.name}`} className="text-primary hover:text-primary-dark text-sm font-medium cursor-pointer transition-colors">View</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
+
+          {/* Mobile < md — card list. Same data, reflowed for thumb reach. */}
+          <ul className="md:hidden bg-card border border-border rounded-2xl shadow-sm divide-y divide-border overflow-hidden">
+            {filtered.map((reg) => (
+              <li key={reg._id} className="p-4 space-y-3">
+                {/* Top row: event badge + date, View action */}
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1 min-w-0">
+                    <span className={`px-2.5 py-1 rounded-full text-xs font-medium shrink-0 ${reg.event === "cs101" ? "bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400" : "bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400"}`}>
+                      {reg.event === "cs101" ? "CS101" : "Hello World"}
+                    </span>
+                    <span className="text-xs text-slate-400 dark:text-slate-500 tabular-nums">{new Date(reg.createdAt).toLocaleDateString()}</span>
+                  </div>
+                  <button
+                    onClick={() => setModalReg(reg)}
+                    aria-label={`View responses for ${reg.name}`}
+                    className="shrink-0 min-h-[44px] inline-flex items-center px-3 -mr-1 text-primary hover:text-primary-dark text-sm font-medium cursor-pointer transition-colors"
+                  >
+                    View
+                  </button>
+                </div>
+
+                {/* Identity */}
+                <div className="min-w-0">
+                  <p className="text-slate-800 dark:text-slate-200 font-medium truncate">{reg.name}</p>
+                  <p className="text-slate-500 dark:text-slate-400 text-sm break-all">{reg.email}</p>
+                </div>
+
+                {/* House selector — hello-world only */}
+                {reg.event === "hello-world" && (
+                  <div>
+                    <label htmlFor={`house-mobile-${reg._id}`} className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">
+                      House
+                    </label>
+                    <select
+                      id={`house-mobile-${reg._id}`}
+                      value={reg.house || ""}
+                      onChange={(e) => handleHouseChange(reg._id, e.target.value)}
+                      className="w-full px-3 py-2.5 border border-slate-200 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500"
+                    >
+                      <option value="">Unassigned</option>
+                      {houseOptions.map((h) => <option key={h} value={h}>{h.charAt(0).toUpperCase() + h.slice(1)}</option>)}
+                    </select>
+                  </div>
+                )}
+              </li>
+            ))}
+          </ul>
+        </>
       )}
 
       {modalReg && <ResponseModal reg={modalReg} onClose={() => setModalReg(null)} />}
@@ -341,94 +393,171 @@ function UsersTab({ callerEmail, callerRole }: { callerEmail: string; callerRole
       {loading ? (
         <div role="status" aria-label="กำลังโหลด..." className="flex items-center justify-center py-20"><div aria-hidden="true" className="w-8 h-8 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin" /></div>
       ) : (
-        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden shadow-sm">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-700/50">
-                  {["User","Email","Role","Joined", callerRole === "admin" ? "Change Role" : "Access"].map((h) => (
-                    <th key={h} className="text-left px-6 py-4 text-slate-500 dark:text-slate-400 font-medium">{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {users.map((u) => (
-                  <tr key={u._id} className={`border-b border-slate-50 dark:border-slate-700/50 transition-colors ${isSelf(u) ? "bg-blue-50/30 dark:bg-blue-900/10" : "hover:bg-slate-50 dark:hover:bg-slate-700/30"}`}>
-                    {/* Avatar + name */}
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        {u.image ? (
-                          <img src={u.image} alt={u.name || u.email} referrerPolicy="no-referrer"
-                            className="w-8 h-8 rounded-full object-cover border border-slate-200 dark:border-slate-600 shrink-0" />
-                        ) : (
-                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shrink-0">
-                            <span className="text-white text-xs font-bold">{(u.name || u.email).charAt(0).toUpperCase()}</span>
-                          </div>
-                        )}
-                        <div className="min-w-0">
-                          <p className="text-slate-800 dark:text-slate-200 font-medium truncate max-w-[140px]">{u.name || "—"}</p>
-                          {isSelf(u) && <p className="text-xs text-blue-500 dark:text-blue-400">(you)</p>}
-                        </div>
-                      </div>
-                    </td>
-
-                    {/* Email */}
-                    <td className="px-6 py-4 text-slate-500 dark:text-slate-400 max-w-[180px]">
-                      <span className="truncate block">{u.email}</span>
-                    </td>
-
-                    {/* Current role badge */}
-                    <td className="px-6 py-4">
-                      <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${roleBadge[u.role || "user"]}`}>
-                        {(u.role || "user").charAt(0).toUpperCase() + (u.role || "user").slice(1)}
-                      </span>
-                    </td>
-
-                    {/* Joined date */}
-                    <td className="px-6 py-4 text-slate-400 dark:text-slate-500 text-xs">
-                      {new Date(u.createdAt).toLocaleDateString()}
-                    </td>
-
-                    {/* Role dropdown — admin only; staff sees read-only lock */}
-                    <td className="px-6 py-4">
-                      {callerRole !== "admin" ? (
-                        <span className="inline-flex items-center gap-1.5 text-xs text-slate-400 dark:text-slate-500">
-                          <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                          </svg>
-                          Read-only
-                        </span>
-                      ) : isSelf(u) ? (
-                        <span className="text-xs text-slate-400 dark:text-slate-500 italic">Cannot edit own role</span>
-                      ) : (
-                        <div className="relative inline-flex items-center gap-2">
-                          <select
-                            value={u.role || "user"}
-                            disabled={updating === u._id}
-                            onChange={(e) => handleRoleChange(u._id, e.target.value as Role)}
-                            className="pl-3 pr-8 py-1.5 border border-slate-200 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 disabled:opacity-60 cursor-pointer appearance-none"
-                          >
-                            {ROLES.map((r) => (
-                              <option key={r} value={r}>{r.charAt(0).toUpperCase() + r.slice(1)}</option>
-                            ))}
-                          </select>
-                          <svg className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                          </svg>
-                          {updating === u._id && (
-                            <div role="status" aria-label="กำลังบันทึก...">
-                              <div aria-hidden="true" className="w-4 h-4 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
+        <>
+          {/* Desktop / tablet ≥ md — full table */}
+          <div className="hidden md:block bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-700/50">
+                    {["User","Email","Role","Joined", callerRole === "admin" ? "Change Role" : "Access"].map((h) => (
+                      <th key={h} className="text-left px-6 py-4 text-slate-500 dark:text-slate-400 font-medium">{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {users.map((u) => (
+                    <tr key={u._id} className={`border-b border-slate-50 dark:border-slate-700/50 transition-colors ${isSelf(u) ? "bg-blue-50/30 dark:bg-blue-900/10" : "hover:bg-slate-50 dark:hover:bg-slate-700/30"}`}>
+                      {/* Avatar + name */}
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          {u.image ? (
+                            <img src={u.image} alt={u.name || u.email} referrerPolicy="no-referrer"
+                              className="w-8 h-8 rounded-full object-cover border border-slate-200 dark:border-slate-600 shrink-0" />
+                          ) : (
+                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shrink-0">
+                              <span className="text-white text-xs font-bold">{(u.name || u.email).charAt(0).toUpperCase()}</span>
                             </div>
                           )}
+                          <div className="min-w-0">
+                            <p className="text-slate-800 dark:text-slate-200 font-medium truncate max-w-[140px]">{u.name || "—"}</p>
+                            {isSelf(u) && <p className="text-xs text-primary">(you)</p>}
+                          </div>
+                        </div>
+                      </td>
+
+                      {/* Email */}
+                      <td className="px-6 py-4 text-slate-500 dark:text-slate-400 max-w-[180px]">
+                        <span className="truncate block">{u.email}</span>
+                      </td>
+
+                      {/* Current role badge */}
+                      <td className="px-6 py-4">
+                        <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${roleBadge[u.role || "user"]}`}>
+                          {(u.role || "user").charAt(0).toUpperCase() + (u.role || "user").slice(1)}
+                        </span>
+                      </td>
+
+                      {/* Joined date */}
+                      <td className="px-6 py-4 text-slate-400 dark:text-slate-500 text-xs">
+                        {new Date(u.createdAt).toLocaleDateString()}
+                      </td>
+
+                      {/* Role dropdown — admin only; staff sees read-only lock */}
+                      <td className="px-6 py-4">
+                        {callerRole !== "admin" ? (
+                          <span className="inline-flex items-center gap-1.5 text-xs text-slate-400 dark:text-slate-500">
+                            <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                            </svg>
+                            Read-only
+                          </span>
+                        ) : isSelf(u) ? (
+                          <span className="text-xs text-slate-400 dark:text-slate-500 italic">Cannot edit own role</span>
+                        ) : (
+                          <div className="relative inline-flex items-center gap-2">
+                            <select
+                              value={u.role || "user"}
+                              disabled={updating === u._id}
+                              onChange={(e) => handleRoleChange(u._id, e.target.value as Role)}
+                              aria-label={`Change role for ${u.name || u.email}`}
+                              className="pl-3 pr-8 py-1.5 border border-slate-200 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 disabled:opacity-60 cursor-pointer appearance-none"
+                            >
+                              {ROLES.map((r) => (
+                                <option key={r} value={r}>{r.charAt(0).toUpperCase() + r.slice(1)}</option>
+                              ))}
+                            </select>
+                            <svg className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                            </svg>
+                            {updating === u._id && (
+                              <div role="status" aria-label="กำลังบันทึก...">
+                                <div aria-hidden="true" className="w-4 h-4 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Mobile < md — card list. Avatar + identity on top, role action at bottom. */}
+          <ul className="md:hidden bg-card border border-border rounded-2xl shadow-sm divide-y divide-border overflow-hidden">
+            {users.map((u) => (
+              <li key={u._id} className={`p-4 space-y-3 ${isSelf(u) ? "bg-blue-50/30 dark:bg-blue-900/10" : ""}`}>
+                {/* Top row: avatar + name/email + role badge */}
+                <div className="flex items-start gap-3">
+                  {u.image ? (
+                    <img src={u.image} alt={u.name || u.email} referrerPolicy="no-referrer"
+                      className="w-10 h-10 rounded-full object-cover border border-slate-200 dark:border-slate-600 shrink-0" />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shrink-0">
+                      <span className="text-white text-sm font-bold">{(u.name || u.email).charAt(0).toUpperCase()}</span>
+                    </div>
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="text-slate-800 dark:text-slate-200 font-medium truncate">{u.name || "—"}</p>
+                      {isSelf(u) && <span className="text-xs text-primary shrink-0">(you)</span>}
+                    </div>
+                    <p className="text-slate-500 dark:text-slate-400 text-sm break-all">{u.email}</p>
+                  </div>
+                  <span className={`shrink-0 px-2.5 py-1 rounded-full text-xs font-semibold ${roleBadge[u.role || "user"]}`}>
+                    {(u.role || "user").charAt(0).toUpperCase() + (u.role || "user").slice(1)}
+                  </span>
+                </div>
+
+                {/* Joined date */}
+                <p className="text-xs text-slate-400 dark:text-slate-500">
+                  Joined {new Date(u.createdAt).toLocaleDateString()}
+                </p>
+
+                {/* Role action */}
+                {callerRole !== "admin" ? (
+                  <span className="inline-flex items-center gap-1.5 text-xs text-slate-400 dark:text-slate-500">
+                    <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                    Read-only
+                  </span>
+                ) : isSelf(u) ? (
+                  <span className="text-xs text-slate-400 dark:text-slate-500 italic">Cannot edit own role</span>
+                ) : (
+                  <div>
+                    <label htmlFor={`role-mobile-${u._id}`} className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">
+                      Change Role
+                    </label>
+                    <div className="relative">
+                      <select
+                        id={`role-mobile-${u._id}`}
+                        value={u.role || "user"}
+                        disabled={updating === u._id}
+                        onChange={(e) => handleRoleChange(u._id, e.target.value as Role)}
+                        className="w-full pl-3 pr-9 py-2.5 border border-slate-200 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 disabled:opacity-60 cursor-pointer appearance-none"
+                      >
+                        {ROLES.map((r) => (
+                          <option key={r} value={r}>{r.charAt(0).toUpperCase() + r.slice(1)}</option>
+                        ))}
+                      </select>
+                      <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                      </svg>
+                      {updating === u._id && (
+                        <div role="status" aria-label="กำลังบันทึก..." className="absolute right-9 top-1/2 -translate-y-1/2">
+                          <div aria-hidden="true" className="w-4 h-4 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
                         </div>
                       )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+                    </div>
+                  </div>
+                )}
+              </li>
+            ))}
+          </ul>
+        </>
       )}
     </>
   );
@@ -458,7 +587,7 @@ export default function AdminPage() {
 
   if (role === null) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div role="status" aria-label="กำลังโหลด...">
           <div aria-hidden="true" className="w-8 h-8 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
         </div>
@@ -467,7 +596,7 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen py-20 px-4 bg-slate-50 dark:bg-slate-900 transition-colors duration-300">
+    <div className="min-h-screen py-20 px-4 bg-background transition-colors duration-300">
       <div className="max-w-7xl mx-auto">
 
         {/* Header */}
@@ -492,7 +621,7 @@ export default function AdminPage() {
         </div>
 
         {/* Tabs */}
-        <div role="tablist" aria-label="Dashboard sections" className="flex gap-1 mb-8 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-1 w-fit">
+        <div role="tablist" aria-label="Dashboard sections" className="flex gap-1 mb-8 bg-card border border-border rounded-xl p-1 w-fit">
           {([
             { id: "registrations" as Tab, label: "Registrations", icon: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" },
             { id: "users" as Tab,         label: "Users",         icon: "M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" },

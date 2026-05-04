@@ -9,6 +9,7 @@ interface SelectProps {
   placeholder?: string;
   error?: boolean;
   className?: string;
+  id?: string;
 }
 
 export default function Select({
@@ -18,6 +19,7 @@ export default function Select({
   placeholder = "Select an option",
   error = false,
   className = "",
+  id,
 }: SelectProps) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -37,8 +39,11 @@ export default function Select({
   return (
     <div ref={ref} className={`relative ${className}`}>
       <button
+        id={id}
         type="button"
         onClick={() => setOpen((o) => !o)}
+        aria-haspopup="listbox"
+        aria-expanded={open}
         className={`w-full flex items-center justify-between bg-white dark:bg-slate-800/60 border rounded-xl px-4 py-3 text-left text-sm transition-all duration-200 focus:outline-none focus:ring-2 ${
           error
             ? "border-red-300 dark:border-red-700 focus:ring-red-500/30 focus:border-red-500"

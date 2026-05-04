@@ -8,19 +8,30 @@ import { notifyRegistration } from "@/lib/discord";
 export async function POST(req: NextRequest) {
   try {
     await dbConnect();
+    const session = await auth();
     const body = await req.json();
-    const { event, name, email, answers } = body;
-
-    if (!event || !name || !email) {
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 }
-      );
-    }
+    const { event, name, answers } = body;
+    let { email } = body;
 
     if (!["cs101", "hello-world"].includes(event)) {
       return NextResponse.json(
         { error: "Invalid event type" },
+        { status: 400 }
+      );
+    }
+
+    // CS101 requires authentication; email is always taken from the session
+    // so the client cannot forge it.
+    if (event === "cs101") {
+      if (!session?.user?.email) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      }
+      email = session.user.email;
+    }
+
+    if (!event || !name || !email) {
+      return NextResponse.json(
+        { error: "Missing required fields" },
         { status: 400 }
       );
     }

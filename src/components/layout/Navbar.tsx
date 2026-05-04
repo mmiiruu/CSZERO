@@ -14,15 +14,16 @@ export default function Navbar({ session }: { session: any }) {
   const visibleLinks = navLinks.filter((link) => !link.adminOnly || canAccessAdmin);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200/60 dark:border-slate-700/60 shadow-sm">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/60 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
+            {/* Filled accent — kept literal; see globals.css note */}
             <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
               <span className="text-white font-bold text-sm">{site.shortName}</span>
             </div>
-            <span className="text-slate-800 dark:text-white font-bold text-lg tracking-tight">
+            <span className="text-foreground font-bold text-lg tracking-tight">
               {site.name}
             </span>
           </Link>
@@ -33,7 +34,7 @@ export default function Navbar({ session }: { session: any }) {
               <Link
                 key={link.href}
                 href={link.href}
-                className="px-4 py-2.5 text-sm text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-all duration-200 min-h-[44px] inline-flex items-center"
+                className="px-4 py-2.5 text-sm text-secondary hover:text-primary rounded-lg hover:bg-primary-subtle transition-all duration-200 min-h-[44px] inline-flex items-center"
               >
                 {link.label}
               </Link>
@@ -42,7 +43,7 @@ export default function Navbar({ session }: { session: any }) {
             <button
               onClick={toggleTheme}
               aria-label="Toggle theme"
-              className="p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-all duration-200 cursor-pointer min-h-[44px] min-w-[44px] inline-flex items-center justify-center"
+              className="p-2 rounded-lg text-secondary hover:text-primary hover:bg-primary-subtle transition-all duration-200 cursor-pointer min-h-[44px] min-w-[44px] inline-flex items-center justify-center"
             >
               {!mounted ? (
                 <div className="w-5 h-5" />
@@ -57,16 +58,17 @@ export default function Navbar({ session }: { session: any }) {
               )}
             </button>
 
-            <div className="ml-2 flex items-center gap-3 border-l border-slate-200 dark:border-slate-700 pl-3">
+            <div className="ml-2 flex items-center gap-3 border-l border-border pl-3">
               {session ? (
                 <>
                   <Link
                     href={navbar.profileLink.href}
-                    className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                    className="text-sm font-medium text-foreground hover:text-primary transition-colors"
                   >
                     {navbar.profileLink.label}
                   </Link>
                   {canAccessAdmin && (
+                    /* Pink — intentional role-coded color, not part of the semantic palette */
                     <Link
                       href={navbar.adminLink.href}
                       className="text-sm font-medium text-pink-600 hover:text-pink-700 transition-colors"
@@ -76,12 +78,13 @@ export default function Navbar({ session }: { session: any }) {
                   )}
                   <button
                     onClick={() => signOut({ callbackUrl: "/" })}
-                    className="px-4 py-2 text-sm bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-all duration-200 font-medium cursor-pointer"
+                    className="px-4 py-2 text-sm bg-hover text-foreground hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-all duration-200 font-medium cursor-pointer"
                   >
                     {navbar.signOut}
                   </button>
                 </>
               ) : (
+                /* Filled accent — kept literal; see globals.css note */
                 <Link
                   href={navbar.signIn.href}
                   className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 font-medium shadow-sm shadow-blue-500/20"
@@ -96,7 +99,7 @@ export default function Navbar({ session }: { session: any }) {
           <button
             onClick={toggleTheme}
             aria-label="Toggle theme"
-            className="md:hidden p-3 text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer min-h-[44px] min-w-[44px] inline-flex items-center justify-center"
+            className="md:hidden p-3 text-secondary hover:text-primary transition-colors cursor-pointer min-h-[44px] min-w-[44px] inline-flex items-center justify-center"
           >
             {!mounted ? (
               <div className="w-5 h-5" />
@@ -113,7 +116,7 @@ export default function Navbar({ session }: { session: any }) {
 
           {/* Mobile menu button */}
           <button
-            className="md:hidden p-2 text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer min-h-[44px] min-w-[44px] inline-flex items-center justify-center"
+            className="md:hidden p-2 text-secondary hover:text-primary transition-colors cursor-pointer min-h-[44px] min-w-[44px] inline-flex items-center justify-center"
             onClick={() => setIsOpen(!isOpen)}
             aria-label="Toggle menu"
             aria-expanded={isOpen}
@@ -137,30 +140,31 @@ export default function Navbar({ session }: { session: any }) {
 
         {/* Mobile menu */}
         {isOpen && (
-          <div id="mobile-menu" className="md:hidden py-4 border-t border-slate-100 dark:border-slate-700 animate-fade-in">
+          <div id="mobile-menu" className="md:hidden py-4 border-t border-border-subtle animate-fade-in">
             <div className="flex flex-col gap-1">
               {visibleLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="px-4 py-3.5 text-sm text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors min-h-[44px] flex items-center"
+                  className="px-4 py-3.5 text-sm text-secondary hover:text-primary rounded-lg hover:bg-primary-subtle transition-colors min-h-[44px] flex items-center"
                   onClick={() => setIsOpen(false)}
                 >
                   {link.label}
                 </Link>
               ))}
 
-              <div className="mt-2 pt-2 border-t border-slate-100 dark:border-slate-700 px-4">
+              <div className="mt-2 pt-2 border-t border-border-subtle px-4">
                 {session ? (
                   <div className="flex flex-col gap-2">
                     <Link
                       href={navbar.profileLink.href}
                       onClick={() => setIsOpen(false)}
-                      className="py-3.5 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors text-center min-h-[44px] flex items-center justify-center"
+                      className="py-3.5 text-sm font-medium text-foreground hover:text-primary transition-colors text-center min-h-[44px] flex items-center justify-center"
                     >
                       {navbar.profileLink.label}
                     </Link>
                     {canAccessAdmin && (
+                      /* Pink — intentional role-coded color */
                       <Link
                         href={navbar.adminLink.href}
                         onClick={() => setIsOpen(false)}
@@ -171,12 +175,13 @@ export default function Navbar({ session }: { session: any }) {
                     )}
                     <button
                       onClick={() => signOut({ callbackUrl: "/" })}
-                      className="w-full py-3 text-sm bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg font-medium cursor-pointer min-h-[44px]"
+                      className="w-full py-3 text-sm bg-hover text-foreground rounded-lg font-medium cursor-pointer min-h-[44px]"
                     >
                       {navbar.signOut}
                     </button>
                   </div>
                 ) : (
+                  /* Filled accent — kept literal */
                   <Link
                     href={navbar.signIn.href}
                     onClick={() => setIsOpen(false)}

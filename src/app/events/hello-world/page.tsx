@@ -384,9 +384,26 @@ function Chip({ color, className }: { color: string; className?: string }) {
 }
 
 /* ═══════════════════════════════════════════════════════════════
+   Reduced-motion hook — skip continuous decorative animations
+   when the user has prefers-reduced-motion: reduce
+═══════════════════════════════════════════════════════════════ */
+function useReducedMotion(): boolean {
+  const [reduced, setReduced] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReduced(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setReduced(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+  return reduced;
+}
+
+/* ═══════════════════════════════════════════════════════════════
    PAGE
 ═══════════════════════════════════════════════════════════════ */
 export default function HelloWorldPage() {
+  const reducedMotion = useReducedMotion();
   return (
     <div className="min-h-screen bg-[#080b10] text-white overflow-x-hidden">
 
@@ -411,22 +428,28 @@ export default function HelloWorldPage() {
         <div className="absolute inset-0 opacity-[0.03]"
           style={{ backgroundImage: "linear-gradient(rgba(255,255,255,.8) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.8) 1px,transparent 1px)", backgroundSize: "40px 40px" }} />
 
-        {/* Floating cards */}
-        <FloatingCard suit="♠" size="w-14 h-20 text-2xl" animClass="animate-[float-slow_8s_ease-in-out_infinite]" style={{ top: "12%", left: "6%" }} />
-        <FloatingCard suit="♥" size="w-16 h-24 text-3xl" animClass="animate-[float-mid_6s_ease-in-out_infinite]"  style={{ top: "8%", right: "8%", animationDelay: "1s" }} />
-        <FloatingCard suit="♦" size="w-12 h-18 text-xl"  animClass="animate-[float-fast_4s_ease-in-out_infinite]" style={{ bottom: "20%", left: "12%", animationDelay: "2s" }} />
-        <FloatingCard suit="♣" size="w-14 h-20 text-2xl" animClass="animate-[float-slow_7s_ease-in-out_infinite]" style={{ bottom: "15%", right: "6%", animationDelay: "1.5s" }} />
-        <FloatingCard suit="♠" size="w-10 h-14 text-lg"  animClass="animate-[float-mid_5s_ease-in-out_infinite]"  style={{ top: "55%", left: "3%", animationDelay: "0.5s" }} />
-        <FloatingCard suit="♥" size="w-12 h-16 text-xl"  animClass="animate-[float-fast_4.5s_ease-in-out_infinite]" style={{ top: "40%", right: "4%", animationDelay: "3s" }} />
+        {/* Floating decorations — skipped under prefers-reduced-motion to avoid
+            6+ continuously animating elements churning paint on low-end devices */}
+        {!reducedMotion && (
+          <>
+            {/* Floating cards */}
+            <FloatingCard suit="♠" size="w-14 h-20 text-2xl" animClass="animate-[float-slow_8s_ease-in-out_infinite]" style={{ top: "12%", left: "6%" }} />
+            <FloatingCard suit="♥" size="w-16 h-24 text-3xl" animClass="animate-[float-mid_6s_ease-in-out_infinite]"  style={{ top: "8%", right: "8%", animationDelay: "1s" }} />
+            <FloatingCard suit="♦" size="w-12 h-18 text-xl"  animClass="animate-[float-fast_4s_ease-in-out_infinite]" style={{ bottom: "20%", left: "12%", animationDelay: "2s" }} />
+            <FloatingCard suit="♣" size="w-14 h-20 text-2xl" animClass="animate-[float-slow_7s_ease-in-out_infinite]" style={{ bottom: "15%", right: "6%", animationDelay: "1.5s" }} />
+            <FloatingCard suit="♠" size="w-10 h-14 text-lg"  animClass="animate-[float-mid_5s_ease-in-out_infinite]"  style={{ top: "55%", left: "3%", animationDelay: "0.5s" }} />
+            <FloatingCard suit="♥" size="w-12 h-16 text-xl"  animClass="animate-[float-fast_4.5s_ease-in-out_infinite]" style={{ top: "40%", right: "4%", animationDelay: "3s" }} />
 
-        {/* Chips */}
-        <div aria-hidden="true" className="absolute top-[18%] left-[22%] w-12 h-12 opacity-30 animate-[float-fast_5s_ease-in-out_infinite]" style={{ animationDelay: "0.8s" }}><Chip color={GOLD} className="w-full h-full" /></div>
-        <div aria-hidden="true" className="absolute bottom-[25%] right-[20%] w-10 h-10 opacity-25 animate-[float-slow_9s_ease-in-out_infinite]" style={{ animationDelay: "2.2s" }}><Chip color={NEON_G} className="w-full h-full" /></div>
-        <div aria-hidden="true" className="absolute top-[60%] right-[18%] w-10 h-10 opacity-20 animate-[float-mid_7s_ease-in-out_infinite]" style={{ animationDelay: "1.2s" }}><Chip color={NEON_R} className="w-full h-full" /></div>
+            {/* Chips */}
+            <div aria-hidden="true" className="absolute top-[18%] left-[22%] w-12 h-12 opacity-30 animate-[float-fast_5s_ease-in-out_infinite]" style={{ animationDelay: "0.8s" }}><Chip color={GOLD} className="w-full h-full" /></div>
+            <div aria-hidden="true" className="absolute bottom-[25%] right-[20%] w-10 h-10 opacity-25 animate-[float-slow_9s_ease-in-out_infinite]" style={{ animationDelay: "2.2s" }}><Chip color={NEON_G} className="w-full h-full" /></div>
+            <div aria-hidden="true" className="absolute top-[60%] right-[18%] w-10 h-10 opacity-20 animate-[float-mid_7s_ease-in-out_infinite]" style={{ animationDelay: "1.2s" }}><Chip color={NEON_R} className="w-full h-full" /></div>
 
-        {/* Dice */}
-        <div aria-hidden="true" className="absolute top-[30%] right-[22%] w-10 h-10 opacity-25 animate-[float-slow_8s_ease-in-out_infinite]" style={{ animationDelay: "1.7s" }}><Dice className="w-full h-full" /></div>
-        <div aria-hidden="true" className="absolute bottom-[30%] left-[20%] w-9 h-9 opacity-20 animate-[float-mid_6s_ease-in-out_infinite]" style={{ animationDelay: "0.3s" }}><Dice className="w-full h-full" /></div>
+            {/* Dice */}
+            <div aria-hidden="true" className="absolute top-[30%] right-[22%] w-10 h-10 opacity-25 animate-[float-slow_8s_ease-in-out_infinite]" style={{ animationDelay: "1.7s" }}><Dice className="w-full h-full" /></div>
+            <div aria-hidden="true" className="absolute bottom-[30%] left-[20%] w-9 h-9 opacity-20 animate-[float-mid_6s_ease-in-out_infinite]" style={{ animationDelay: "0.3s" }}><Dice className="w-full h-full" /></div>
+          </>
+        )}
 
         {/* Hero content */}
         <div className="relative z-10 max-w-4xl mx-auto text-center -mt-16 animate-fade-in">
@@ -460,8 +483,14 @@ export default function HelloWorldPage() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link href={hero.primaryButton.href}
               className="group relative px-8 py-4 rounded-xl font-bold text-sm overflow-hidden w-full sm:w-auto text-center transition-all duration-300 hover:scale-105"
-              style={{ background: `linear-gradient(135deg, #b8860b, ${GOLD}, #fffacd, ${GOLD}, #b8860b)`, backgroundSize: "300% auto", color: "#1a0a00" }}>
+              style={{ background: `linear-gradient(135deg, #b8860b, ${GOLD}, #fffacd, ${GOLD}, #b8860b)`, color: "#1a0a00" }}>
               <span className="relative z-10 tracking-wide">{hero.primaryButton.label}</span>
+              {/* Composited shimmer — only animates transform, GPU-accelerated */}
+              <span
+                aria-hidden="true"
+                className="absolute inset-y-0 w-1/2 pointer-events-none"
+                style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)", animation: "shimmer-slide 2.5s linear infinite" }}
+              />
               <span className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl" />
             </Link>
             <Link href={hero.secondaryButton.href}

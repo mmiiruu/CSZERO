@@ -61,7 +61,9 @@ export default function VotePage() {
 
   if (loading || status === "loading") return (
     <div className="min-h-screen flex items-center justify-center">
-      <div className="w-8 h-8 border-2 border-blue-200 dark:border-blue-900 border-t-blue-600 rounded-full animate-spin" />
+      <div role="status" aria-label="กำลังโหลด...">
+        <div aria-hidden="true" className="w-8 h-8 border-2 border-blue-200 dark:border-blue-900 border-t-blue-600 rounded-full animate-spin" />
+      </div>
     </div>
   );
 
@@ -87,7 +89,7 @@ export default function VotePage() {
         </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl text-red-600 dark:text-red-400 text-sm text-center max-w-md mx-auto">
+          <div role="alert" className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl text-red-600 dark:text-red-400 text-sm text-center max-w-md mx-auto">
             {error}
           </div>
         )}

@@ -63,15 +63,29 @@
 ──────────────────────────────────────────────────────────────────────────────*/
 
 @theme inline {
-  /* ── Surfaces (bg-background, bg-card, etc.) */
+  /* ── Surfaces — bg-background (page), bg-card (elevated), bg-hover (subtle) */
   --color-background: var(--bg-page);
-  --color-foreground: var(--tx-base);
   --color-card:       var(--bg-card);
+  --color-hover:      var(--bg-hover);
 
-  /* ── Primary accent */
-  --color-primary:       var(--ac-base);
-  --color-primary-light: var(--ac-dim);
-  --color-primary-dark:  var(--ac-hover);
+  /* ── Text — text-foreground (primary), text-secondary (mid), text-muted (low) */
+  --color-foreground: var(--tx-base);
+  --color-secondary:  var(--tx-sub);
+  --color-muted:      var(--tx-muted);
+
+  /* ── Borders — border-border (default), border-border-subtle (faint) */
+  --color-border:        var(--bd-base);
+  --color-border-subtle: var(--bd-subtle);
+
+  /* ── Primary accent
+     Use text-primary / border-primary / bg-primary-subtle for accent
+     foregrounds. Filled accent buttons (white text on solid blue) should
+     stay literal — the accent value brightens to ~blue-400 in dark mode,
+     which fails AA contrast against white text. */
+  --color-primary:        var(--ac-base);
+  --color-primary-light:  var(--ac-dim);
+  --color-primary-dark:   var(--ac-hover);
+  --color-primary-subtle: var(--ac-subtle);
 
   /* ── Typography tokens — Tailwind utilities: font-sans, font-mono, font-display */
   /* body + Thai fallback: Geist for Latin, Prompt for Thai, then system */

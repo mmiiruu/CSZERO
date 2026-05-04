@@ -41,6 +41,7 @@ function ChoiceButtons({
           <button
             key={opt.value}
             type="button"
+            aria-pressed={value === opt.value}
             onClick={() => onChange(opt.value)}
             className={`${field.layout === "flex" ? "flex-1" : ""} p-4 rounded-xl border text-left transition-all duration-200 ${
               value === opt.value ? activeClass(field.theme) : inactiveClass
@@ -144,7 +145,7 @@ export default function HelloWorldRegisterPage() {
         <div className="mb-8 animate-fade-in text-center">
           <div className="text-4xl mb-4">{config.hero.emoji}</div>
           <h1 className="text-3xl font-bold">
-            <span className="bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent">{config.hero.titleAccent}</span>{" "}
+            <span className="text-purple-600 dark:text-purple-400">{config.hero.titleAccent}</span>{" "}
             <span className="text-slate-800 dark:text-white">ลงทะเบียน</span>
           </h1>
           <p className="text-slate-500 dark:text-slate-400 mt-2">{config.hero.subtitle}</p>
@@ -161,7 +162,7 @@ export default function HelloWorldRegisterPage() {
           </div>
         )}
 
-        {errors.submit && (<div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl text-red-600 dark:text-red-400 text-sm">{errors.submit}</div>)}
+        {errors.submit && (<div role="alert" className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl text-red-600 dark:text-red-400 text-sm">{errors.submit}</div>)}
 
         <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 sm:p-8 shadow-sm">
           <FormStep
