@@ -327,6 +327,22 @@ export default function CS101RegisterPage() {
 
   const updateField = (field: string, value: string) => {
     setField(field, value);
+
+    // Clear values of fields whose showIf condition depends on this field and
+    // would now evaluate to false, so stale values never reach the DB.
+    const updatedData = { ...formData, [field]: value };
+    const allFields = config.steps.flatMap((s) => s.fields);
+    for (const f of allFields) {
+      if (!f.showIf || f.showIf.field !== field) continue;
+      const cond = f.showIf;
+      const v = updatedData[cond.field] || "";
+      let visible = true;
+      if ("equals" in cond) visible = v === cond.equals;
+      else if ("in" in cond) visible = cond.in.includes(v);
+      else if ("contains" in cond) visible = v.split(",").filter(Boolean).includes(cond.contains);
+      if (!visible && updatedData[f.name]) setField(f.name, "");
+    }
+
     if (errors[field]) {
       setErrors((prev) => { const next = { ...prev }; delete next[field]; return next; });
     }
@@ -356,6 +372,16 @@ export default function CS101RegisterPage() {
     }
     setIsSubmitting(true);
     try {
+      // Only submit values for fields that are currently visible so stale
+      // conditional values (e.g. foodAllergyDetail after switching back to "no")
+      // never reach the database.
+      const allFields = config.steps.flatMap((s) => s.fields);
+      const visibleAnswers = Object.fromEntries(
+        allFields
+          .filter((f) => isFieldVisible(f))
+          .map((f) => [f.name, formData[f.name]])
+      );
+
       const res = await fetch("/api/registrations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -364,7 +390,7 @@ export default function CS101RegisterPage() {
           name: formData.name,
           // Email comes from the authenticated session — server re-validates and overrides.
           email: session.user.email,
-          answers: formData,
+          answers: visibleAnswers,
         }),
       });
       if (!res.ok) {
