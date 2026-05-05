@@ -1,65 +1,69 @@
 "use client";
 
+import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
 import { ForceTheme } from "@/components/providers/ForceTheme";
 import { helloWorldConfig } from "@/config/events/hello-world";
 import type { TimelineItem, TimelineDay } from "@/components/ui/Timeline";
 
 const { hero, houses, schedule, cta } = helloWorldConfig;
 
-/* ── Cartoon palette ─────────────────────────────────────────── */
-const STAR_YELLOW    = "#FACC15";
-const CARTOON_GREEN  = "#4ADE80";
-const CARTOON_ORANGE = "#FB923C";
-const CARTOON_BLUE   = "#60A5FA";
-const CARTOON_RED    = "#EF4444";
+/* ── Pastel palette ───────────────────────────────────────────── */
+const AMBER  = "#F59E0B";
+const SKY    = "#38BDF8";
+const CORAL  = "#FB923C";
+const SAGE   = "#22C55E";
+const TEXT_D = "#1C1917";
+const TEXT_M = "#78716C";
 
-/* ── House accent map ────────────────────────────────────────── */
-const houseNeon: Record<string, { neon: string; glow: string; border: string; badge: string }> = {
-  spongebob:   { neon: "#FCD34D", glow: "rgba(252,211,77,0.40)",  border: "border-yellow-400/40",  badge: "bg-yellow-900/60 text-yellow-300"  },
-  conan:       { neon: "#EF4444", glow: "rgba(239,68,68,0.40)",   border: "border-red-400/40",     badge: "bg-red-900/60 text-red-300"        },
-  kungfupanda: { neon: "#4ADE80", glow: "rgba(74,222,128,0.40)",  border: "border-green-400/40",   badge: "bg-green-900/60 text-green-300"    },
-  zootopia:    { neon: "#FB923C", glow: "rgba(251,146,60,0.40)",  border: "border-orange-400/40",  badge: "bg-orange-900/60 text-orange-300"  },
-  toystory:    { neon: "#60A5FA", glow: "rgba(96,165,250,0.40)",  border: "border-blue-400/40",    badge: "bg-blue-900/60 text-blue-300"      },
+/* ── House pastel map ────────────────────────────────────────── */
+const housePastel: Record<string, {
+  bg: string; border: string; textColor: string;
+  badgeBg: string; badgeText: string; shadow: string;
+}> = {
+  spongebob:   { bg: "#FEFCE8", border: "#FCD34D", textColor: "#92400E", badgeBg: "bg-yellow-100", badgeText: "text-yellow-800", shadow: "rgba(252,211,77,0.4)"   },
+  conan:       { bg: "#FFF1F2", border: "#FCA5A5", textColor: "#991B1B", badgeBg: "bg-red-100",    badgeText: "text-red-800",    shadow: "rgba(252,165,165,0.4)"   },
+  kungfupanda: { bg: "#F0FDF4", border: "#86EFAC", textColor: "#166534", badgeBg: "bg-green-100",  badgeText: "text-green-800",  shadow: "rgba(134,239,172,0.4)"   },
+  zootopia:    { bg: "#FFF7ED", border: "#FDBA74", textColor: "#9A3412", badgeBg: "bg-orange-100", badgeText: "text-orange-800", shadow: "rgba(253,186,116,0.4)"   },
+  toystory:    { bg: "#EFF6FF", border: "#93C5FD", textColor: "#1E40AF", badgeBg: "bg-blue-100",   badgeText: "text-blue-800",   shadow: "rgba(147,197,253,0.4)"   },
 };
 
 /* ── Timeline type config ────────────────────────────────────── */
-const typeConfig: Record<string, { label: string; badge: string; nodeColor: string; glowColor: string }> = {
-  talk:     { label: "talk",     badge: "bg-yellow-900/50 text-yellow-300 border-yellow-600/40",    nodeColor: STAR_YELLOW,    glowColor: `${STAR_YELLOW}80`    },
-  workshop: { label: "workshop", badge: "bg-green-900/50 text-green-300 border-green-600/40",        nodeColor: CARTOON_GREEN,  glowColor: `${CARTOON_GREEN}80`  },
-  break:    { label: "break",    badge: "bg-blue-900/50 text-blue-300 border-blue-600/40",            nodeColor: CARTOON_BLUE,   glowColor: `${CARTOON_BLUE}80`   },
-  social:   { label: "social",   badge: "bg-orange-900/50 text-orange-300 border-orange-600/40",     nodeColor: CARTOON_ORANGE, glowColor: `${CARTOON_ORANGE}80` },
+const typeConfig: Record<string, { label: string; badge: string; nodeColor: string; nodeBg: string }> = {
+  talk:     { label: "talk",     badge: "bg-amber-100 text-amber-700 border-amber-200",    nodeColor: AMBER, nodeBg: "#FFFBEB" },
+  workshop: { label: "workshop", badge: "bg-green-100 text-green-700 border-green-200",    nodeColor: SAGE,  nodeBg: "#F0FDF4" },
+  break:    { label: "break",    badge: "bg-sky-100 text-sky-700 border-sky-200",          nodeColor: SKY,   nodeBg: "#F0F9FF" },
+  social:   { label: "social",   badge: "bg-orange-100 text-orange-700 border-orange-200", nodeColor: CORAL, nodeBg: "#FFF7ED" },
 };
 
 /* ═══════════════════════════════════════════════════════════════
-   Cartoon timeline node — emoji in a glowing circle
+   Timeline node — pastel circle with emoji
 ═══════════════════════════════════════════════════════════════ */
 const TYPE_EMOJI: Record<string, string> = { talk: "🎬", workshop: "🎨", break: "🍿", social: "✨" };
 
 function CartoonNode({ type }: { type?: string }) {
   const cfg = typeConfig[type ?? "social"] ?? typeConfig.social;
-  const emoji = TYPE_EMOJI[type ?? "social"] ?? "✨";
   return (
     <div style={{
-      width: 40, height: 40, borderRadius: "50%",
-      background: `radial-gradient(circle, ${cfg.nodeColor}25 0%, ${cfg.nodeColor}08 100%)`,
-      border: `2px solid ${cfg.nodeColor}`,
+      width: 44, height: 44, borderRadius: "50%",
+      background: cfg.nodeBg,
+      border: `2.5px solid ${cfg.nodeColor}`,
       display: "flex", alignItems: "center", justifyContent: "center",
-      fontSize: 18,
-      filter: `drop-shadow(0 0 8px ${cfg.nodeColor}80)`,
+      fontSize: 20,
+      boxShadow: `0 4px 14px ${cfg.nodeColor}50`,
+      flexShrink: 0,
     }}>
-      {emoji}
+      {TYPE_EMOJI[type ?? "social"] ?? "✨"}
     </div>
   );
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   Slot-machine text reveal (IntersectionObserver triggered)
+   Slot-machine text reveal
 ═══════════════════════════════════════════════════════════════ */
-function SlotReveal({ text, delay = 0, className = "", triggered }: { text: string; delay?: number; className?: string; triggered: boolean }) {
+function SlotReveal({ text, delay = 0, triggered }: { text: string; delay?: number; triggered: boolean }) {
   return (
-    <span className={`inline-block overflow-hidden align-bottom ${className}`}>
+    <span className="inline-block overflow-hidden align-bottom">
       <span style={{
         display: "inline-block",
         animation: triggered ? `slot-reveal 0.55s cubic-bezier(0.22,1,0.36,1) ${delay}ms both` : "none",
@@ -72,25 +76,9 @@ function SlotReveal({ text, delay = 0, className = "", triggered }: { text: stri
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   Flying cartoon emoji on entry card hover
+   Entry card (pastel / light)
 ═══════════════════════════════════════════════════════════════ */
-const CARTOON_EMOJIS = ["🧽", "🔍", "🐼", "🦊", "🚀"];
-
-function FlyingEmoji({ emoji, delay, top }: { emoji: string; delay: number; top: number }) {
-  return (
-    <span
-      className="absolute pointer-events-none select-none text-base"
-      style={{ top: `${top}%`, left: "5%", opacity: 0, animation: `card-fly 1.2s ease-in-out ${delay}ms forwards` }}
-    >
-      {emoji}
-    </span>
-  );
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   Entry card (with slot reveal + flying emoji)
-═══════════════════════════════════════════════════════════════ */
-function EntryCard({ item, entryDelay, index }: { item: TimelineItem; entryDelay: number; index: number }) {
+function EntryCard({ item, entryDelay }: { item: TimelineItem; entryDelay: number }) {
   const ref = useRef<HTMLDivElement>(null);
   const [triggered, setTriggered] = useState(false);
 
@@ -99,130 +87,88 @@ function EntryCard({ item, entryDelay, index }: { item: TimelineItem; entryDelay
     if (!el) return;
     const obs = new IntersectionObserver(
       ([e]) => { if (e.isIntersecting) { setTriggered(true); obs.disconnect(); } },
-      { threshold: 0.3 },
+      { threshold: 0.25 },
     );
     obs.observe(el);
     return () => obs.disconnect();
   }, []);
 
   const cfg = typeConfig[item.type ?? "social"] ?? typeConfig.social;
-  const emoji = CARTOON_EMOJIS[index % CARTOON_EMOJIS.length];
-  const flyingTop = 20 + ((index * 17) % 41);
 
   return (
     <div
       ref={ref}
-      className="relative rounded-xl p-4 border overflow-hidden group"
-      style={{
-        background: "rgba(255,255,255,0.04)",
-        borderColor: `${cfg.nodeColor}30`,
-        boxShadow: `0 0 20px ${cfg.glowColor}20`,
-        transition: "box-shadow 0.3s",
-      }}
-      onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.boxShadow = `0 0 28px ${cfg.glowColor}50, inset 0 0 20px ${cfg.glowColor}08`; }}
-      onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.boxShadow = `0 0 20px ${cfg.glowColor}20`; }}
+      className="rounded-2xl p-4 border-2 bg-white transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5"
+      style={{ borderColor: `${cfg.nodeColor}50`, boxShadow: "0 2px 10px rgba(0,0,0,0.06)" }}
     >
-      <FlyingEmoji emoji={emoji} delay={entryDelay + 100} top={flyingTop} />
-
       <div className="flex items-center gap-2 mb-2 flex-wrap">
-        <span className="text-xs font-mono tabular-nums" style={{ color: cfg.nodeColor }}>{item.time}</span>
+        <span className="text-xs font-mono tabular-nums font-bold" style={{ color: cfg.nodeColor }}>{item.time}</span>
         {item.type && (
-          <span className={`text-xs px-2 py-0.5 rounded-full border font-medium ${cfg.badge}`}>{item.type}</span>
+          <span className={`text-xs px-2 py-0.5 rounded-full border font-semibold ${cfg.badge}`}>{item.type}</span>
         )}
       </div>
-
-      <h4 className="font-display font-bold text-white text-sm leading-snug mb-1 overflow-hidden">
+      <h4 className="font-bold text-sm leading-snug mb-1 overflow-hidden" style={{ color: TEXT_D }}>
         {item.title.split(" ").map((word, wi) => (
-          <SlotReveal key={wi} text={word + " "} delay={entryDelay + wi * 60} triggered={triggered} />
+          <SlotReveal key={wi} text={word + " "} delay={entryDelay + wi * 60} triggered={triggered} />
         ))}
       </h4>
-
       {item.description && (
-        <p className="text-xs leading-relaxed" style={{ color: "rgba(255,255,255,0.6)" }}>{item.description}</p>
+        <p className="text-xs leading-relaxed" style={{ color: TEXT_M }}>{item.description}</p>
       )}
-
-      <div className="absolute top-0 right-0 w-16 h-16 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-        style={{ background: cfg.glowColor, transform: "translate(30%, -30%)" }} />
     </div>
   );
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   CARTOON TIMELINE
+   Pastel timeline
 ═══════════════════════════════════════════════════════════════ */
-function CartoonTimeline({ days }: { days: TimelineDay[] }) {
+function PastelTimeline({ days }: { days: TimelineDay[] }) {
   return (
     <div className="space-y-16">
       {days.map((day, di) => (
         <div key={di}>
-          {/* Day header */}
-          <div className="flex items-center gap-3 mb-12">
-            <div className="w-4 h-4 rounded-full shrink-0"
-              style={{ background: STAR_YELLOW, boxShadow: `0 0 12px ${STAR_YELLOW}, 0 0 30px ${STAR_YELLOW}60` }} />
-            <div className="h-px flex-1" style={{ background: `linear-gradient(90deg, ${STAR_YELLOW}80, transparent)` }} />
+          <div className="flex items-center gap-3 mb-10">
+            <div className="w-3 h-3 rounded-full shrink-0" style={{ background: AMBER, boxShadow: `0 0 10px ${AMBER}80` }} />
+            <div className="h-0.5 flex-1 rounded-full" style={{ background: `linear-gradient(90deg, ${AMBER}60, transparent)` }} />
             <div className="text-center px-4">
-              <p className="text-base font-black text-white">{day.day}</p>
-              <p className="text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>{day.date}</p>
+              <p className="text-base font-black" style={{ color: TEXT_D }}>{day.day}</p>
+              <p className="text-xs mt-0.5" style={{ color: TEXT_M }}>{day.date}</p>
             </div>
-            <div className="h-px flex-1" style={{ background: `linear-gradient(270deg, ${STAR_YELLOW}80, transparent)` }} />
-            <div className="w-4 h-4 rounded-full shrink-0"
-              style={{ background: STAR_YELLOW, boxShadow: `0 0 12px ${STAR_YELLOW}, 0 0 30px ${STAR_YELLOW}60` }} />
+            <div className="h-0.5 flex-1 rounded-full" style={{ background: `linear-gradient(270deg, ${AMBER}60, transparent)` }} />
+            <div className="w-3 h-3 rounded-full shrink-0" style={{ background: AMBER, boxShadow: `0 0 10px ${AMBER}80` }} />
           </div>
 
-          {/* Desktop: two-column with glow rail */}
+          {/* Desktop: two-column */}
           <div className="hidden md:block relative">
-            <div className="absolute left-1/2 top-0 bottom-0 -translate-x-1/2 flex flex-col items-center w-6 pointer-events-none z-10">
-              <div className="absolute inset-x-0 top-0 bottom-0 rounded-full"
-                style={{ background: STAR_YELLOW, width: "12px", margin: "0 auto", filter: "blur(6px)", opacity: 0.25, animation: "tube-pulse 2.5s ease-in-out infinite" }} />
-              <div className="absolute top-0 bottom-0 rounded-full"
-                style={{ background: STAR_YELLOW, width: "4px", margin: "0 auto", opacity: 0.5, filter: "blur(2px)" }} />
-              <div className="absolute top-0 bottom-0 rounded-full"
-                style={{ background: STAR_YELLOW, width: "2px", margin: "0 auto", opacity: 0.9 }} />
-            </div>
-
-            <div className="space-y-8">
+            <div className="absolute left-1/2 top-0 bottom-0 -translate-x-1/2 w-px"
+              style={{ background: `linear-gradient(180deg, transparent, ${AMBER}50 8%, ${AMBER}50 92%, transparent)` }} />
+            <div className="space-y-6">
               {day.items.map((item, ii) => {
                 const isLeft = ii % 2 === 0;
-                const entryDelay = ii * 80;
+                const d = ii * 80;
                 return (
-                  <div key={ii} className="relative grid grid-cols-[1fr_72px_1fr] items-center">
-                    <div className={`pr-6 ${isLeft ? "" : "invisible"}`}>
-                      <EntryCard item={item} entryDelay={entryDelay} index={ii} />
-                    </div>
-                    <div className="flex justify-center items-center z-20 relative"
-                      style={{ animation: `node-pop 0.4s cubic-bezier(0.22,1,0.36,1) ${entryDelay}ms both` }}>
-                      <CartoonNode type={item.type} />
-                    </div>
-                    <div className={`pl-6 ${!isLeft ? "" : "invisible"}`}>
-                      <EntryCard item={item} entryDelay={entryDelay} index={ii} />
-                    </div>
+                  <div key={ii} className="relative grid grid-cols-[1fr_80px_1fr] items-center">
+                    <div className={`pr-6 ${isLeft ? "" : "invisible"}`}><EntryCard item={item} entryDelay={d} /></div>
+                    <div className="flex justify-center z-20"><CartoonNode type={item.type} /></div>
+                    <div className={`pl-6 ${!isLeft ? "" : "invisible"}`}><EntryCard item={item} entryDelay={d} /></div>
                   </div>
                 );
               })}
             </div>
           </div>
 
-          {/* Mobile: left-rail layout */}
+          {/* Mobile: left-rail */}
           <div className="md:hidden relative">
-            <div className="absolute left-[18px] top-0 bottom-0 w-6 pointer-events-none">
-              <div className="absolute inset-x-0 top-0 bottom-0 rounded-full"
-                style={{ background: STAR_YELLOW, width: "8px", margin: "0 auto", filter: "blur(5px)", opacity: 0.2 }} />
-              <div className="absolute top-0 bottom-0 rounded-full"
-                style={{ background: STAR_YELLOW, width: "2px", margin: "0 auto", opacity: 0.7 }} />
-            </div>
-            <div className="pl-14 space-y-6">
-              {day.items.map((item, ii) => {
-                const entryDelay = ii * 80;
-                return (
-                  <div key={ii} className="relative">
-                    <div className="absolute -left-10 top-1/2 -translate-y-1/2 z-20"
-                      style={{ animation: `node-pop 0.4s cubic-bezier(0.22,1,0.36,1) ${entryDelay}ms both` }}>
-                      <CartoonNode type={item.type} />
-                    </div>
-                    <EntryCard item={item} entryDelay={entryDelay} index={ii} />
+            <div className="absolute left-[21px] top-0 bottom-0 w-0.5 rounded-full" style={{ background: `${AMBER}40` }} />
+            <div className="pl-14 space-y-5">
+              {day.items.map((item, ii) => (
+                <div key={ii} className="relative">
+                  <div className="absolute -left-9 top-1/2 -translate-y-1/2 z-20">
+                    <CartoonNode type={item.type} />
                   </div>
-                );
-              })}
+                  <EntryCard item={item} entryDelay={ii * 80} />
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -232,13 +178,14 @@ function CartoonTimeline({ days }: { days: TimelineDay[] }) {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   Floating cartoon emoji bubble (hero decoration)
+   Floating pastel bubble
 ═══════════════════════════════════════════════════════════════ */
-function FloatingEmoji({ emoji, size, style, animClass }: { emoji: string; size: string; style?: React.CSSProperties; animClass: string }) {
+function PastelBubble({ emoji, style, animClass }: { emoji: string; style?: React.CSSProperties; animClass: string }) {
   return (
-    <div aria-hidden="true" className={`absolute select-none pointer-events-none ${animClass} opacity-20`} style={style}>
-      <div className={`${size} rounded-2xl flex items-center justify-center bg-white/10 backdrop-blur-sm border border-white/20 shadow-lg`}>
-        <span>{emoji}</span>
+    <div aria-hidden="true" className={`absolute select-none pointer-events-none ${animClass}`} style={style}>
+      <div className="w-12 h-12 rounded-full flex items-center justify-center text-2xl"
+        style={{ background: "rgba(255,255,255,0.75)", backdropFilter: "blur(8px)", border: "1.5px solid rgba(255,255,255,0.9)", boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
+        {emoji}
       </div>
     </div>
   );
@@ -264,139 +211,172 @@ function useReducedMotion(): boolean {
 ═══════════════════════════════════════════════════════════════ */
 export default function HelloWorldPage() {
   const reducedMotion = useReducedMotion();
+
   return (
-    <div className="min-h-screen bg-[#07050f] text-white overflow-x-hidden">
-      <ForceTheme theme="dark" />
+    <div className="min-h-screen overflow-x-hidden" style={{ background: "#FFFBF4", color: TEXT_D }}>
+      <ForceTheme theme="light" />
 
       {/* ══════════════════════ HERO ══════════════════════ */}
-      <section aria-labelledby="hw-hero-heading" className="relative min-h-screen flex items-center px-4 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#0e0620] via-[#07050f] to-[#05080f]" />
-
-        {/* Ambient glows — one per cartoon */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[700px] h-[400px] rounded-full blur-[120px]"
-            style={{ background: `radial-gradient(ellipse, ${STAR_YELLOW}18 0%, transparent 70%)` }} />
-          <div className="absolute bottom-0 left-10 w-80 h-80 rounded-full blur-[100px]"
-            style={{ background: `radial-gradient(ellipse, ${CARTOON_ORANGE}12 0%, transparent 70%)` }} />
-          <div className="absolute top-10 right-10 w-72 h-72 rounded-full blur-[90px]"
-            style={{ background: `radial-gradient(ellipse, ${CARTOON_BLUE}12 0%, transparent 70%)` }} />
-          <div className="absolute bottom-20 right-20 w-60 h-60 rounded-full blur-[80px]"
-            style={{ background: `radial-gradient(ellipse, ${CARTOON_GREEN}10 0%, transparent 70%)` }} />
-          <div className="absolute top-20 left-16 w-56 h-56 rounded-full blur-[80px]"
-            style={{ background: `radial-gradient(ellipse, ${CARTOON_RED}10 0%, transparent 70%)` }} />
+      <section
+        aria-labelledby="hw-hero-heading"
+        className="relative min-h-screen flex items-center px-4 overflow-hidden"
+        style={{ background: "linear-gradient(145deg, #DBEFFE 0%, #FFFBEB 50%, #FFE8F4 100%)" }}
+      >
+        {/* Soft ambient glows */}
+        <div aria-hidden="true" className="absolute inset-0 pointer-events-none">
+          <div className="absolute -top-20 left-1/4 w-[500px] h-[500px] rounded-full blur-[120px]"
+            style={{ background: "rgba(186,230,253,0.55)" }} />
+          <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] rounded-full blur-[100px]"
+            style={{ background: "rgba(253,230,138,0.45)" }} />
+          <div className="absolute bottom-10 left-0 w-[300px] h-[300px] rounded-full blur-[80px]"
+            style={{ background: "rgba(253,186,116,0.35)" }} />
         </div>
 
-        {/* Grid */}
-        <div className="absolute inset-0 opacity-[0.03]"
-          style={{ backgroundImage: "linear-gradient(rgba(255,255,255,.8) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.8) 1px,transparent 1px)", backgroundSize: "40px 40px" }} />
-
-        {/* Floating cartoon bubbles — skipped under prefers-reduced-motion */}
+        {/* Floating bubbles */}
         {!reducedMotion && (
           <>
-            <FloatingEmoji emoji="🧽" size="w-14 h-14 text-3xl" animClass="animate-[float-slow_8s_ease-in-out_infinite]"   style={{ top: "12%", left: "6%" }} />
-            <FloatingEmoji emoji="🔍" size="w-16 h-16 text-3xl" animClass="animate-[float-mid_6s_ease-in-out_infinite]"    style={{ top: "8%", right: "8%", animationDelay: "1s" }} />
-            <FloatingEmoji emoji="🐼" size="w-12 h-12 text-2xl" animClass="animate-[float-fast_4s_ease-in-out_infinite]"   style={{ bottom: "20%", left: "12%", animationDelay: "2s" }} />
-            <FloatingEmoji emoji="🦊" size="w-14 h-14 text-3xl" animClass="animate-[float-slow_7s_ease-in-out_infinite]"   style={{ bottom: "15%", right: "6%", animationDelay: "1.5s" }} />
-            <FloatingEmoji emoji="🚀" size="w-10 h-10 text-xl"  animClass="animate-[float-mid_5s_ease-in-out_infinite]"    style={{ top: "55%", left: "3%", animationDelay: "0.5s" }} />
-            <FloatingEmoji emoji="⭐" size="w-10 h-10 text-xl"  animClass="animate-[float-fast_4.5s_ease-in-out_infinite]" style={{ top: "40%", right: "4%", animationDelay: "3s" }} />
-            <FloatingEmoji emoji="🎬" size="w-12 h-12 text-2xl" animClass="animate-[float-slow_9s_ease-in-out_infinite]"   style={{ top: "18%", left: "22%", animationDelay: "0.8s" }} />
-            <FloatingEmoji emoji="🎭" size="w-10 h-10 text-xl"  animClass="animate-[float-mid_7s_ease-in-out_infinite]"    style={{ bottom: "25%", right: "20%", animationDelay: "2.2s" }} />
+            <PastelBubble emoji="🧽" animClass="animate-[float-slow_8s_ease-in-out_infinite] opacity-90"   style={{ top: "14%", left: "4%" }} />
+            <PastelBubble emoji="🔍" animClass="animate-[float-mid_6s_ease-in-out_infinite] opacity-90"    style={{ top: "22%", left: "18%", animationDelay: "1.2s" }} />
+            <PastelBubble emoji="🐼" animClass="animate-[float-fast_4.5s_ease-in-out_infinite] opacity-90" style={{ bottom: "28%", left: "6%", animationDelay: "2s" }} />
+            <PastelBubble emoji="🚀" animClass="animate-[float-slow_7s_ease-in-out_infinite] opacity-90"   style={{ bottom: "16%", left: "22%", animationDelay: "0.5s" }} />
+            <PastelBubble emoji="⭐" animClass="animate-[float-mid_5.5s_ease-in-out_infinite] opacity-80"  style={{ top: "55%", left: "2%", animationDelay: "1.5s" }} />
+            <PastelBubble emoji="🎬" animClass="animate-[float-fast_4s_ease-in-out_infinite] opacity-80"   style={{ top: "8%", left: "38%", animationDelay: "0.8s" }} />
           </>
         )}
 
-        {/* Hero content */}
-        <div className="relative z-10 max-w-4xl mx-auto text-center -mt-16 animate-fade-in">
-          <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full text-sm font-medium mb-10 border"
-            style={{ background: `${STAR_YELLOW}18`, borderColor: `${STAR_YELLOW}50`, color: STAR_YELLOW }}>
-            <span aria-hidden="true" className="animate-[flicker_3s_ease-in-out_infinite]">🎬</span>
-            {hero.badge}
-            <span aria-hidden="true" className="animate-[flicker_3s_ease-in-out_infinite]" style={{ animationDelay: "0.5s" }}>🎬</span>
+        {/* Hero content — text left, Zootopia image right */}
+        <div className="relative z-10 max-w-6xl mx-auto w-full flex flex-col lg:flex-row items-center gap-6 py-24">
+
+          {/* ── Text side ── */}
+          <div className="flex-1 text-center lg:text-left animate-fade-in">
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-semibold mb-8 border"
+              style={{ background: "rgba(255,255,255,0.8)", borderColor: `${AMBER}70`, color: "#B45309" }}>
+              🎬 {hero.badge}
+            </div>
+
+            {/* Title */}
+            <h1 id="hw-hero-heading" className="font-display font-black tracking-tight leading-[0.9] mb-5">
+              <span className="block" style={{
+                fontSize: "clamp(3.5rem, 9vw, 6.5rem)",
+                color: AMBER,
+                textShadow: `3px 3px 0 rgba(180,83,9,0.2), 0 8px 28px rgba(245,158,11,0.18)`,
+              }}>Hello</span>
+              <span className="block" style={{
+                fontSize: "clamp(3.5rem, 9vw, 6.5rem)",
+                color: TEXT_D,
+                textShadow: `2px 2px 0 rgba(0,0,0,0.07)`,
+              }}>World</span>
+            </h1>
+
+            {/* 5 cartoon emoji row */}
+            <div aria-hidden="true" className="flex items-center justify-center lg:justify-start gap-3 my-5 text-[2rem]">
+              {["🧽","🔍","🐼","🦊","🚀"].map((e) => (
+                <span key={e} className="hover:scale-125 transition-transform duration-200 cursor-default"
+                  style={{ filter: "drop-shadow(0 2px 6px rgba(0,0,0,0.12))" }}>{e}</span>
+              ))}
+            </div>
+
+            <p className="text-lg leading-relaxed mb-8 max-w-lg" style={{ color: TEXT_M }}>
+              {hero.description}
+            </p>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
+              <Link
+                href={hero.primaryButton.href}
+                className="px-8 py-3.5 rounded-2xl font-bold text-sm w-full sm:w-auto text-center transition-all duration-300 hover:scale-105 hover:shadow-xl"
+                style={{
+                  background: "linear-gradient(135deg, #F59E0B, #FBBF24)",
+                  color: "#1C1917",
+                  boxShadow: "0 6px 24px rgba(245,158,11,0.35)",
+                }}
+              >
+                {hero.primaryButton.label}
+              </Link>
+              <Link
+                href={hero.secondaryButton.href}
+                className="px-8 py-3.5 rounded-2xl font-bold text-sm w-full sm:w-auto text-center transition-all duration-300 hover:scale-105 border-2 bg-white/80 backdrop-blur-sm"
+                style={{ borderColor: SKY, color: "#0369A1" }}
+              >
+                {hero.secondaryButton.label}
+              </Link>
+            </div>
           </div>
 
-          <h1 id="hw-hero-heading" className="font-display text-7xl sm:text-[8rem] font-black tracking-tight leading-none mb-2">
-            <span className="block" style={{
-              color: STAR_YELLOW,
-              textShadow: `0 0 18px ${STAR_YELLOW}90, 0 0 50px ${STAR_YELLOW}50, 0 0 90px ${STAR_YELLOW}25`,
-            }}>Hello</span>
-            <span className="block text-white" style={{ textShadow: "0 0 40px rgba(255,255,255,0.15)" }}>World</span>
-          </h1>
-
-          {/* 5 cartoon emojis row */}
-          <div aria-hidden="true" className="flex items-center justify-center gap-5 my-6 text-4xl">
-            {["🧽", "🔍", "🐼", "🦊", "🚀"].map((e) => (
-              <span key={e} className="opacity-70 hover:opacity-100 hover:scale-125 transition-all duration-300 cursor-default">{e}</span>
-            ))}
+          {/* ── Zootopia image side ── */}
+          <div className="flex-shrink-0 flex items-end justify-center w-full lg:w-auto">
+            {/* Soft glow behind image */}
+            <div aria-hidden="true" className="absolute rounded-full pointer-events-none"
+              style={{
+                width: 320, height: 320,
+                background: "radial-gradient(circle, rgba(253,186,116,0.5) 0%, transparent 70%)",
+                right: "5%", bottom: "5%",
+              }} />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/zootopia_couple.png"
+              alt="Nick Wilde and Judy Hopps from Zootopia"
+              className="relative z-10"
+              style={{
+                height: "clamp(260px, 44vh, 460px)",
+                width: "auto",
+                objectFit: "contain",
+                mixBlendMode: "multiply",
+                filter: "drop-shadow(0 20px 40px rgba(0,0,0,0.12))",
+              }}
+            />
           </div>
 
-          <p className="text-lg max-w-xl mx-auto leading-relaxed mb-10" style={{ color: "rgba(255,255,255,0.55)" }}>
-            {hero.description}
-          </p>
-
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href={hero.primaryButton.href}
-              className="group relative px-8 py-4 rounded-xl font-bold text-sm overflow-hidden w-full sm:w-auto text-center transition-all duration-300 hover:scale-105"
-              style={{ background: `linear-gradient(135deg, #b8860b, ${STAR_YELLOW}, #fffacd, ${STAR_YELLOW}, #b8860b)`, color: "#1a0a00" }}>
-              <span className="relative z-10 tracking-wide">{hero.primaryButton.label}</span>
-              <span aria-hidden="true" className="absolute inset-y-0 w-1/2 pointer-events-none"
-                style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)", animation: "shimmer-slide 2.5s linear infinite" }} />
-              <span className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl" />
-            </Link>
-            <Link href={hero.secondaryButton.href}
-              className="group px-8 py-4 rounded-xl font-bold text-sm w-full sm:w-auto text-center transition-all duration-300 hover:scale-105 border backdrop-blur-sm"
-              style={{ borderColor: `${CARTOON_BLUE}60`, background: `${CARTOON_BLUE}12`, color: CARTOON_BLUE, boxShadow: `0 0 20px ${CARTOON_BLUE}20` }}>
-              {hero.secondaryButton.label}
-            </Link>
-          </div>
         </div>
 
-        <div className="absolute bottom-0 left-0 right-0 h-px"
-          style={{ background: `linear-gradient(90deg, transparent, ${STAR_YELLOW}60, transparent)` }} />
+        {/* Bottom fade into next section */}
+        <div aria-hidden="true" className="absolute bottom-0 left-0 right-0 h-20 pointer-events-none"
+          style={{ background: "linear-gradient(to bottom, transparent, #FFFBF4)" }} />
       </section>
 
       {/* ══════════════════════ HOUSES ══════════════════════ */}
-      <section aria-labelledby="hw-houses-heading" className="py-24 px-4 relative overflow-hidden" style={{ background: "linear-gradient(180deg,#07050f 0%,#090714 100%)" }}>
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-32 blur-[80px] pointer-events-none"
-          style={{ background: `radial-gradient(ellipse, ${STAR_YELLOW}20, transparent 70%)` }} />
-
-        <div className="max-w-6xl mx-auto relative z-10">
-          <div className="text-center mb-16">
-            <p className="text-xs font-mono uppercase tracking-[0.3em] mb-3" style={{ color: STAR_YELLOW }}>— {houses.eyebrow} —</p>
-            <h2 id="hw-houses-heading" className="font-display text-4xl sm:text-5xl font-black text-white">{houses.title}</h2>
-            <div className="mt-4 mx-auto w-24 h-0.5 rounded-full" style={{ background: `linear-gradient(90deg, transparent, ${STAR_YELLOW}, transparent)` }} />
+      <section aria-labelledby="hw-houses-heading" className="py-24 px-4" style={{ background: "#FFFBF4" }}>
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-14">
+            <p className="text-xs font-semibold uppercase tracking-[0.3em] mb-3" style={{ color: AMBER }}>
+              — {houses.eyebrow} —
+            </p>
+            <h2 id="hw-houses-heading" className="font-display text-4xl sm:text-5xl font-black" style={{ color: TEXT_D }}>
+              {houses.title}
+            </h2>
+            <div className="mt-4 mx-auto w-20 h-1 rounded-full"
+              style={{ background: `linear-gradient(90deg, transparent, ${AMBER}, transparent)` }} />
           </div>
 
-          <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
             {houses.items.map((house) => {
-              const hs = houseNeon[house.key] ?? houseNeon.toystory;
-              const isZootopia = house.key === "zootopia";
+              const hp = housePastel[house.key] ?? housePastel.toystory;
               return (
-                <div key={house.key}
-                  className={`group relative overflow-hidden rounded-2xl p-7 text-center border ${hs.border} backdrop-blur-sm transition-all duration-300 hover:scale-[1.04] hover:-translate-y-1 cursor-default`}
-                  style={{ background: "rgba(255,255,255,0.04)", minHeight: 200 }}
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.boxShadow = `0 0 30px 4px ${hs.glow}, 0 20px 40px rgba(0,0,0,0.4)`; }}
-                  onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.boxShadow = "none"; }}
+                <div
+                  key={house.key}
+                  className="group relative overflow-hidden rounded-2xl p-6 text-center border-2 transition-all duration-300 hover:scale-[1.05] hover:-translate-y-1.5 cursor-default"
+                  style={{
+                    background: hp.bg,
+                    borderColor: hp.border,
+                    boxShadow: `0 4px 20px ${hp.shadow}`,
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLDivElement).style.boxShadow = `0 14px 36px ${hp.shadow}, 0 4px 12px rgba(0,0,0,0.07)`;
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLDivElement).style.boxShadow = `0 4px 20px ${hp.shadow}`;
+                  }}
                 >
-                  {/* Zootopia character illustration */}
-                  {isZootopia && (
-                    <div aria-hidden="true" className="absolute bottom-0 right-0 w-full overflow-hidden rounded-b-2xl" style={{ height: 96 }}>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src="/zootopia_couple.png"
-                        alt=""
-                        className="absolute bottom-0 right-1 object-contain"
-                        style={{ height: 88, width: "auto", opacity: 0.35 }}
-                      />
-                      <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(9,7,20,0.9) 0%, transparent 50%)" }} />
-                    </div>
-                  )}
-
-                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                    <div className="w-24 h-24 rounded-full blur-2xl" style={{ background: hs.glow }} />
+                  <div
+                    className="text-5xl mb-4 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6"
+                    style={{ filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.12))" }}
+                  >
+                    {house.symbol}
                   </div>
-                  <div className="text-6xl mb-5 relative z-10 transition-all duration-300 group-hover:scale-110"
-                    style={{ filter: `drop-shadow(0 0 12px ${hs.neon}80)` }}>{house.symbol}</div>
-                  <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold mb-2 ${hs.badge}`}>{house.name}</span>
-                  <p className="text-sm mt-1 relative z-10" style={{ color: "rgba(255,255,255,0.6)" }}>{house.desc}</p>
+                  <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold mb-2 ${hp.badgeBg} ${hp.badgeText}`}>
+                    {house.name}
+                  </span>
+                  <p className="text-xs mt-1 leading-relaxed" style={{ color: hp.textColor }}>{house.desc}</p>
                 </div>
               );
             })}
@@ -405,52 +385,57 @@ export default function HelloWorldPage() {
       </section>
 
       {/* ══════════════════════ SCHEDULE ══════════════════════ */}
-      <section aria-labelledby="hw-schedule-heading" className="py-24 px-4 relative overflow-hidden" style={{ background: "linear-gradient(180deg,#090714 0%,#050810 50%,#090714 100%)" }}>
-        <div className="absolute inset-0 opacity-[0.025]"
-          style={{ backgroundImage: `radial-gradient(${STAR_YELLOW} 1px, transparent 1px)`, backgroundSize: "20px 20px" }} />
-
-        <div className="max-w-5xl mx-auto relative z-10">
-          <div className="text-center mb-20">
-            <p className="text-xs font-mono uppercase tracking-[0.3em] mb-3" style={{ color: STAR_YELLOW }}>— {schedule.eyebrow} —</p>
-            <h2 id="hw-schedule-heading" className="font-display text-4xl sm:text-5xl font-black text-white">{schedule.title}</h2>
-            <div className="mt-4 mx-auto w-24 h-0.5 rounded-full" style={{ background: `linear-gradient(90deg, transparent, ${STAR_YELLOW}, transparent)` }} />
+      <section aria-labelledby="hw-schedule-heading" className="py-24 px-4" style={{ background: "#F0FBF7" }}>
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-16">
+            <p className="text-xs font-semibold uppercase tracking-[0.3em] mb-3" style={{ color: AMBER }}>
+              — {schedule.eyebrow} —
+            </p>
+            <h2 id="hw-schedule-heading" className="font-display text-4xl sm:text-5xl font-black" style={{ color: TEXT_D }}>
+              {schedule.title}
+            </h2>
+            <div className="mt-4 mx-auto w-20 h-1 rounded-full"
+              style={{ background: `linear-gradient(90deg, transparent, ${AMBER}, transparent)` }} />
           </div>
-
-          <CartoonTimeline days={schedule.days} />
+          <PastelTimeline days={schedule.days} />
         </div>
       </section>
 
       {/* ══════════════════════ CTA ══════════════════════ */}
-      <section aria-labelledby="hw-cta-heading" className="py-28 px-4 relative overflow-hidden" style={{ background: "#07050f" }}>
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="w-[600px] h-[300px] rounded-full blur-[120px]"
-            style={{ background: `radial-gradient(ellipse, ${STAR_YELLOW}22, transparent 70%)` }} />
+      <section
+        aria-labelledby="hw-cta-heading"
+        className="py-28 px-4 relative overflow-hidden"
+        style={{ background: "linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 50%, #FFEDD5 100%)" }}
+      >
+        <div aria-hidden="true" className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-0 right-0 w-72 h-72 rounded-full blur-[90px]"
+            style={{ background: "rgba(253,186,116,0.4)" }} />
+          <div className="absolute bottom-0 left-0 w-72 h-72 rounded-full blur-[90px]"
+            style={{ background: "rgba(186,230,253,0.4)" }} />
         </div>
 
         <div className="max-w-2xl mx-auto text-center relative z-10">
-          <div className="flex items-center gap-4 justify-center mb-8">
-            <div className="h-px flex-1 max-w-[80px]" style={{ background: `linear-gradient(90deg, transparent, ${STAR_YELLOW}60)` }} />
-            <span aria-hidden="true" className="text-xl">✨</span>
-            <div className="h-px flex-1 max-w-[80px]" style={{ background: `linear-gradient(90deg, ${STAR_YELLOW}60, transparent)` }} />
-          </div>
-          <h2 id="hw-cta-heading" className="font-display text-4xl sm:text-5xl font-black mb-4 text-white" style={{ textShadow: "0 0 30px rgba(255,255,255,0.1)" }}>
+          <div className="text-5xl mb-6 animate-[float-slow_4s_ease-in-out_infinite]">🎬</div>
+          <h2 id="hw-cta-heading" className="font-display text-4xl sm:text-5xl font-black mb-4" style={{ color: TEXT_D }}>
             {cta.title}
           </h2>
-          <p className="mb-10 text-base leading-relaxed" style={{ color: "rgba(255,255,255,0.6)" }}>{cta.description}</p>
-          <Link href={cta.button.href}
-            className="group relative inline-flex items-center gap-2 px-10 py-4 rounded-2xl font-black text-base tracking-wide overflow-hidden transition-all duration-300 hover:scale-105"
+          <p className="mb-10 text-base leading-relaxed" style={{ color: TEXT_M }}>
+            {cta.description}
+          </p>
+          <Link
+            href={cta.button.href}
+            className="group inline-flex items-center gap-2 px-10 py-4 rounded-2xl font-black text-base tracking-wide transition-all duration-300 hover:scale-105"
             style={{
-              background: `linear-gradient(135deg, #7c5c00, ${STAR_YELLOW}, #fffacd, ${STAR_YELLOW})`,
-              color: "#1a0800",
-              boxShadow: `0 0 30px ${STAR_YELLOW}40, 0 10px 30px rgba(0,0,0,0.5)`,
-            }}>
-            <span className="text-lg">🎬</span>
-            {cta.button.label}
-            <span aria-hidden="true" className="absolute inset-y-0 w-1/2 pointer-events-none"
-              style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)", animation: "shimmer-slide 2.5s linear infinite" }} />
-            <span className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl" />
+              background: "linear-gradient(135deg, #F59E0B, #FBBF24, #F59E0B)",
+              color: "#1C1917",
+              boxShadow: "0 8px 32px rgba(245,158,11,0.38)",
+            }}
+          >
+            🎉 {cta.button.label}
           </Link>
-          <p className="mt-6 text-xs" style={{ color: `${STAR_YELLOW}70` }}>🧽 🔍 🐼 🦊 🚀 — ค้นพบบ้านของคุณ</p>
+          <p className="mt-6 text-sm" style={{ color: TEXT_M }}>
+            🧽 🔍 🐼 🦊 🚀 — ค้นพบบ้านของคุณ
+          </p>
         </div>
       </section>
 
