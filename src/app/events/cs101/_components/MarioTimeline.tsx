@@ -28,9 +28,9 @@ const TYPE_META: Record<
   },
   social: {
     icon: "🏰", label: "Social",
-    nodeGrad: "linear-gradient(135deg,#5DD863 0%,#43B047 100%)",
-    nodeBorder: "#1A8B2E", nodeTextColor: "#E8FFE9",
-    tagBg: "rgba(67,176,71,0.22)", tagColor: "#5DD863",
+    nodeGrad: "linear-gradient(135deg,#C77DFF 0%,#9B4DCA 100%)",
+    nodeBorder: "#6A1F9A", nodeTextColor: "#F5E6FF",
+    tagBg: "rgba(155,77,202,0.22)", tagColor: "#C77DFF",
   },
 };
 
