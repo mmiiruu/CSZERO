@@ -50,10 +50,10 @@ export interface HelloWorldFormConfig {
 
 export const helloWorldFormConfig: HelloWorldFormConfig = {
   hero: {
-    emoji: "👋",
+    emoji: "🎬",
     title: "Hello World",
     titleAccent: "Hello World",
-    subtitle: "4 ขั้นตอนง่าย ๆ เพื่อเข้าร่วมความสนุก!",
+    subtitle: "4 ขั้นตอนง่าย ๆ เพื่อเข้าร่วมโลกการ์ตูน CS!",
   },
   stepLabels: ["ข้อมูลพื้นฐาน", "บุคลิกภาพ", "แรงจูงใจ", "ความคาดหวัง"],
   steps: [

@@ -19,10 +19,11 @@ type ProfileData = {
 };
 
 const houseStyles: Record<string, { symbol: string; name: string; gradient: string; bg: string; border: string; text: string }> = {
-  spade:   { symbol: "♠", name: "สเปด",     gradient: "from-slate-600 to-slate-800",   bg: "bg-slate-50 dark:bg-slate-800/50",     border: "border-slate-300 dark:border-slate-600", text: "text-slate-700 dark:text-slate-200" },
-  heart:   { symbol: "♥", name: "หัวใจ",     gradient: "from-red-400 to-pink-500",       bg: "bg-red-50 dark:bg-red-900/20",         border: "border-red-300 dark:border-red-700",      text: "text-red-600 dark:text-red-400" },
-  diamond: { symbol: "♦", name: "ไดมอนด์",   gradient: "from-blue-400 to-cyan-500",     bg: "bg-blue-50 dark:bg-blue-900/20",       border: "border-blue-300 dark:border-blue-700",    text: "text-blue-600 dark:text-blue-400" },
-  club:    { symbol: "♣", name: "คลับ",       gradient: "from-green-400 to-emerald-500", bg: "bg-green-50 dark:bg-green-900/20",     border: "border-green-300 dark:border-green-700",  text: "text-green-600 dark:text-green-400" },
+  spongebob:   { symbol: "🧽", name: "SpongeBob",    gradient: "from-yellow-400 to-amber-500",   bg: "bg-yellow-50 dark:bg-yellow-900/20",  border: "border-yellow-300 dark:border-yellow-600", text: "text-yellow-600 dark:text-yellow-400" },
+  conan:       { symbol: "🔍", name: "Conan",         gradient: "from-red-600 to-red-900",         bg: "bg-red-50 dark:bg-red-900/20",         border: "border-red-300 dark:border-red-700",       text: "text-red-600 dark:text-red-400"       },
+  kungfupanda: { symbol: "🐼", name: "Kung Fu Panda", gradient: "from-green-500 to-emerald-800",   bg: "bg-green-50 dark:bg-green-900/20",     border: "border-green-300 dark:border-green-700",   text: "text-green-600 dark:text-green-400"   },
+  zootopia:    { symbol: "🦊", name: "Zootopia",      gradient: "from-orange-400 to-orange-600",   bg: "bg-orange-50 dark:bg-orange-900/20",   border: "border-orange-300 dark:border-orange-700", text: "text-orange-600 dark:text-orange-400" },
+  toystory:    { symbol: "🚀", name: "Toy Story",     gradient: "from-blue-500 to-indigo-700",     bg: "bg-blue-50 dark:bg-blue-900/20",       border: "border-blue-300 dark:border-blue-700",     text: "text-blue-600 dark:text-blue-400"     },
 };
 
 export default function ProfilePage() {

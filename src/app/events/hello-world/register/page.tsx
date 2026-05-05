@@ -28,8 +28,8 @@ function ChoiceButtons({
 }) {
   const activeClass = (theme: "purple" | "pink") =>
     theme === "purple"
-      ? "bg-purple-50 dark:bg-purple-900/30 border-purple-300 dark:border-purple-600 text-slate-800 dark:text-white shadow-sm"
-      : "bg-pink-50 dark:bg-pink-900/30 border-pink-300 dark:border-pink-600 text-slate-800 dark:text-white shadow-sm";
+      ? "bg-yellow-50 dark:bg-yellow-900/30 border-yellow-400 dark:border-yellow-500 text-slate-800 dark:text-white shadow-sm"
+      : "bg-orange-50 dark:bg-orange-900/30 border-orange-400 dark:border-orange-500 text-slate-800 dark:text-white shadow-sm";
   const inactiveClass =
     "bg-slate-50 dark:bg-slate-700/50 border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700";
 
@@ -121,14 +121,14 @@ export default function HelloWorldRegisterPage() {
     if (params.get("success") === "true") {
       const { success } = config;
       return (
-        <div className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-purple-50 to-white dark:from-slate-900 dark:to-slate-900">
+        <div className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-yellow-50 to-white dark:from-slate-900 dark:to-slate-900">
           <div className="text-center animate-scale-in">
             <div className="text-6xl mb-6">{success.emoji}</div>
             <h1 className="text-3xl font-bold text-slate-800 dark:text-white mb-3">{success.title}</h1>
             <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto mb-8">{success.message}</p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <a href={success.backButton.href} className="px-6 py-3 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-sm">{success.backButton.label}</a>
-              <a href={success.revealButton.href} className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl hover:opacity-90 transition-opacity text-sm">{success.revealButton.label}</a>
+              <a href={success.revealButton.href} className="px-6 py-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-xl hover:opacity-90 transition-opacity text-sm">{success.revealButton.label}</a>
             </div>
           </div>
         </div>
@@ -140,12 +140,12 @@ export default function HelloWorldRegisterPage() {
   const isLast = step === config.steps.length - 1;
 
   return (
-    <div className="min-h-screen py-20 px-4 bg-gradient-to-br from-purple-50 via-pink-50 to-white dark:from-slate-900 dark:via-slate-900 dark:to-slate-800">
+    <div className="min-h-screen py-20 px-4 bg-gradient-to-br from-yellow-50 via-amber-50 to-white dark:from-slate-900 dark:via-slate-900 dark:to-slate-800">
       <div className="max-w-2xl mx-auto">
         <div className="mb-8 animate-fade-in text-center">
           <div className="text-4xl mb-4">{config.hero.emoji}</div>
           <h1 className="text-3xl font-bold">
-            <span className="text-purple-600 dark:text-purple-400">{config.hero.titleAccent}</span>{" "}
+            <span className="text-yellow-600 dark:text-yellow-400">{config.hero.titleAccent}</span>{" "}
             <span className="text-slate-800 dark:text-white">ลงทะเบียน</span>
           </h1>
           <p className="text-slate-500 dark:text-slate-400 mt-2">{config.hero.subtitle}</p>

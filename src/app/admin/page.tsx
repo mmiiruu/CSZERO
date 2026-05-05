@@ -18,7 +18,7 @@ type ManagedUser = {
 };
 
 const ROLES: Role[] = ["user", "staff", "admin"];
-const houseOptions = ["spade", "heart", "diamond", "club"];
+const houseOptions = ["spongebob", "conan", "kungfupanda", "zootopia", "toystory"];
 
 /* ─── Role badge ─────────────────────────────────────────────────── */
 const roleBadge: Record<Role, string> = {

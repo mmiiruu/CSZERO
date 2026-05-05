@@ -10,7 +10,7 @@ const { houses, reveal } = helloWorldConfig;
 // Matches the gold used throughout the Hello World event
 const GOLD = "#f5c842";
 
-type HouseKey = "spade" | "heart" | "diamond" | "club";
+type HouseKey = "spongebob" | "conan" | "kungfupanda" | "zootopia" | "toystory";
 
 /**
  * Face-down playing card — one card in the idle-state fan.
@@ -231,16 +231,14 @@ export default function RevealPage() {
       {/* ── Idle ─────────────────────────────────────────────────────── */}
       {!isShuffling && !revealedHouse && (
         <div className="max-w-md w-full text-center animate-fade-in">
-          {/* 4-card fan — spreads on group hover, individual cards pop on direct hover.
-              origin-bottom rotates from the base so cards fan like a held hand.
-              hover:!-translate-y-6 uses !important to beat the group-hover translate. */}
+          {/* 5-card fan — spreads on group hover, individual cards pop on direct hover */}
           <div className="group flex items-end justify-center -space-x-4 mb-6 select-none">
 
             {/* Card 1 — leftmost */}
             <div className="relative origin-bottom transition-all duration-300 ease-out z-[1] transform-gpu
               drop-shadow-[0_0_15px_rgba(245,200,66,0.5)]
-              -rotate-[8deg]
-              group-hover:-rotate-[14deg] group-hover:-translate-x-3 group-hover:-translate-y-2
+              -rotate-[12deg]
+              group-hover:-rotate-[18deg] group-hover:-translate-x-4 group-hover:-translate-y-2
               hover:!-translate-y-6 hover:z-10">
               <MysteryCard index={0} delay={0} />
             </div>
@@ -248,28 +246,37 @@ export default function RevealPage() {
             {/* Card 2 */}
             <div className="relative origin-bottom transition-all duration-300 ease-out z-[2] transform-gpu
               drop-shadow-[0_0_15px_rgba(245,200,66,0.5)]
-              -rotate-[3deg]
-              group-hover:-rotate-[5deg] group-hover:-translate-x-1 group-hover:-translate-y-1
+              -rotate-[6deg]
+              group-hover:-rotate-[9deg] group-hover:-translate-x-2 group-hover:-translate-y-1
               hover:!-translate-y-6 hover:z-10">
-              <MysteryCard index={1} delay={0.35} />
+              <MysteryCard index={1} delay={0.25} />
             </div>
 
-            {/* Card 3 */}
+            {/* Card 3 — center */}
             <div className="relative origin-bottom transition-all duration-300 ease-out z-[3] transform-gpu
               drop-shadow-[0_0_15px_rgba(245,200,66,0.5)]
-              rotate-[3deg]
-              group-hover:rotate-[5deg] group-hover:translate-x-1 group-hover:-translate-y-1
+              rotate-[0deg]
+              group-hover:rotate-[0deg] group-hover:-translate-y-1
               hover:!-translate-y-6 hover:z-10">
-              <MysteryCard index={2} delay={0.7} />
+              <MysteryCard index={2} delay={0.5} />
             </div>
 
-            {/* Card 4 — rightmost */}
-            <div className="relative origin-bottom transition-all duration-300 ease-out z-[4] transform-gpu
+            {/* Card 4 */}
+            <div className="relative origin-bottom transition-all duration-300 ease-out z-[2] transform-gpu
               drop-shadow-[0_0_15px_rgba(245,200,66,0.5)]
-              rotate-[8deg]
-              group-hover:rotate-[14deg] group-hover:translate-x-3 group-hover:-translate-y-2
+              rotate-[6deg]
+              group-hover:rotate-[9deg] group-hover:translate-x-2 group-hover:-translate-y-1
               hover:!-translate-y-6 hover:z-10">
-              <MysteryCard index={3} delay={1.05} />
+              <MysteryCard index={3} delay={0.75} />
+            </div>
+
+            {/* Card 5 — rightmost */}
+            <div className="relative origin-bottom transition-all duration-300 ease-out z-[1] transform-gpu
+              drop-shadow-[0_0_15px_rgba(245,200,66,0.5)]
+              rotate-[12deg]
+              group-hover:rotate-[18deg] group-hover:translate-x-4 group-hover:-translate-y-2
+              hover:!-translate-y-6 hover:z-10">
+              <MysteryCard index={4} delay={1.0} />
             </div>
 
           </div>

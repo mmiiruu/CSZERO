@@ -1,7 +1,7 @@
 import type { TimelineDay } from "@/components/ui/Timeline";
 
 export interface HouseConfig {
-  key: "spade" | "heart" | "diamond" | "club";
+  key: "spongebob" | "conan" | "kungfupanda" | "zootopia" | "toystory";
   name: string;
   symbol: string;
   desc: string;
@@ -16,7 +16,6 @@ export interface HelloWorldConfig {
     primaryButton: { label: string; href: string };
     secondaryButton: { label: string; href: string };
   };
-  // Used in the home page event card
   homeCard: {
     badge: string;
     title: string;
@@ -53,92 +52,100 @@ export interface HelloWorldConfig {
 
 export const helloWorldConfig: HelloWorldConfig = {
   hero: {
-    badge: "✨ กิจกรรม 1 วัน",
+    badge: "🎬 กิจกรรม 1 วัน",
     description:
-      "วันแรกในชุมชน CS! จับฉลากบ้าน พบเพื่อนใหม่สุดเจ๋ง เล่นเกม และค้นพบว่าวิทยาการคอมพิวเตอร์คืออะไร",
+      "วันแรกในโลกการ์ตูนของ CS! จับสลากบ้าน พบเพื่อนใหม่สุดเจ๋ง เล่นเกม และค้นพบว่าวิทยาการคอมพิวเตอร์คืออะไร",
     primaryButton: { label: "สมัครเลย 🎉", href: "/events/hello-world/register" },
-    secondaryButton: { label: "เปิดเผยบ้านของคุณ 🎴", href: "/events/hello-world/reveal" },
+    secondaryButton: { label: "เปิดเผยบ้านของคุณ 🎬", href: "/events/hello-world/reveal" },
   },
   homeCard: {
     badge: "กิจกรรม 1 วัน",
     title: "Hello World",
     shortDescription:
-      "กิจกรรมต้อนรับสุดสนุกสำหรับนิสิตใหม่ทุกคน จับฉลากบ้าน พบเพื่อน และเริ่มต้นการเดินทาง CS!",
+      "กิจกรรมต้อนรับสุดสนุกสำหรับนิสิตใหม่ทุกคน จับสลากบ้านการ์ตูน พบเพื่อน และเริ่มต้นการเดินทาง CS!",
     href: "/events/hello-world",
   },
   houses: {
-    eyebrow: "สี่บ้าน",
+    eyebrow: "ห้าบ้านการ์ตูน",
     title: "คุณจะอยู่บ้านไหน?",
     items: [
       {
-        key: "spade",
-        name: "สเปด",
-        symbol: "♠",
-        desc: "มีกลยุทธ์และวิเคราะห์เก่ง",
-        revealGradient: "from-slate-600 to-slate-800",
-        revealTextColor: "text-slate-600",
+        key: "spongebob",
+        name: "SpongeBob",
+        symbol: "🧽",
+        desc: "สนุกสนาน ร่าเริง และมองโลกในแง่ดีเสมอ",
+        revealGradient: "from-yellow-400 to-amber-500",
+        revealTextColor: "text-yellow-500",
       },
       {
-        key: "heart",
-        name: "หัวใจ",
-        symbol: "♥",
-        desc: "มีความหลงใหลและสร้างสรรค์",
-        revealGradient: "from-red-500 to-pink-600",
+        key: "conan",
+        name: "Conan",
+        symbol: "🔍",
+        desc: "ช่างสังเกต วิเคราะห์เก่ง และไขปริศนาได้",
+        revealGradient: "from-red-600 to-red-900",
         revealTextColor: "text-red-500",
       },
       {
-        key: "diamond",
-        name: "ไดมอนด์",
-        symbol: "♦",
-        desc: "ฉลาดและนวัตกรรม",
-        revealGradient: "from-blue-500 to-cyan-500",
-        revealTextColor: "text-blue-500",
+        key: "kungfupanda",
+        name: "Kung Fu Panda",
+        symbol: "🐼",
+        desc: "มุ่งมั่น ฝึกฝน และเชื่อในพลังของตัวเอง",
+        revealGradient: "from-green-500 to-emerald-800",
+        revealTextColor: "text-green-500",
       },
       {
-        key: "club",
-        name: "คลับ",
-        symbol: "♣",
-        desc: "ทำงานร่วมกันและยืดหยุ่น",
-        revealGradient: "from-green-500 to-emerald-600",
-        revealTextColor: "text-green-500",
+        key: "zootopia",
+        name: "Zootopia",
+        symbol: "🦊",
+        desc: "กล้าหาญ ยุติธรรม และทำลายขีดจำกัด",
+        revealGradient: "from-orange-400 to-orange-700",
+        revealTextColor: "text-orange-400",
+      },
+      {
+        key: "toystory",
+        name: "Toy Story",
+        symbol: "🚀",
+        desc: "จงรักภักดี ผจญภัย และ 'ไปพ้นกว่านั้น'",
+        revealGradient: "from-blue-500 to-indigo-700",
+        revealTextColor: "text-blue-400",
       },
     ],
   },
   schedule: {
     eyebrow: "กำหนดการ",
     title: "ไทม์ไลน์กิจกรรม",
-    accentColor: "#a855f7",
+    accentColor: "#FACC15",
     days: [
       {
         day: "วันกิจกรรม",
-        date: "Hello World — ยินดีต้อนรับสู่ CS!",
+        date: "Hello World — ยินดีต้อนรับสู่โลกการ์ตูน CS!",
         items: [
           { time: "08:30", title: "ลงทะเบียนและต้อนรับ", type: "social", description: "รับป้ายชื่อและพบเพื่อนใหม่" },
           { time: "09:00", title: "พิธีเปิด", type: "talk" },
-          { time: "09:30", title: "พิธีจับฉลากบ้าน", type: "social", description: "ค้นพบบ้านของคุณ: ♠ ♥ ♦ ♣" },
+          { time: "09:30", title: "พิธีจับสลากบ้านการ์ตูน", type: "social", description: "ค้นพบบ้านของคุณ: 🧽 🔍 🐼 🦊 🚀" },
           { time: "10:00", title: "กิจกรรมละลายพฤติกรรมและเกมทีม", type: "social" },
           { time: "11:00", title: "CS Lightning Talks", type: "talk" },
           { time: "12:00", title: "รับประทานอาหารกลางวันและ Networking", type: "break" },
           { time: "13:00", title: "เวิร์กช็อป: สร้างแอปแรกของคุณ", type: "workshop", description: "เซสชันแบบ Hands-on พร้อมคำแนะนำ" },
-          { time: "15:00", title: "การแข่งขันระหว่างบ้าน", type: "workshop", description: "แข่งเพื่อบ้านของคุณ!" },
+          { time: "15:00", title: "การแข่งขันระหว่างบ้าน", type: "workshop", description: "แข่งเพื่อบ้านการ์ตูนของคุณ!" },
           { time: "16:00", title: "มอบรางวัลและพิธีปิด", type: "social" },
         ],
       },
     ],
   },
   cta: {
-    title: "อย่าพลาด! 🎉",
-    description: "ที่นั่งมีจำนวนจำกัด สมัครเลยและดูว่าคุณจะอยู่บ้านไหน",
+    title: "อย่าพลาด! 🎬",
+    description: "ที่นั่งมีจำนวนจำกัด สมัครเลยและดูว่าคุณจะอยู่บ้านการ์ตูนไหน",
     button: { label: "สมัคร Hello World", href: "/events/hello-world/register" },
   },
   reveal: {
-    emoji: "🎴",
+    emoji: "🎬",
     title: "เปิดเผยบ้านของคุณ",
-    description: "กดปุ่มด้านล่างเพื่อค้นพบว่าคุณอยู่บ้านไหน",
+    description: "กดปุ่มด้านล่างเพื่อค้นพบว่าคุณอยู่บ้านการ์ตูนไหน",
     button: "เปิดเผยบ้านของฉัน",
-    revealedMessage: "ยินดีต้อนรับสู่บ้านใหม่ของคุณ! สวมสีของบ้านด้วยความภาคภูมิใจ",
+    revealedMessage: "ยินดีต้อนรับสู่บ้านการ์ตูนของคุณ! ภูมิใจในตัวละครของบ้านคุณได้เลย",
     revealAgainButton: "เปิดเผยอีกครั้ง",
-    shufflingTitle: "กำลังจับฉลาก...",
-    shufflingSubtitle: "กำลังค้นหาบ้านของคุณ",
+    shufflingTitle: "กำลังสุ่มบ้าน...",
+    shufflingSubtitle: "กำลังค้นหาบ้านการ์ตูนของคุณ",
   },
 };
