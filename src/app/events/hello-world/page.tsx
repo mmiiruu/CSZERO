@@ -142,9 +142,9 @@ function CartoonTimeline({ days }: { days: TimelineDay[] }) {
 }
 
 /* ── Floating cartoon bubble ─────────────────────────────────── */
-function CartoonBubble({ emoji, bg, style, animClass }: { emoji: string; bg: string; style?: React.CSSProperties; animClass: string }) {
+function CartoonBubble({ emoji, bg, style, animClass, className = "" }: { emoji: string; bg: string; style?: React.CSSProperties; animClass: string; className?: string }) {
   return (
-    <div aria-hidden="true" className={`absolute select-none pointer-events-none ${animClass}`} style={style}>
+    <div aria-hidden="true" className={`absolute select-none pointer-events-none ${animClass} ${className}`} style={style}>
       <div className="w-12 h-12 rounded-full flex items-center justify-center text-2xl"
         style={{ background: bg, border: "2px solid rgba(255,255,255,0.7)", boxShadow: "0 4px 16px rgba(0,0,0,0.12)" }}>
         {emoji}
@@ -194,11 +194,11 @@ export default function HelloWorldPage() {
         {!reducedMotion && (
           <>
             <CartoonBubble emoji="🧽" bg="#FDE047" animClass="animate-[float-slow_8s_ease-in-out_infinite]"   style={{ top: "14%", left: "4%" }} />
-            <CartoonBubble emoji="🔍" bg="#93C5FD" animClass="animate-[float-mid_6s_ease-in-out_infinite]"    style={{ top: "20%", left: "18%", animationDelay: "1.2s" }} />
+            <CartoonBubble emoji="🔍" bg="#93C5FD" animClass="animate-[float-mid_6s_ease-in-out_infinite]"    style={{ top: "20%", left: "18%", animationDelay: "1.2s" }} className="hidden sm:block" />
             <CartoonBubble emoji="🐼" bg="#86EFAC" animClass="animate-[float-fast_4.5s_ease-in-out_infinite]" style={{ bottom: "28%", left: "6%", animationDelay: "2s" }} />
-            <CartoonBubble emoji="🚀" bg="#7DD3FC" animClass="animate-[float-slow_7s_ease-in-out_infinite]"   style={{ bottom: "18%", left: "22%", animationDelay: "0.5s" }} />
+            <CartoonBubble emoji="🚀" bg="#7DD3FC" animClass="animate-[float-slow_7s_ease-in-out_infinite]"   style={{ bottom: "18%", left: "22%", animationDelay: "0.5s" }} className="hidden sm:block" />
             <CartoonBubble emoji="🦊" bg="#FDBA74" animClass="animate-[float-mid_5.5s_ease-in-out_infinite]"  style={{ top: "55%", left: "2%", animationDelay: "1.5s" }} />
-            <CartoonBubble emoji="⭐" bg="#FDE047" animClass="animate-[float-fast_4s_ease-in-out_infinite]"   style={{ top: "8%", left: "42%", animationDelay: "0.8s" }} />
+            <CartoonBubble emoji="⭐" bg="#FDE047" animClass="animate-[float-fast_4s_ease-in-out_infinite]"   style={{ top: "8%", left: "42%", animationDelay: "0.8s" }} className="hidden sm:block" />
           </>
         )}
 
