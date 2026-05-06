@@ -70,7 +70,7 @@ export const cs101Config: CS101Config = {
     days: [
       {
         day: "วันที่ 1",
-        date: "Calculus",
+        date: "Python only",
         items: [
           { time: "08:30", title: "ลงทะเบียน", type: "social", description: "ลงทะเบียนเข้าร่วมงานและรับเอกสาร" },
           { time: "09:00", title: "สอนเนื้อหา: Calculus", type: "talk", description: "เนื้อหาวิชา Calculus" },
@@ -88,7 +88,7 @@ export const cs101Config: CS101Config = {
       },
       {
         day: "วันที่ 2",
-        date: "ชนิดข้อมูล · เงื่อนไข · Loop · Function · List",
+        date: "Python only",
         items: [
           { time: "08:30", title: "ลงทะเบียน", type: "social", description: "ลงทะเบียนเข้าร่วมงานและรับเอกสาร" },
           { time: "09:00", title: "สอนเนื้อหา: ชนิดของข้อมูล และการแสดงผลกับการรับค่า", type: "talk", description: "เรียนรู้ชนิดข้อมูลพื้นฐาน (int, float, str, bool) การใช้ print() และ input()" },
