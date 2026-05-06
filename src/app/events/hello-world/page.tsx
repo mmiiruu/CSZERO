@@ -14,17 +14,17 @@ const AMBER  = "#D97706";   // amber-600 — throughline accent
 const TEXT_D = "#1C1917";
 const TEXT_M = "#57534E";
 
-/* ── House color map — saturated, cartoon-true ───────────────── */
+/* ── House color map — design-spec faithful ──────────────────── */
 const houseColor: Record<string, {
   bg: string; border: string; textColor: string;
-  badgeBg: string; badgeText: string; shadow: string; imgBg: string;
+  badgeColor: string; badgeText: string; shadow: string; imgBg: string;
   imgW: number; imgH: number;
 }> = {
-  spongebob:   { bg: "#FEF08A", border: "#CA8A04", textColor: "#713F12", badgeBg: "bg-yellow-400",  badgeText: "text-yellow-950", shadow: "rgba(202,138,4,0.5)",   imgBg: "#FDE047", imgW: 395, imgH: 632 },
-  conan:       { bg: "#BFDBFE", border: "#1D4ED8", textColor: "#1E3A8A", badgeBg: "bg-blue-700",    badgeText: "text-white",       shadow: "rgba(29,78,216,0.45)",  imgBg: "#93C5FD", imgW: 535, imgH: 466 },
-  kungfupanda: { bg: "#BBF7D0", border: "#15803D", textColor: "#14532D", badgeBg: "bg-green-700",   badgeText: "text-white",       shadow: "rgba(21,128,61,0.45)",  imgBg: "#86EFAC", imgW: 679, imgH: 367 },
-  zootopia:    { bg: "#FED7AA", border: "#EA580C", textColor: "#7C2D12", badgeBg: "bg-orange-500",  badgeText: "text-white",       shadow: "rgba(234,88,12,0.5)",   imgBg: "#FDBA74", imgW: 500, imgH: 500 },
-  toystory:    { bg: "#BAE6FD", border: "#0284C7", textColor: "#075985", badgeBg: "bg-sky-600",     badgeText: "text-white",       shadow: "rgba(2,132,199,0.5)",   imgBg: "#7DD3FC", imgW: 577, imgH: 433 },
+  spongebob:   { bg: "#FFFBEB", border: "#D97706", textColor: "#78350F", badgeColor: "#D97706", badgeText: "#ffffff", shadow: "rgba(217,119,6,0.38)",  imgBg: "#ffffff", imgW: 395, imgH: 632 },
+  conan:       { bg: "#FFF1F2", border: "#DC2626", textColor: "#7F1D1D", badgeColor: "#DC2626", badgeText: "#ffffff", shadow: "rgba(220,38,38,0.38)",  imgBg: "#ffffff", imgW: 535, imgH: 466 },
+  kungfupanda: { bg: "#F0FDF4", border: "#16A34A", textColor: "#14532D", badgeColor: "#16A34A", badgeText: "#ffffff", shadow: "rgba(22,163,74,0.38)",  imgBg: "#ffffff", imgW: 432, imgH: 578 },
+  zootopia:    { bg: "#FFF7ED", border: "#EA580C", textColor: "#7C2D12", badgeColor: "#EA580C", badgeText: "#ffffff", shadow: "rgba(234,88,12,0.38)",  imgBg: "#ffffff", imgW: 400, imgH: 588 },
+  toystory:    { bg: "#EFF6FF", border: "#2563EB", textColor: "#1E3A8A", badgeColor: "#2563EB", badgeText: "#ffffff", shadow: "rgba(37,99,235,0.38)",  imgBg: "#ffffff", imgW: 577, imgH: 433 },
 };
 
 /* ── Timeline type config ────────────────────────────────────── */
@@ -291,7 +291,7 @@ export default function HelloWorldPage() {
       </section>
 
       {/* ══════════════════════ HOUSES ══════════════════════ */}
-      <section aria-labelledby="hw-houses-heading" className="py-24 px-4" style={{ background: "#FFFFFF" }}>
+      <section aria-labelledby="hw-houses-heading" className="py-24 px-4" style={{ background: "#FFFBF4" }}>
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-14">
             <p className="text-xs font-semibold uppercase tracking-[0.35em] mb-3" style={{ color: AMBER }}>
@@ -319,7 +319,7 @@ export default function HelloWorldPage() {
                 >
                   {/* Character image area */}
                   <div className="relative flex items-end justify-center overflow-hidden"
-                    style={{ height: 160, background: hc.imgBg }}>
+                    style={{ height: 190, background: hc.imgBg }}>
                     <Image
                       src={house.image}
                       alt=""
@@ -327,13 +327,16 @@ export default function HelloWorldPage() {
                       height={hc.imgH}
                       loading="lazy"
                       sizes="200px"
-                      className="transition-transform duration-500 group-hover:scale-110 group-hover:-translate-y-1"
-                      style={{ height: 145, width: "auto", objectFit: "contain", mixBlendMode: "multiply", filter: "drop-shadow(0 4px 10px rgba(0,0,0,0.15))" }}
+                      className="transition-transform duration-500 group-hover:scale-110 group-hover:-translate-y-2"
+                      style={{ height: 175, width: "auto", objectFit: "contain", mixBlendMode: "multiply", filter: "drop-shadow(0 4px 12px rgba(0,0,0,0.18))" }}
                     />
                   </div>
                   {/* Info */}
                   <div className="p-4 text-center">
-                    <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold mb-2 ${hc.badgeBg} ${hc.badgeText}`}>
+                    <span
+                      className="inline-block px-3 py-1 rounded-full text-xs font-bold mb-2"
+                      style={{ background: hc.badgeColor, color: hc.badgeText }}
+                    >
                       {house.symbol} {house.name}
                     </span>
                     <p className="text-xs leading-relaxed font-medium" style={{ color: hc.textColor }}>{house.desc}</p>
@@ -373,20 +376,42 @@ export default function HelloWorldPage() {
           <div className="absolute bottom-0 left-0 w-80 h-80 rounded-full blur-[100px]"  style={{ background: "rgba(234,88,12,0.25)" }} />
         </div>
 
+        {/* Corner characters */}
+        <div aria-hidden="true" className="absolute bottom-0 left-0 pointer-events-none select-none" style={{ opacity: 0.35 }}>
+          <Image
+            src="/toystory_friend1.png"
+            alt=""
+            width={482}
+            height={517}
+            loading="lazy"
+            sizes="260px"
+            style={{ height: "clamp(160px, 30vw, 260px)", width: "auto", objectFit: "contain", mixBlendMode: "multiply" }}
+          />
+        </div>
+        <div aria-hidden="true" className="absolute bottom-0 right-0 pointer-events-none select-none" style={{ opacity: 0.35 }}>
+          <Image
+            src="/toystory_friend2.png"
+            alt=""
+            width={490}
+            height={509}
+            loading="lazy"
+            sizes="260px"
+            style={{ height: "clamp(160px, 30vw, 260px)", width: "auto", objectFit: "contain", mixBlendMode: "multiply" }}
+          />
+        </div>
+        <div aria-hidden="true" className="absolute top-0 right-0 pointer-events-none select-none" style={{ opacity: 0.35 }}>
+          <Image
+            src="/toystory_friend3.png"
+            alt=""
+            width={523}
+            height={477}
+            loading="lazy"
+            sizes="220px"
+            style={{ height: "clamp(130px, 26vw, 220px)", width: "auto", objectFit: "contain", mixBlendMode: "multiply" }}
+          />
+        </div>
+
         <div className="max-w-2xl mx-auto text-center relative z-10">
-          <div className="flex justify-center mb-4">
-            <Image
-              src="/conan.png"
-              alt=""
-              aria-hidden="true"
-              width={480}
-              height={520}
-              loading="lazy"
-              sizes="200px"
-              className="animate-[float-slow_4s_ease-in-out_infinite]"
-              style={{ height: "clamp(140px, 22vw, 200px)", width: "auto", objectFit: "contain", mixBlendMode: "multiply", filter: "drop-shadow(0 8px 20px rgba(0,0,0,0.14))" }}
-            />
-          </div>
           <h2 id="hw-cta-heading" className="font-display text-4xl sm:text-5xl font-black mb-4" style={{ color: TEXT_D }}>
             {cta.title}
           </h2>
