@@ -15,13 +15,13 @@ const housePastel: Record<string, {
   bg: string; border: string; glow: string;
   badgeBg: string; badgeText: string;
   gradient: string; textColor: string;
-  cardImgH: number; shuffleImgH: number; revealImgH: number;
+  cardImgH: number; shuffleImgH: number; revealImgH: number; imgScale: number;
 }> = {
-  spongebob:   { bg: "#FEFCE8", border: "#FCD34D", glow: "rgba(252,211,77,0.5)",   badgeBg: "bg-yellow-100", badgeText: "text-yellow-800", gradient: "linear-gradient(145deg,#FDE68A,#F59E0B)", textColor: "#92400E", cardImgH: 72,  shuffleImgH: 130, revealImgH: 230 },
-  conan:       { bg: "#FFF1F2", border: "#FCA5A5", glow: "rgba(252,165,165,0.5)",  badgeBg: "bg-red-100",    badgeText: "text-red-800",    gradient: "linear-gradient(145deg,#FEE2E2,#EF4444)", textColor: "#991B1B", cardImgH: 72,  shuffleImgH: 130, revealImgH: 230 },
-  kungfupanda: { bg: "#F0FDF4", border: "#86EFAC", glow: "rgba(134,239,172,0.5)",  badgeBg: "bg-green-100",  badgeText: "text-green-800",  gradient: "linear-gradient(145deg,#DCFCE7,#22C55E)", textColor: "#166534", cardImgH: 118, shuffleImgH: 195, revealImgH: 320 },
-  zootopia:    { bg: "#FFF7ED", border: "#FDBA74", glow: "rgba(253,186,116,0.5)",  badgeBg: "bg-orange-100", badgeText: "text-orange-800", gradient: "linear-gradient(145deg,#FFEDD5,#F97316)", textColor: "#9A3412", cardImgH: 72,  shuffleImgH: 130, revealImgH: 230 },
-  toystory:    { bg: "#EFF6FF", border: "#93C5FD", glow: "rgba(147,197,253,0.5)",  badgeBg: "bg-blue-100",   badgeText: "text-blue-800",   gradient: "linear-gradient(145deg,#DBEAFE,#3B82F6)", textColor: "#1E40AF", cardImgH: 72,  shuffleImgH: 130, revealImgH: 230 },
+  spongebob:   { bg: "#FEFCE8", border: "#FCD34D", glow: "rgba(252,211,77,0.5)",   badgeBg: "bg-yellow-100", badgeText: "text-yellow-800", gradient: "linear-gradient(145deg,#FDE68A,#F59E0B)", textColor: "#92400E", cardImgH: 72,  shuffleImgH: 130, revealImgH: 230, imgScale: 1    },
+  conan:       { bg: "#FFF1F2", border: "#FCA5A5", glow: "rgba(252,165,165,0.5)",  badgeBg: "bg-red-100",    badgeText: "text-red-800",    gradient: "linear-gradient(145deg,#FEE2E2,#EF4444)", textColor: "#991B1B", cardImgH: 72,  shuffleImgH: 130, revealImgH: 230, imgScale: 1    },
+  kungfupanda: { bg: "#F0FDF4", border: "#86EFAC", glow: "rgba(134,239,172,0.5)",  badgeBg: "bg-green-100",  badgeText: "text-green-800",  gradient: "linear-gradient(145deg,#DCFCE7,#22C55E)", textColor: "#166534", cardImgH: 118, shuffleImgH: 195, revealImgH: 320, imgScale: 1.55 },
+  zootopia:    { bg: "#FFF7ED", border: "#FDBA74", glow: "rgba(253,186,116,0.5)",  badgeBg: "bg-orange-100", badgeText: "text-orange-800", gradient: "linear-gradient(145deg,#FFEDD5,#F97316)", textColor: "#9A3412", cardImgH: 72,  shuffleImgH: 130, revealImgH: 230, imgScale: 1    },
+  toystory:    { bg: "#EFF6FF", border: "#93C5FD", glow: "rgba(147,197,253,0.5)",  badgeBg: "bg-blue-100",   badgeText: "text-blue-800",   gradient: "linear-gradient(145deg,#DBEAFE,#3B82F6)", textColor: "#1E40AF", cardImgH: 72,  shuffleImgH: 130, revealImgH: 230, imgScale: 1    },
 };
 
 /* ── Mystery card — shows house character image, face shown ─── */
@@ -49,7 +49,7 @@ function MysteryCard({ index = 0, delay = 0 }: { index?: number; delay?: number 
         <img
           src={house.image}
           alt={house.name}
-          style={{ height: hp.cardImgH, width: "auto", objectFit: "contain", mixBlendMode: "multiply" }}
+          style={{ height: hp.cardImgH, width: "auto", objectFit: "contain", mixBlendMode: "multiply", transform: `scale(${hp.imgScale})`, transformOrigin: "bottom center" }}
         />
       </div>
       {/* Corner dots */}
@@ -199,6 +199,8 @@ export default function RevealPage() {
                   objectFit: "contain",
                   mixBlendMode: "multiply",
                   filter: "drop-shadow(0 8px 16px rgba(0,0,0,0.15))",
+                  transform: `scale(${hp.imgScale})`,
+                  transformOrigin: "bottom center",
                 }}
               />
             </div>
@@ -253,7 +255,7 @@ export default function RevealPage() {
                     <img
                       src={shuffleHouse.image}
                       alt={shuffleHouse.name}
-                      style={{ height: sp.shuffleImgH, width: "auto", objectFit: "contain", mixBlendMode: "multiply" }}
+                      style={{ height: sp.shuffleImgH, width: "auto", objectFit: "contain", mixBlendMode: "multiply", transform: `scale(${sp.imgScale})`, transformOrigin: "bottom center" }}
                     />
                   </div>
                   <span className="absolute top-2 left-2.5 text-sm font-bold" style={{ color: sp.border }}>{shuffleHouse.symbol}</span>
