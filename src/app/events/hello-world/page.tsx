@@ -264,22 +264,21 @@ export default function HelloWorldPage() {
             </div>
           </div>
 
-          {/* ── Zootopia image ── */}
+          {/* ── Hero characters image ── */}
           <div className="flex-shrink-0 flex items-end justify-center w-full lg:w-auto relative">
             <div aria-hidden="true" className="absolute rounded-full pointer-events-none"
-              style={{ width: 300, height: 300, background: "radial-gradient(circle, rgba(253,215,170,0.7) 0%, transparent 70%)", right: "0%", bottom: "0%" }} />
+              style={{ width: 400, height: 300, background: "radial-gradient(circle, rgba(253,215,170,0.7) 0%, transparent 70%)", right: "0%", bottom: "0%" }} />
             <Image
-              src="/zootopia_couple.png"
-              alt="Nick Wilde and Judy Hopps from Zootopia"
-              width={390}
-              height={640}
+              src="/herosectionimage.png"
+              alt="Po, SpongeBob, Woody, Conan, Nick and Judy — all five houses"
+              width={677}
+              height={369}
               loading="eager"
               preload
-              sizes="(max-width: 1024px) 45vw, 380px"
+              sizes="(max-width: 1024px) 90vw, 540px"
               className="relative z-10"
               style={{
-                height: "clamp(260px, 44vh, 460px)", width: "auto", objectFit: "contain",
-                mixBlendMode: "multiply",
+                width: "clamp(280px, 48vw, 540px)", height: "auto", objectFit: "contain",
                 filter: "drop-shadow(0 20px 40px rgba(0,0,0,0.14))",
               }}
             />
