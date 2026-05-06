@@ -15,9 +15,9 @@ export async function POST(_req: NextRequest) {
 
     await dbConnect();
 
-    const emailRegex = new RegExp(`^${session.user.email.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "i");
+    const email = session.user.email.trim().toLowerCase();
     const registration = await Registration.findOne({
-      email: { $regex: emailRegex },
+      email,
       event: "hello-world",
     });
 

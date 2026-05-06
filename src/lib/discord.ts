@@ -20,14 +20,24 @@ export async function notifyRegistration(data: RegistrationEvent): Promise<void>
 
   const meta = EVENT_META[data.event] ?? { label: data.event, color: 0x64748b, emoji: "📋" };
 
+  // Defang Markdown link/image syntax and mass-mentions so attacker-controlled
+  // text cannot inject clickable links or pings into the Discord channel.
+  const defang = (s: string): string =>
+    s
+      .replace(/!?\[/g, "(")
+      .replace(/\]/g, ")")
+      .replace(/@everyone/gi, "@​everyone")
+      .replace(/@here/gi, "@​here")
+      .slice(0, 1024);
+
   const answerFields =
     data.answers && Object.keys(data.answers).length > 0
       ? Object.entries(data.answers)
           .filter(([, v]) => v && String(v).trim())
           .slice(0, 10) // Discord cap: 25 fields; keep it tidy
           .map(([key, value]) => ({
-            name: key,
-            value: String(value).slice(0, 1024),
+            name: defang(String(key)),
+            value: defang(String(value)),
             inline: String(value).length < 80,
           }))
       : [];
@@ -38,8 +48,8 @@ export async function notifyRegistration(data: RegistrationEvent): Promise<void>
         title: `${meta.emoji} การสมัครใหม่ — ${meta.label}`,
         color: meta.color,
         fields: [
-          { name: "ชื่อ", value: data.name, inline: true },
-          { name: "อีเมล", value: data.email, inline: true },
+          { name: "ชื่อ", value: defang(data.name), inline: true },
+          { name: "อีเมล", value: defang(data.email), inline: true },
           { name: "กิจกรรม", value: meta.label, inline: true },
           ...answerFields,
         ],
@@ -47,6 +57,7 @@ export async function notifyRegistration(data: RegistrationEvent): Promise<void>
         timestamp: new Date().toISOString(),
       },
     ],
+    allowed_mentions: { parse: [] as string[] },
   };
 
   try {

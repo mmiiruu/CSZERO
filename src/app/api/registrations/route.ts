@@ -5,38 +5,43 @@ import dbConnect from "@/lib/mongodb";
 import Registration from "@/models/Registration";
 import { notifyRegistration } from "@/lib/discord";
 
+const ALLOWED_EVENTS = ["cs101", "hello-world"] as const;
+
+function sanitizeAnswers(input: unknown): Record<string, string> {
+  if (!input || typeof input !== "object" || Array.isArray(input)) return {};
+  const out: Record<string, string> = {};
+  for (const [k, v] of Object.entries(input as Record<string, unknown>)) {
+    if (typeof k !== "string") continue;
+    if (v == null) continue;
+    out[k.slice(0, 100)] = String(v).slice(0, 2000);
+  }
+  return out;
+}
+
 export async function POST(req: NextRequest) {
   try {
-    await dbConnect();
     const session = await auth();
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const body = await req.json();
-    const { event, name, answers } = body;
-    let { email } = body;
+    const event = body?.event;
+    const name = body?.name;
 
-    if (!["cs101", "hello-world"].includes(event)) {
-      return NextResponse.json(
-        { error: "Invalid event type" },
-        { status: 400 }
-      );
+    if (typeof event !== "string" || !ALLOWED_EVENTS.includes(event as typeof ALLOWED_EVENTS[number])) {
+      return NextResponse.json({ error: "Invalid event type" }, { status: 400 });
+    }
+    if (typeof name !== "string" || name.trim().length === 0 || name.length > 200) {
+      return NextResponse.json({ error: "Invalid name" }, { status: 400 });
     }
 
-    // CS101 requires authentication; email is always taken from the session
-    // so the client cannot forge it.
-    if (event === "cs101") {
-      if (!session?.user?.email) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-      }
-      email = session.user.email;
-    }
+    const email = session.user.email.trim().toLowerCase();
+    const cleanName = name.trim();
+    const cleanAnswers = sanitizeAnswers(body?.answers);
 
-    if (!event || !name || !email) {
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 }
-      );
-    }
+    await dbConnect();
 
-    // Check for duplicate registration
     const existing = await Registration.findOne({ email, event });
     if (existing) {
       return NextResponse.json(
@@ -47,13 +52,12 @@ export async function POST(req: NextRequest) {
 
     const registration = await Registration.create({
       event,
-      name,
+      name: cleanName,
       email,
-      answers: answers || {},
+      answers: cleanAnswers,
     });
 
-    // Fire-and-forget — does not block or affect the response
-    notifyRegistration({ event, name, email, answers });
+    notifyRegistration({ event: event as "cs101" | "hello-world", name: cleanName, email, answers: cleanAnswers });
 
     return NextResponse.json(
       { message: "Registration successful", id: registration._id },

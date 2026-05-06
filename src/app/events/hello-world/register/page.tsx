@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
+import { useSession, signIn } from "next-auth/react";
 import Link from "next/link";
 import Image from "next/image";
 import Input from "@/components/ui/Input";
@@ -175,18 +175,26 @@ export default function HelloWorldRegisterPage() {
 
   const handleSubmit = async () => {
     if (!validateStep()) return;
+    if (!session?.user?.email) {
+      signIn("google", { callbackUrl: "/events/hello-world/register" });
+      return;
+    }
     setIsSubmitting(true);
     try {
       const res = await fetch("/api/registrations", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          event: "hello-world", name: formData.name, email: formData.email,
+          event: "hello-world", name: formData.name,
           answers: {
             personalityType: formData.personalityType, codingExperience: formData.codingExperience,
             eventVibe: formData.eventVibe, whyJoin: formData.whyJoin, expectations: formData.expectations,
           },
         }),
       });
+      if (res.status === 401) {
+        signIn("google", { callbackUrl: "/events/hello-world/register" });
+        return;
+      }
       if (!res.ok) { const d = await res.json(); throw new Error(d.error || "การสมัครไม่สำเร็จ"); }
       clearDraft();
       router.push("/events/hello-world/register?success=true");

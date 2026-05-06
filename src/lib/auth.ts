@@ -20,10 +20,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        const db = (await clientPromise).db();
-        const dbUser = await db.collection("users").findOne({ email: user.email });
-        token.role = dbUser?.role || "user";
         token.id = user.id;
+      }
+      // Refresh role from DB on every JWT pass so demotions take effect immediately.
+      if (token.email) {
+        const db = (await clientPromise).db();
+        const dbUser = await db.collection("users").findOne({ email: token.email });
+        token.role = dbUser?.role || "user";
       }
       return token;
     },

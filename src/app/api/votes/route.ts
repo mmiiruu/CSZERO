@@ -5,20 +5,12 @@ import Vote from "@/models/Vote";
 import Candidate from "@/models/Candidate";
 import User from "@/models/User";
 import { auth } from "@/lib/auth";
-import { CANDIDATES as DEFAULT_CANDIDATES } from "@/config/candidates";
-
 export async function GET(_req: NextRequest) {
   try {
     const session = await auth();
     await dbConnect();
 
-    let candidates = await Candidate.find().lean();
-
-    // Auto-seed on first run so the UI always receives real ObjectId-backed records.
-    if (candidates.length === 0) {
-      await Candidate.insertMany(DEFAULT_CANDIDATES);
-      candidates = await Candidate.find().lean();
-    }
+    const candidates = await Candidate.find().lean();
 
     let hasVoted = false;
     if (session?.user?.id) {
@@ -54,17 +46,10 @@ export async function POST(req: NextRequest) {
     }
 
     await dbConnect();
-    const { candidateId } = await req.json();
+    const body = await req.json();
+    const candidateId = body?.candidateId;
 
-    if (!candidateId) {
-      return NextResponse.json(
-        { error: "Candidate ID is required" },
-        { status: 400 }
-      );
-    }
-
-    // Reject non-ObjectId strings early — prevents Mongoose CastError.
-    if (!mongoose.Types.ObjectId.isValid(candidateId)) {
+    if (typeof candidateId !== "string" || !mongoose.Types.ObjectId.isValid(candidateId)) {
       return NextResponse.json(
         { error: "Invalid candidate ID" },
         { status: 400 }
