@@ -200,7 +200,7 @@ function MarioItem({
           style={{
             fontFamily: "var(--font-fredoka), var(--font-prompt), sans-serif",
             fontWeight: 700,
-            fontSize: "1rem",
+            fontSize: "1.2rem",
             color: "rgba(255,255,255,0.92)",
             lineHeight: 1.3,
             margin: 0,
