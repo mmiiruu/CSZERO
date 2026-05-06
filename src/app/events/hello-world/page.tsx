@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { ForceTheme } from "@/components/providers/ForceTheme";
 import { helloWorldConfig } from "@/config/events/hello-world";
 import type { TimelineItem, TimelineDay } from "@/components/ui/Timeline";
@@ -17,12 +18,13 @@ const TEXT_M = "#57534E";
 const houseColor: Record<string, {
   bg: string; border: string; textColor: string;
   badgeBg: string; badgeText: string; shadow: string; imgBg: string;
+  imgW: number; imgH: number;
 }> = {
-  spongebob:   { bg: "#FEF08A", border: "#CA8A04", textColor: "#713F12", badgeBg: "bg-yellow-400",  badgeText: "text-yellow-950", shadow: "rgba(202,138,4,0.5)",   imgBg: "#FDE047" },
-  conan:       { bg: "#BFDBFE", border: "#1D4ED8", textColor: "#1E3A8A", badgeBg: "bg-blue-700",    badgeText: "text-white",       shadow: "rgba(29,78,216,0.45)",  imgBg: "#93C5FD" },
-  kungfupanda: { bg: "#BBF7D0", border: "#15803D", textColor: "#14532D", badgeBg: "bg-green-700",   badgeText: "text-white",       shadow: "rgba(21,128,61,0.45)",  imgBg: "#86EFAC" },
-  zootopia:    { bg: "#FED7AA", border: "#EA580C", textColor: "#7C2D12", badgeBg: "bg-orange-500",  badgeText: "text-white",       shadow: "rgba(234,88,12,0.5)",   imgBg: "#FDBA74" },
-  toystory:    { bg: "#BAE6FD", border: "#0284C7", textColor: "#075985", badgeBg: "bg-sky-600",     badgeText: "text-white",       shadow: "rgba(2,132,199,0.5)",   imgBg: "#7DD3FC" },
+  spongebob:   { bg: "#FEF08A", border: "#CA8A04", textColor: "#713F12", badgeBg: "bg-yellow-400",  badgeText: "text-yellow-950", shadow: "rgba(202,138,4,0.5)",   imgBg: "#FDE047", imgW: 395, imgH: 632 },
+  conan:       { bg: "#BFDBFE", border: "#1D4ED8", textColor: "#1E3A8A", badgeBg: "bg-blue-700",    badgeText: "text-white",       shadow: "rgba(29,78,216,0.45)",  imgBg: "#93C5FD", imgW: 535, imgH: 466 },
+  kungfupanda: { bg: "#BBF7D0", border: "#15803D", textColor: "#14532D", badgeBg: "bg-green-700",   badgeText: "text-white",       shadow: "rgba(21,128,61,0.45)",  imgBg: "#86EFAC", imgW: 679, imgH: 367 },
+  zootopia:    { bg: "#FED7AA", border: "#EA580C", textColor: "#7C2D12", badgeBg: "bg-orange-500",  badgeText: "text-white",       shadow: "rgba(234,88,12,0.5)",   imgBg: "#FDBA74", imgW: 500, imgH: 500 },
+  toystory:    { bg: "#BAE6FD", border: "#0284C7", textColor: "#075985", badgeBg: "bg-sky-600",     badgeText: "text-white",       shadow: "rgba(2,132,199,0.5)",   imgBg: "#7DD3FC", imgW: 577, imgH: 433 },
 };
 
 /* ── Timeline type config ────────────────────────────────────── */
@@ -266,10 +268,14 @@ export default function HelloWorldPage() {
           <div className="flex-shrink-0 flex items-end justify-center w-full lg:w-auto relative">
             <div aria-hidden="true" className="absolute rounded-full pointer-events-none"
               style={{ width: 300, height: 300, background: "radial-gradient(circle, rgba(253,215,170,0.7) 0%, transparent 70%)", right: "0%", bottom: "0%" }} />
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <Image
               src="/zootopia_couple.png"
               alt="Nick Wilde and Judy Hopps from Zootopia"
+              width={390}
+              height={640}
+              loading="eager"
+              preload
+              sizes="(max-width: 1024px) 45vw, 380px"
               className="relative z-10"
               style={{
                 height: "clamp(260px, 44vh, 460px)", width: "auto", objectFit: "contain",
@@ -312,10 +318,13 @@ export default function HelloWorldPage() {
                   {/* Character image area */}
                   <div className="relative flex items-end justify-center overflow-hidden"
                     style={{ height: 160, background: hc.imgBg }}>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
+                      <Image
                       src={house.image}
                       alt={`${house.name} character`}
+                      width={hc.imgW}
+                      height={hc.imgH}
+                      loading="lazy"
+                      sizes="200px"
                       className="transition-transform duration-500 group-hover:scale-110 group-hover:-translate-y-1"
                       style={{ height: 145, width: "auto", objectFit: "contain", mixBlendMode: "multiply", filter: "drop-shadow(0 4px 10px rgba(0,0,0,0.15))" }}
                     />
@@ -364,11 +373,14 @@ export default function HelloWorldPage() {
 
         <div className="max-w-2xl mx-auto text-center relative z-10">
           <div className="flex justify-center mb-4">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <Image
               src="/conan.png"
               alt="Conan pointing"
               aria-hidden="true"
+              width={480}
+              height={520}
+              loading="lazy"
+              sizes="200px"
               className="animate-[float-slow_4s_ease-in-out_infinite]"
               style={{ height: "clamp(140px, 22vw, 200px)", width: "auto", objectFit: "contain", mixBlendMode: "multiply", filter: "drop-shadow(0 8px 20px rgba(0,0,0,0.14))" }}
             />
