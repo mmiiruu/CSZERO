@@ -379,53 +379,6 @@ export default function HelloWorldPage() {
         </div>
       </section>
 
-      {/* ══════════════════════ CARTOON SHOWCASE ══════════════════════ */}
-      <section className="py-16 px-4 overflow-hidden" style={{ background: "linear-gradient(135deg, #FFF7ED 0%, #FFFBF4 50%, #EFF6FF 100%)" }}>
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-10">
-            <h2 className="font-display text-2xl sm:text-3xl font-black" style={{ color: TEXT_D }}>
-              ตัวละครจากทุกบ้าน 🎬
-            </h2>
-            <p className="mt-2 text-sm" style={{ color: TEXT_M }}>เข้าร่วมแล้วค้นพบว่าคุณจะอยู่บ้านไหน!</p>
-          </div>
-
-          {/* Scrolling character strip */}
-          <div className="flex items-end justify-center gap-6 flex-wrap">
-            {[
-              { src: "/spongebob.png",         alt: "SpongeBob",    color: "#FCD34D", name: "SpongeBob" },
-              { src: "/conan_stand.png",        alt: "Conan",        color: "#FCA5A5", name: "Conan" },
-              { src: "/kungfu_panda.png",       alt: "Kung Fu Panda",color: "#86EFAC", name: "Kung Fu Panda" },
-              { src: "/zootopia_fox.png",       alt: "Nick Wilde",   color: "#FDBA74", name: "Zootopia" },
-              { src: "/toystory_buzzlightyear.png", alt: "Buzz Lightyear", color: "#93C5FD", name: "Toy Story" },
-            ].map((char, i) => (
-              <div
-                key={char.alt}
-                className="group flex flex-col items-center gap-2 cursor-default"
-                style={{ animationDelay: `${i * 0.1}s` }}
-              >
-                <div
-                  className="relative rounded-2xl overflow-hidden transition-all duration-300 group-hover:-translate-y-3 group-hover:shadow-xl"
-                  style={{
-                    width: 110, height: 150,
-                    background: `radial-gradient(circle at 50% 80%, ${char.color}40 0%, transparent 70%)`,
-                    border: `2px solid ${char.color}80`,
-                  }}
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={char.src}
-                    alt={char.alt}
-                    className="w-full h-full object-contain"
-                    style={{ mixBlendMode: "multiply", padding: "8px 4px 0" }}
-                  />
-                </div>
-                <span className="text-xs font-semibold" style={{ color: TEXT_M }}>{char.name}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* ══════════════════════ SCHEDULE ══════════════════════ */}
       <section aria-labelledby="hw-schedule-heading" className="py-24 px-4" style={{ background: "#F0FBF7" }}>
         <div className="max-w-5xl mx-auto">
