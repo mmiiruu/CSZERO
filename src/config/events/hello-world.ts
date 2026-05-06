@@ -54,7 +54,7 @@ export interface HelloWorldConfig {
 
 export const helloWorldConfig: HelloWorldConfig = {
   hero: {
-    badge: "🎬 กิจกรรม 1 วัน",
+    badge: "กิจกรรม 1 วัน",
     description:
       "วันแรกในโลกการ์ตูนของ CS! จับสลากบ้าน พบเพื่อนใหม่สุดเจ๋ง เล่นเกม และค้นพบว่าวิทยาการคอมพิวเตอร์คืออะไร",
     primaryButton: { label: "สมัครเลย 🎉", href: "/events/hello-world/register" },
