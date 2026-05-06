@@ -308,19 +308,21 @@ export default function HelloWorldPage() {
             {houses.items.map((house) => {
               const hc = houseColor[house.key] ?? houseColor.toystory;
               return (
-                <div
+                <Link
                   key={house.key}
-                  className="group relative overflow-hidden rounded-3xl border-[3px] transition-all duration-300 hover:scale-[1.05] hover:-translate-y-2 cursor-default"
-                  style={{ background: hc.bg, borderColor: hc.border, boxShadow: `0 6px 24px ${hc.shadow}` }}
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.boxShadow = `0 18px 44px ${hc.shadow}, 0 4px 12px rgba(0,0,0,0.08)`; }}
-                  onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.boxShadow = `0 6px 24px ${hc.shadow}`; }}
+                  href="/events/hello-world/reveal"
+                  aria-label={`บ้าน${house.name} — กดเพื่อเปิดเผยบ้านของคุณ`}
+                  className="group relative overflow-hidden rounded-3xl border-[3px] transition-all duration-300 hover:scale-[1.05] hover:-translate-y-2 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-offset-2"
+                  style={{ background: hc.bg, borderColor: hc.border, boxShadow: `0 6px 24px ${hc.shadow}`, "--tw-ring-color": hc.border } as React.CSSProperties}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.boxShadow = `0 18px 44px ${hc.shadow}, 0 4px 12px rgba(0,0,0,0.08)`; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.boxShadow = `0 6px 24px ${hc.shadow}`; }}
                 >
                   {/* Character image area */}
                   <div className="relative flex items-end justify-center overflow-hidden"
                     style={{ height: 160, background: hc.imgBg }}>
-                      <Image
+                    <Image
                       src={house.image}
-                      alt={`${house.name} character`}
+                      alt=""
                       width={hc.imgW}
                       height={hc.imgH}
                       loading="lazy"
@@ -336,7 +338,7 @@ export default function HelloWorldPage() {
                     </span>
                     <p className="text-xs leading-relaxed font-medium" style={{ color: hc.textColor }}>{house.desc}</p>
                   </div>
-                </div>
+                </Link>
               );
             })}
           </div>
