@@ -409,28 +409,24 @@ export default function HelloWorldPage() {
             style={{ background: "rgba(186,230,253,0.4)" }} />
         </div>
 
-        {/* Cartoon characters peeking at bottom */}
-        <div aria-hidden="true" className="absolute bottom-0 left-0 right-0 flex justify-around items-end px-8 pointer-events-none overflow-hidden">
-          {["/spongebob.png", "/conan_stand.png", "/toystory_woody.png"].map((src, i) => (
-            /* eslint-disable-next-line @next/next/no-img-element */
+        <div className="max-w-2xl mx-auto text-center relative z-10">
+          {/* Conan pointing — floats above the heading */}
+          <div className="flex justify-center mb-4">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              key={src}
-              src={src}
-              alt=""
-              className="opacity-20"
+              src="/conan.png"
+              alt="Conan pointing"
+              aria-hidden="true"
+              className="animate-[float-slow_4s_ease-in-out_infinite]"
               style={{
-                height: 120,
+                height: "clamp(140px, 22vw, 200px)",
                 width: "auto",
                 objectFit: "contain",
                 mixBlendMode: "multiply",
-                animationDelay: `${i * 0.3}s`,
+                filter: "drop-shadow(0 8px 20px rgba(0,0,0,0.12))",
               }}
             />
-          ))}
-        </div>
-
-        <div className="max-w-2xl mx-auto text-center relative z-10">
-          <div className="text-5xl mb-6 animate-[float-slow_4s_ease-in-out_infinite]">🎬</div>
+          </div>
           <h2 id="hw-cta-heading" className="font-display text-4xl sm:text-5xl font-black mb-4" style={{ color: TEXT_D }}>
             {cta.title}
           </h2>
