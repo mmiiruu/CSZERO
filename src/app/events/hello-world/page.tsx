@@ -66,7 +66,7 @@ function SlotReveal({ text, delay = 0, triggered }: { text: string; delay?: numb
 }
 
 /* ── Timeline entry card ─────────────────────────────────────── */
-function EntryCard({ item, entryDelay }: { item: TimelineItem; entryDelay: number }) {
+const EntryCard = React.memo(function EntryCard({ item, entryDelay }: { item: TimelineItem; entryDelay: number }) {
   const ref = useRef<HTMLDivElement>(null);
   const [triggered, setTriggered] = useState(false);
   useEffect(() => {
@@ -90,7 +90,7 @@ function EntryCard({ item, entryDelay }: { item: TimelineItem; entryDelay: numbe
       {item.description && <p className="text-xs leading-relaxed" style={{ color: TEXT_M }}>{item.description}</p>}
     </div>
   );
-}
+});
 
 /* ── Timeline ────────────────────────────────────────────────── */
 function CartoonTimeline({ days }: { days: TimelineDay[] }) {
@@ -116,9 +116,9 @@ function CartoonTimeline({ days }: { days: TimelineDay[] }) {
                 const isLeft = ii % 2 === 0;
                 return (
                   <div key={ii} className="relative grid grid-cols-[1fr_80px_1fr] items-center">
-                    <div className={`pr-6 ${isLeft ? "" : "invisible"}`}><EntryCard item={item} entryDelay={ii * 80} /></div>
+                    {isLeft  ? <div className="pr-6"><EntryCard item={item} entryDelay={ii * 80} /></div> : <div />}
                     <div className="flex justify-center z-20"><CartoonNode type={item.type} /></div>
-                    <div className={`pl-6 ${!isLeft ? "" : "invisible"}`}><EntryCard item={item} entryDelay={ii * 80} /></div>
+                    {!isLeft ? <div className="pl-6"><EntryCard item={item} entryDelay={ii * 80} /></div> : <div />}
                   </div>
                 );
               })}
