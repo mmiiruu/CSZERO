@@ -23,30 +23,37 @@ const housePastel: Record<string, {
   toystory:    { bg: "#EFF6FF", border: "#93C5FD", glow: "rgba(147,197,253,0.5)",  badgeBg: "bg-blue-100",   badgeText: "text-blue-800",   gradient: "linear-gradient(145deg,#DBEAFE,#3B82F6)", textColor: "#1E40AF" },
 };
 
-/* ── Shuffle card (pastel mystery card) ──────────────────────── */
+/* ── Mystery card — shows house character image, face shown ─── */
 function MysteryCard({ index = 0, delay = 0 }: { index?: number; delay?: number }) {
-  const colors = ["#FCD34D","#FCA5A5","#86EFAC","#FDBA74","#93C5FD"];
-  const c = colors[index % colors.length];
+  const house = houses.items[index % houses.items.length];
+  const hp = housePastel[house.key];
   return (
     <div
       className="w-20 h-28 rounded-2xl relative overflow-hidden"
       style={{
-        background: "white",
-        border: `2px solid ${c}`,
-        boxShadow: `0 8px 24px ${c}60`,
+        background: hp.bg,
+        border: `2px solid ${hp.border}`,
+        boxShadow: `0 8px 24px ${hp.glow}`,
         animation: "tube-pulse 3.5s ease-in-out infinite",
         animationDelay: `${delay}s`,
       }}
     >
       {/* Diagonal stripe pattern */}
       <div className="absolute inset-0" style={{
-        backgroundImage: `repeating-linear-gradient(45deg, ${c}20 0px, ${c}20 4px, transparent 4px, transparent 14px)`,
+        backgroundImage: `repeating-linear-gradient(45deg, ${hp.border}25 0px, ${hp.border}25 4px, transparent 4px, transparent 14px)`,
       }} />
-      {/* Center emoji */}
-      <div className="absolute inset-0 flex items-center justify-center text-3xl">🎬</div>
+      {/* Character image */}
+      <div className="absolute inset-0 flex items-end justify-center pb-1">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={house.image}
+          alt={house.name}
+          style={{ height: 72, width: "auto", objectFit: "contain", mixBlendMode: "multiply" }}
+        />
+      </div>
       {/* Corner dots */}
-      <div className="absolute top-2 left-2 w-2 h-2 rounded-full" style={{ background: c }} />
-      <div className="absolute bottom-2 right-2 w-2 h-2 rounded-full" style={{ background: c }} />
+      <div className="absolute top-1.5 left-1.5 w-2 h-2 rounded-full" style={{ background: hp.border }} />
+      <div className="absolute bottom-1.5 right-1.5 w-2 h-2 rounded-full" style={{ background: hp.border }} />
     </div>
   );
 }
@@ -231,18 +238,24 @@ export default function RevealPage() {
       {/* ── SHUFFLING ────────────────────────────────────────────── */}
       {isShuffling && !revealedHouse && (
         <div aria-busy="true" className="text-center">
-          {/* Spinning mystery card */}
+          {/* Spinning mystery card with character image */}
           <div className="relative mx-auto mb-8 animate-shuffle"
             style={{ width: 130, height: 180 }}>
             {(() => {
               const sp = housePastel[shuffleHouse.key] ?? housePastel.toystory;
               return (
-                <div className="w-full h-full rounded-2xl overflow-hidden"
+                <div className="w-full h-full rounded-2xl overflow-hidden relative"
                   style={{ background: sp.bg, border: `2px solid ${sp.border}`, boxShadow: `0 8px 32px ${sp.glow}` }}>
-                  <div className="w-full h-full flex items-center justify-center text-5xl"
-                    style={{ backgroundImage: `repeating-linear-gradient(45deg, ${sp.border}30 0px, ${sp.border}30 4px, transparent 4px, transparent 14px)` }}>
-                    {shuffleHouse.symbol}
+                  <div className="absolute inset-0" style={{ backgroundImage: `repeating-linear-gradient(45deg, ${sp.border}25 0px, ${sp.border}25 4px, transparent 4px, transparent 14px)` }} />
+                  <div className="absolute inset-0 flex items-end justify-center pb-2">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={shuffleHouse.image}
+                      alt={shuffleHouse.name}
+                      style={{ height: 130, width: "auto", objectFit: "contain", mixBlendMode: "multiply" }}
+                    />
                   </div>
+                  <span className="absolute top-2 left-2.5 text-sm font-bold" style={{ color: sp.border }}>{shuffleHouse.symbol}</span>
                 </div>
               );
             })()}
