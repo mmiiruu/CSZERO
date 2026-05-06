@@ -82,11 +82,11 @@ const EntryCard = React.memo(function EntryCard({ item, entryDelay }: { item: Ti
         <span className="text-xs font-mono tabular-nums font-bold" style={{ color: cfg.nodeColor }}>{item.time}</span>
         {item.type && <span className={`text-xs px-2 py-0.5 rounded-full border font-semibold ${cfg.badge}`}>{item.type}</span>}
       </div>
-      <h4 className="font-bold text-sm leading-snug mb-1 overflow-hidden" style={{ color: TEXT_D }}>
+      <h3 className="font-bold text-sm leading-snug mb-1 overflow-hidden" style={{ color: TEXT_D }}>
         {item.title.split(" ").map((word, wi) => (
           <SlotReveal key={wi} text={word + " "} delay={entryDelay + wi * 60} triggered={triggered} />
         ))}
-      </h4>
+      </h3>
       {item.description && <p className="text-xs leading-relaxed" style={{ color: TEXT_M }}>{item.description}</p>}
     </div>
   );
@@ -209,7 +209,7 @@ export default function HelloWorldPage() {
           <div className="flex-1 text-center lg:text-left animate-fade-in">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-semibold mb-8"
               style={{ background: "rgba(255,255,255,0.85)", border: "2px solid #CA8A04", color: "#713F12" }}>
-              🎬 {hero.badge}
+              <span aria-hidden="true">🎬</span> {hero.badge}
             </div>
 
             <h1 id="hw-hero-heading" className="font-display font-black tracking-tight leading-[0.9] mb-5">
@@ -377,7 +377,7 @@ export default function HelloWorldPage() {
           <div className="flex justify-center mb-4">
             <Image
               src="/conan.png"
-              alt="Conan pointing"
+              alt=""
               aria-hidden="true"
               width={480}
               height={520}
@@ -398,7 +398,7 @@ export default function HelloWorldPage() {
             className="group inline-flex items-center gap-2 px-10 py-4 rounded-2xl font-black text-base tracking-wide transition-all duration-300 hover:scale-105"
             style={{ background: "#D97706", color: "#FFFFFF", boxShadow: "0 8px 32px rgba(217,119,6,0.45)" }}
           >
-            🎉 {cta.button.label}
+            <span aria-hidden="true">🎉</span> {cta.button.label}
           </Link>
           <div aria-hidden="true" className="mt-8 flex justify-center gap-3">
             {[
