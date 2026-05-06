@@ -280,9 +280,10 @@ function WorldHeader({ day, dayIndex }: { day: TimelineDay; dayIndex: number }) 
         </span>
         <span
           style={{
-            fontFamily: "var(--font-prompt), sans-serif",
-            fontSize: "0.9rem",
-            color: "rgba(255,255,255,0.85)",
+            fontFamily: "var(--font-fredoka), var(--font-prompt), sans-serif",
+            fontSize: "1.5rem",
+            fontWeight: 600,
+            color: "rgba(255,255,255,0.92)",
           }}
         >
           — {day.date}
