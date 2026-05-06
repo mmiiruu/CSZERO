@@ -5,6 +5,8 @@ export interface HouseConfig {
   name: string;
   symbol: string;
   desc: string;
+  image: string;
+  revealImage: string;
   revealGradient: string;
   revealTextColor: string;
 }
@@ -74,6 +76,8 @@ export const helloWorldConfig: HelloWorldConfig = {
         name: "SpongeBob",
         symbol: "🧽",
         desc: "สนุกสนาน ร่าเริง และมองโลกในแง่ดีเสมอ",
+        image: "/spongebob_patrick.png",
+        revealImage: "/spongebob.png",
         revealGradient: "from-yellow-400 to-amber-500",
         revealTextColor: "text-yellow-500",
       },
@@ -82,6 +86,8 @@ export const helloWorldConfig: HelloWorldConfig = {
         name: "Conan",
         symbol: "🔍",
         desc: "ช่างสังเกต วิเคราะห์เก่ง และไขปริศนาได้",
+        image: "/conan_stand.png",
+        revealImage: "/conan.png",
         revealGradient: "from-red-600 to-red-900",
         revealTextColor: "text-red-500",
       },
@@ -90,6 +96,8 @@ export const helloWorldConfig: HelloWorldConfig = {
         name: "Kung Fu Panda",
         symbol: "🐼",
         desc: "มุ่งมั่น ฝึกฝน และเชื่อในพลังของตัวเอง",
+        image: "/kungfu_panda.png",
+        revealImage: "/kungfu_panda.png",
         revealGradient: "from-green-500 to-emerald-800",
         revealTextColor: "text-green-500",
       },
@@ -98,6 +106,8 @@ export const helloWorldConfig: HelloWorldConfig = {
         name: "Zootopia",
         symbol: "🦊",
         desc: "กล้าหาญ ยุติธรรม และทำลายขีดจำกัด",
+        image: "/zootopia_rabbit.png",
+        revealImage: "/zootopia_couple.png",
         revealGradient: "from-orange-400 to-orange-700",
         revealTextColor: "text-orange-400",
       },
@@ -106,6 +116,8 @@ export const helloWorldConfig: HelloWorldConfig = {
         name: "Toy Story",
         symbol: "🚀",
         desc: "จงรักภักดี ผจญภัย และ 'ไปพ้นกว่านั้น'",
+        image: "/toystory_woody.png",
+        revealImage: "/toystory_buzzlightyear.png",
         revealGradient: "from-blue-500 to-indigo-700",
         revealTextColor: "text-blue-400",
       },

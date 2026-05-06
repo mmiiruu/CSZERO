@@ -4,61 +4,62 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { helloWorldConfig } from "@/config/events/hello-world";
+import { ForceTheme } from "@/components/providers/ForceTheme";
 
 const { houses, reveal } = helloWorldConfig;
 
-// Matches the gold used throughout the Hello World event
-const GOLD = "#f5c842";
-
 type HouseKey = "spongebob" | "conan" | "kungfupanda" | "zootopia" | "toystory";
 
-/**
- * Face-down playing card — one card in the idle-state fan.
- * delay  : animationDelay in seconds — staggers the tube-pulse glow per card
- * index  : used to generate a unique SVG pattern id (avoids duplicate-id issues)
- */
-function MysteryCard({ delay = 0, index = 0 }: { delay?: number; index?: number }) {
-  const patternId = `hw-card-back-${index}`;
+/* ── Pastel house styles ─────────────────────────────────────── */
+const housePastel: Record<string, {
+  bg: string; border: string; glow: string;
+  badgeBg: string; badgeText: string;
+  gradient: string; textColor: string;
+}> = {
+  spongebob:   { bg: "#FEFCE8", border: "#FCD34D", glow: "rgba(252,211,77,0.5)",   badgeBg: "bg-yellow-100", badgeText: "text-yellow-800", gradient: "linear-gradient(145deg,#FDE68A,#F59E0B)", textColor: "#92400E" },
+  conan:       { bg: "#FFF1F2", border: "#FCA5A5", glow: "rgba(252,165,165,0.5)",  badgeBg: "bg-red-100",    badgeText: "text-red-800",    gradient: "linear-gradient(145deg,#FEE2E2,#EF4444)", textColor: "#991B1B" },
+  kungfupanda: { bg: "#F0FDF4", border: "#86EFAC", glow: "rgba(134,239,172,0.5)",  badgeBg: "bg-green-100",  badgeText: "text-green-800",  gradient: "linear-gradient(145deg,#DCFCE7,#22C55E)", textColor: "#166534" },
+  zootopia:    { bg: "#FFF7ED", border: "#FDBA74", glow: "rgba(253,186,116,0.5)",  badgeBg: "bg-orange-100", badgeText: "text-orange-800", gradient: "linear-gradient(145deg,#FFEDD5,#F97316)", textColor: "#9A3412" },
+  toystory:    { bg: "#EFF6FF", border: "#93C5FD", glow: "rgba(147,197,253,0.5)",  badgeBg: "bg-blue-100",   badgeText: "text-blue-800",   gradient: "linear-gradient(145deg,#DBEAFE,#3B82F6)", textColor: "#1E40AF" },
+};
+
+/* ── Shuffle card (pastel mystery card) ──────────────────────── */
+function MysteryCard({ index = 0, delay = 0 }: { index?: number; delay?: number }) {
+  const colors = ["#FCD34D","#FCA5A5","#86EFAC","#FDBA74","#93C5FD"];
+  const c = colors[index % colors.length];
   return (
-    <svg
-      aria-hidden="true"
-      viewBox="0 0 80 112"
-      className="w-20 h-28"
-      fill="none"
+    <div
+      className="w-20 h-28 rounded-2xl relative overflow-hidden"
       style={{
+        background: "white",
+        border: `2px solid ${c}`,
+        boxShadow: `0 8px 24px ${c}60`,
         animation: "tube-pulse 3.5s ease-in-out infinite",
         animationDelay: `${delay}s`,
       }}
     >
-      <defs>
-        {/* Repeating diamond tile — classic card back pattern */}
-        <pattern id={patternId} x="0" y="0" width="11" height="11" patternUnits="userSpaceOnUse">
-          <path d="M5.5 0 L11 5.5 L5.5 11 L0 5.5 Z"
-            fill={GOLD} fillOpacity="0.09"
-            stroke={GOLD} strokeOpacity="0.22" strokeWidth="0.5" />
-        </pattern>
-      </defs>
+      {/* Diagonal stripe pattern */}
+      <div className="absolute inset-0" style={{
+        backgroundImage: `repeating-linear-gradient(45deg, ${c}20 0px, ${c}20 4px, transparent 4px, transparent 14px)`,
+      }} />
+      {/* Center emoji */}
+      <div className="absolute inset-0 flex items-center justify-center text-3xl">🎬</div>
+      {/* Corner dots */}
+      <div className="absolute top-2 left-2 w-2 h-2 rounded-full" style={{ background: c }} />
+      <div className="absolute bottom-2 right-2 w-2 h-2 rounded-full" style={{ background: c }} />
+    </div>
+  );
+}
 
-      {/* Card body */}
-      <rect x="2" y="2" width="76" height="108" rx="8"
-        fill="#080b10" stroke={GOLD} strokeWidth="1.5" strokeOpacity="0.9" />
-
-      {/* Inset border */}
-      <rect x="7" y="7" width="66" height="98" rx="5"
-        fill="none" stroke={GOLD} strokeWidth="0.75" strokeOpacity="0.3" />
-
-      {/* Diamond-tile back fill */}
-      <rect x="8" y="8" width="64" height="96" rx="4" fill={`url(#${patternId})`} />
-
-      {/* Centre focal diamond */}
-      <path d="M40 36 L57 56 L40 76 L23 56 Z"
-        fill={GOLD} fillOpacity="0.80"
-        stroke={GOLD} strokeWidth="0.75" strokeOpacity="0.6" />
-
-      {/* Corner accent diamonds */}
-      <path d="M14 15 L18 19 L14 23 L10 19 Z" fill={GOLD} fillOpacity="0.65" />
-      <path d="M66 89 L70 93 L66 97 L62 93 Z" fill={GOLD} fillOpacity="0.65" />
-    </svg>
+/* ── Floating bubble decoration ──────────────────────────────── */
+function FloatBubble({ emoji, style }: { emoji: string; style?: React.CSSProperties }) {
+  return (
+    <div aria-hidden="true" className="absolute select-none pointer-events-none animate-[float-slow_6s_ease-in-out_infinite]" style={style}>
+      <div className="w-10 h-10 rounded-full flex items-center justify-center text-xl"
+        style={{ background: "rgba(255,255,255,0.8)", border: "1.5px solid rgba(255,255,255,0.9)", boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
+        {emoji}
+      </div>
+    </div>
   );
 }
 
@@ -71,8 +72,6 @@ export default function RevealPage() {
   const [revealedHouse, setRevealedHouse] = useState<HouseKey | null>(null);
   const [shuffleIndex, setShuffleIndex] = useState(0);
   const [liveAnnouncement, setLiveAnnouncement] = useState("");
-
-  // Programmatic focus target — the reveal heading receives focus when house is set
   const revealHeadingRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
@@ -91,7 +90,6 @@ export default function RevealPage() {
     return () => clearInterval(interval);
   }, [isShuffling, shuffleAnimation]);
 
-  // Move focus to the revealed heading so screen readers announce it immediately
   useEffect(() => {
     if (revealedHouse && revealHeadingRef.current) {
       revealHeadingRef.current.focus();
@@ -127,72 +125,101 @@ export default function RevealPage() {
   };
 
   const houseData = revealedHouse ? houses.items.find((h) => h.key === revealedHouse) : null;
+  const hp = revealedHouse ? (housePastel[revealedHouse] ?? housePastel.toystory) : null;
   const shuffleHouse = houses.items[shuffleIndex];
 
-  // Auth loading / redirect — separate early return, not part of the main interaction
   if (status === "loading" || status === "unauthenticated") {
     return (
-      <div
-        role="status"
-        aria-label="กำลังโหลด..."
-        className="min-h-screen flex items-center justify-center"
-      >
-        <div
-          aria-hidden="true"
-          className="w-8 h-8 border-2 border-amber-200 border-t-amber-500 rounded-full animate-spin"
-        />
+      <div role="status" aria-label="กำลังโหลด..." className="min-h-screen flex items-center justify-center" style={{ background: "#FFFBF4" }}>
+        <div aria-hidden="true" className="w-8 h-8 border-2 border-amber-200 border-t-amber-500 rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-amber-50 to-white dark:from-[#080b10] dark:via-amber-950/20 dark:to-[#080b10]">
+    <main
+      className="min-h-screen flex items-center justify-center px-4 overflow-hidden relative"
+      style={{ background: "linear-gradient(145deg, #DBEFFE 0%, #FFFBEB 50%, #FFE8F4 100%)" }}
+    >
+      <ForceTheme theme="light" />
 
-      {/* Persistent live region — survives across all state transitions */}
-      <div aria-live="polite" aria-atomic="true" className="sr-only">
-        {liveAnnouncement}
+      {/* Ambient glows */}
+      <div aria-hidden="true" className="absolute inset-0 pointer-events-none">
+        <div className="absolute -top-20 left-1/4 w-[500px] h-[500px] rounded-full blur-[120px]" style={{ background: "rgba(186,230,253,0.55)" }} />
+        <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] rounded-full blur-[100px]" style={{ background: "rgba(253,230,138,0.45)" }} />
       </div>
 
-      {/* ── Revealed ─────────────────────────────────────────────────── */}
-      {revealedHouse && houseData && (
-        <div className="text-center">
+      {/* Floating decorations */}
+      <FloatBubble emoji="🎬" style={{ top: "8%",  left: "5%",  animationDelay: "0s" }} />
+      <FloatBubble emoji="⭐" style={{ top: "15%", right: "8%", animationDelay: "1s" }} />
+      <FloatBubble emoji="🎉" style={{ bottom: "15%", left: "8%", animationDelay: "2s" }} />
+      <FloatBubble emoji="✨" style={{ bottom: "20%", right: "6%", animationDelay: "1.5s" }} />
 
-          {/* Playing card — dealt face-up with gold glow */}
+      {/* Live region */}
+      <div aria-live="polite" aria-atomic="true" className="sr-only">{liveAnnouncement}</div>
+
+      {/* ── REVEALED ─────────────────────────────────────────────── */}
+      {revealedHouse && houseData && hp && (
+        <div className="text-center animate-fade-in max-w-sm w-full">
+
+          {/* Card with character */}
           <div
-            className="relative inline-block mb-10"
-            style={{ filter: `drop-shadow(0 0 20px ${GOLD}55) drop-shadow(0 0 52px ${GOLD}22)` }}
+            className="relative mx-auto mb-8 rounded-3xl overflow-hidden animate-deal-in"
+            style={{
+              width: 240, height: 320,
+              background: hp.bg,
+              border: `3px solid ${hp.border}`,
+              boxShadow: `0 20px 60px ${hp.glow}, 0 8px 24px rgba(0,0,0,0.08)`,
+            }}
           >
-            <div
-              className={`relative flex items-center justify-center w-44 h-60 rounded-2xl bg-gradient-to-br ${houseData.revealGradient} animate-deal-in`}
-              style={{
-                border: `2px solid ${GOLD}75`,
-                boxShadow: `inset 0 0 48px rgba(0,0,0,0.28)`,
-              }}
-            >
-              {/* Inset card border — classic playing card detail */}
-              <div aria-hidden="true" className="absolute inset-3 rounded-xl border border-white/15 pointer-events-none" />
-              {/* Corner pip — top-left */}
-              <span aria-hidden="true" className="absolute top-3 left-3.5 text-sm text-white/75 font-bold leading-none">{houseData.symbol}</span>
-              {/* Corner pip — bottom-right (rotated 180°) */}
-              <span aria-hidden="true" className="absolute bottom-3 right-3.5 text-sm text-white/75 font-bold leading-none rotate-180">{houseData.symbol}</span>
-              {/* Hero suit symbol */}
-              <span aria-hidden="true" className="text-8xl text-white drop-shadow-lg">{houseData.symbol}</span>
+            {/* Gradient top band */}
+            <div className="absolute top-0 left-0 right-0 h-16" style={{ background: hp.gradient, opacity: 0.7 }} />
+
+            {/* Corner emoji pips */}
+            <span aria-hidden="true" className="absolute top-3 left-4 text-2xl">{houseData.symbol}</span>
+            <span aria-hidden="true" className="absolute top-3 right-4 text-2xl rotate-180">{houseData.symbol}</span>
+
+            {/* Character image */}
+            <div className="absolute inset-0 flex items-end justify-center pb-4">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={houseData.revealImage}
+                alt={`${houseData.name} character`}
+                style={{
+                  height: 230,
+                  width: "auto",
+                  objectFit: "contain",
+                  mixBlendMode: "multiply",
+                  filter: "drop-shadow(0 8px 16px rgba(0,0,0,0.15))",
+                }}
+              />
+            </div>
+
+            {/* Bottom label */}
+            <div className="absolute bottom-0 left-0 right-0 py-3 text-center"
+              style={{ background: `${hp.border}30`, backdropFilter: "blur(4px)" }}>
+              <span className={`text-xs font-bold px-3 py-1 rounded-full ${hp.badgeBg} ${hp.badgeText}`}>
+                {houseData.symbol} บ้าน{houseData.name}
+              </span>
             </div>
           </div>
 
-          {/* Text — fades in after the card lands */}
-          <div className="animate-fade-in" style={{ animationDelay: "0.3s", animationFillMode: "both" }}>
+          {/* Text */}
+          <div style={{ animationDelay: "0.4s", animationFillMode: "both" }} className="animate-fade-in">
             <h1
               ref={revealHeadingRef}
               tabIndex={-1}
-              className="text-4xl font-bold text-white mb-2 outline-none"
+              className="text-4xl font-black mb-2 outline-none"
+              style={{ color: "#1C1917" }}
             >
-              บ้าน{houseData.name}
+              บ้าน{houseData.name}!
             </h1>
-            <p className="text-slate-400 mb-8">{reveal.revealedMessage}</p>
+            <p className="text-sm mb-8" style={{ color: "#78716C" }}>{reveal.revealedMessage}</p>
+
             <button
               onClick={handleReset}
-              className="px-6 py-3 bg-slate-800 text-slate-300 rounded-xl hover:bg-slate-700 active:bg-slate-600 transition-colors duration-200 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#080b10]"
+              className="px-6 py-3 rounded-2xl text-sm font-semibold transition-all duration-200 hover:scale-105 border-2"
+              style={{ background: "white", borderColor: hp.border, color: hp.textColor }}
             >
               {reveal.revealAgainButton}
             </button>
@@ -201,123 +228,125 @@ export default function RevealPage() {
         </div>
       )}
 
-      {/* ── Shuffling ────────────────────────────────────────────────── */}
+      {/* ── SHUFFLING ────────────────────────────────────────────── */}
       {isShuffling && !revealedHouse && (
         <div aria-busy="true" className="text-center">
-
-          {/* Playing card — portrait, smaller than revealed, spinning face-down */}
-          <div
-            className={`relative inline-flex items-center justify-center w-28 h-40 rounded-xl bg-gradient-to-br ${shuffleHouse.revealGradient} mb-8 animate-shuffle`}
-            style={{
-              border: `1.5px solid ${GOLD}45`,
-              boxShadow: `0 8px 32px rgba(0,0,0,0.55)`,
-            }}
-          >
-            {/* Inset border */}
-            <div aria-hidden="true" className="absolute inset-2.5 rounded-lg border border-white/12 pointer-events-none" />
-            {/* Corner pip — top-left */}
-            <span aria-hidden="true" className="absolute top-2 left-2.5 text-xs text-white/65 font-bold leading-none">{shuffleHouse.symbol}</span>
-            {/* Corner pip — bottom-right */}
-            <span aria-hidden="true" className="absolute bottom-2 right-2.5 text-xs text-white/65 font-bold leading-none rotate-180">{shuffleHouse.symbol}</span>
-            {/* Centre suit */}
-            <span aria-hidden="true" className="text-5xl text-white">{shuffleHouse.symbol}</span>
+          {/* Spinning mystery card */}
+          <div className="relative mx-auto mb-8 animate-shuffle"
+            style={{ width: 130, height: 180 }}>
+            {(() => {
+              const sp = housePastel[shuffleHouse.key] ?? housePastel.toystory;
+              return (
+                <div className="w-full h-full rounded-2xl overflow-hidden"
+                  style={{ background: sp.bg, border: `2px solid ${sp.border}`, boxShadow: `0 8px 32px ${sp.glow}` }}>
+                  <div className="w-full h-full flex items-center justify-center text-5xl"
+                    style={{ backgroundImage: `repeating-linear-gradient(45deg, ${sp.border}30 0px, ${sp.border}30 4px, transparent 4px, transparent 14px)` }}>
+                    {shuffleHouse.symbol}
+                  </div>
+                </div>
+              );
+            })()}
           </div>
 
-          <h1 className="text-2xl font-bold text-white animate-flicker">{reveal.shufflingTitle}</h1>
-          <p className="text-slate-400 mt-2">{reveal.shufflingSubtitle}</p>
-        </div>
-      )}
+          <h1 className="text-2xl font-black animate-flicker" style={{ color: "#1C1917" }}>{reveal.shufflingTitle}</h1>
+          <p className="mt-2 text-sm" style={{ color: "#78716C" }}>{reveal.shufflingSubtitle}</p>
 
-      {/* ── Idle ─────────────────────────────────────────────────────── */}
-      {!isShuffling && !revealedHouse && (
-        <div className="max-w-md w-full text-center animate-fade-in">
-          {/* 5-card fan — spreads on group hover, individual cards pop on direct hover */}
-          <div className="group flex items-end justify-center -space-x-4 mb-6 select-none">
-
-            {/* Card 1 — leftmost */}
-            <div className="relative origin-bottom transition-all duration-300 ease-out z-[1] transform-gpu
-              drop-shadow-[0_0_15px_rgba(245,200,66,0.5)]
-              -rotate-[12deg]
-              group-hover:-rotate-[18deg] group-hover:-translate-x-4 group-hover:-translate-y-2
-              hover:!-translate-y-6 hover:z-10">
-              <MysteryCard index={0} delay={0} />
-            </div>
-
-            {/* Card 2 */}
-            <div className="relative origin-bottom transition-all duration-300 ease-out z-[2] transform-gpu
-              drop-shadow-[0_0_15px_rgba(245,200,66,0.5)]
-              -rotate-[6deg]
-              group-hover:-rotate-[9deg] group-hover:-translate-x-2 group-hover:-translate-y-1
-              hover:!-translate-y-6 hover:z-10">
-              <MysteryCard index={1} delay={0.25} />
-            </div>
-
-            {/* Card 3 — center */}
-            <div className="relative origin-bottom transition-all duration-300 ease-out z-[3] transform-gpu
-              drop-shadow-[0_0_15px_rgba(245,200,66,0.5)]
-              rotate-[0deg]
-              group-hover:rotate-[0deg] group-hover:-translate-y-1
-              hover:!-translate-y-6 hover:z-10">
-              <MysteryCard index={2} delay={0.5} />
-            </div>
-
-            {/* Card 4 */}
-            <div className="relative origin-bottom transition-all duration-300 ease-out z-[2] transform-gpu
-              drop-shadow-[0_0_15px_rgba(245,200,66,0.5)]
-              rotate-[6deg]
-              group-hover:rotate-[9deg] group-hover:translate-x-2 group-hover:-translate-y-1
-              hover:!-translate-y-6 hover:z-10">
-              <MysteryCard index={3} delay={0.75} />
-            </div>
-
-            {/* Card 5 — rightmost */}
-            <div className="relative origin-bottom transition-all duration-300 ease-out z-[1] transform-gpu
-              drop-shadow-[0_0_15px_rgba(245,200,66,0.5)]
-              rotate-[12deg]
-              group-hover:rotate-[18deg] group-hover:translate-x-4 group-hover:-translate-y-2
-              hover:!-translate-y-6 hover:z-10">
-              <MysteryCard index={4} delay={1.0} />
-            </div>
-
-          </div>
-          <h1 className="text-3xl font-bold text-white mb-2">{reveal.title}</h1>
-          <p className="text-slate-400 mb-2">
-            เข้าสู่ระบบในชื่อ{" "}
-            <span className="font-medium text-slate-300">{session?.user?.email}</span>
-          </p>
-          <p className="text-slate-500 text-sm mb-8">{reveal.description}</p>
-
-          <div className="bg-slate-800/80 border border-slate-700 rounded-2xl p-6 sm:p-8 space-y-4 shadow-sm">
-            {error && (
-              <p role="alert" className="text-sm text-red-400 bg-red-900/20 border border-red-800 rounded-xl px-4 py-3">
-                {error}
-              </p>
-            )}
-            {/* Gold CTA — styled directly to match the Hello World event palette */}
-            <button
-              disabled={isLoading}
-              onClick={handleReveal}
-              className="w-full inline-flex items-center justify-center px-8 py-3.5 rounded-xl font-bold text-base transition-[filter] duration-200 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer hover:brightness-110 active:brightness-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-800"
-              style={{ background: GOLD, color: "#1a0800", boxShadow: `0 4px 20px ${GOLD}40` }}
-            >
-              {isLoading && (
-                <svg aria-hidden="true" className="animate-spin -ml-1 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                </svg>
-              )}
-              {reveal.button}
-            </button>
-          </div>
-
-          <div aria-hidden="true" className="mt-10 flex justify-center gap-8">
-            {houses.items.map((h) => (
-              <span key={h.name} className={`text-3xl opacity-30 ${h.revealTextColor}`}>{h.symbol}</span>
+          {/* Small character row shuffling through */}
+          <div className="mt-6 flex justify-center gap-3">
+            {houses.items.map((h, i) => (
+              <div
+                key={h.key}
+                className="w-10 h-10 rounded-full flex items-center justify-center text-xl transition-all duration-150"
+                style={{
+                  background: (housePastel[h.key] ?? housePastel.toystory).bg,
+                  border: `2px solid ${(housePastel[h.key] ?? housePastel.toystory).border}`,
+                  transform: shuffleIndex === i ? "scale(1.4) translateY(-4px)" : "scale(1)",
+                }}
+              >
+                {h.symbol}
+              </div>
             ))}
           </div>
         </div>
       )}
 
+      {/* ── IDLE ─────────────────────────────────────────────────── */}
+      {!isShuffling && !revealedHouse && (
+        <div className="max-w-md w-full text-center animate-fade-in">
+
+          {/* 5-card fan */}
+          <div className="group flex items-end justify-center -space-x-4 mb-8 select-none">
+            {[
+              { rot: "-12deg", hover: "rotate-[-18deg] -translate-x-4 -translate-y-2", delay: 0 },
+              { rot: "-6deg",  hover: "rotate-[-9deg] -translate-x-2 -translate-y-1", delay: 0.25 },
+              { rot: "0deg",   hover: "rotate-[0deg] -translate-y-1",                 delay: 0.5 },
+              { rot: "6deg",   hover: "rotate-[9deg] translate-x-2 -translate-y-1",   delay: 0.75 },
+              { rot: "12deg",  hover: "rotate-[18deg] translate-x-4 -translate-y-2",  delay: 1.0 },
+            ].map((card, i) => (
+              <div
+                key={i}
+                className="relative origin-bottom transition-all duration-300 ease-out transform-gpu hover:!-translate-y-6 hover:z-10"
+                style={{
+                  transform: `rotate(${card.rot})`,
+                  zIndex: i === 2 ? 3 : i === 1 || i === 3 ? 2 : 1,
+                }}
+              >
+                <MysteryCard index={i} delay={card.delay} />
+              </div>
+            ))}
+          </div>
+
+          <h1 className="text-3xl font-black mb-2" style={{ color: "#1C1917" }}>{reveal.title}</h1>
+          <p className="text-sm mb-1" style={{ color: "#78716C" }}>
+            เข้าสู่ระบบในชื่อ <span className="font-semibold" style={{ color: "#57534E" }}>{session?.user?.email}</span>
+          </p>
+          <p className="text-xs mb-8" style={{ color: "#A8A29E" }}>{reveal.description}</p>
+
+          {/* CTA box */}
+          <div className="rounded-3xl p-6 sm:p-8 border-2"
+            style={{ background: "rgba(255,255,255,0.85)", backdropFilter: "blur(12px)", borderColor: "rgba(245,158,11,0.3)", boxShadow: "0 8px 32px rgba(245,158,11,0.12)" }}>
+            {error && (
+              <p role="alert" className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl px-4 py-3 mb-4">
+                {error}
+              </p>
+            )}
+
+            <button
+              disabled={isLoading}
+              onClick={handleReveal}
+              className="w-full inline-flex items-center justify-center px-8 py-4 rounded-2xl font-black text-base transition-all duration-200 hover:scale-105 hover:shadow-xl disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
+              style={{
+                background: "linear-gradient(135deg, #F59E0B, #FBBF24)",
+                color: "#1C1917",
+                boxShadow: "0 6px 24px rgba(245,158,11,0.38)",
+              }}
+            >
+              {isLoading ? (
+                <svg aria-hidden="true" className="animate-spin -ml-1 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+              ) : null}
+              {reveal.button}
+            </button>
+          </div>
+
+          {/* House preview strip */}
+          <div aria-hidden="true" className="mt-8 flex justify-center gap-3">
+            {houses.items.map((h) => {
+              const sp = housePastel[h.key] ?? housePastel.toystory;
+              return (
+                <div key={h.key}
+                  className="w-11 h-11 rounded-full flex items-center justify-center text-xl opacity-50 hover:opacity-100 transition-opacity cursor-default"
+                  style={{ background: sp.bg, border: `2px solid ${sp.border}` }}>
+                  {h.symbol}
+                </div>
+              );
+            })}
+          </div>
+
+        </div>
+      )}
     </main>
   );
 }

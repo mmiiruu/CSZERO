@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid registration ID" }, { status: 400 });
     }
 
-    if (!["spade", "heart", "diamond", "club"].includes(house)) {
+    if (!["spongebob", "conan", "kungfupanda", "zootopia", "toystory"].includes(house)) {
       return NextResponse.json({ error: "Invalid house" }, { status: 400 });
     }
 

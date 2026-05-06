@@ -19,13 +19,13 @@ const TEXT_M = "#78716C";
 /* ── House pastel map ────────────────────────────────────────── */
 const housePastel: Record<string, {
   bg: string; border: string; textColor: string;
-  badgeBg: string; badgeText: string; shadow: string;
+  badgeBg: string; badgeText: string; shadow: string; imgBg: string;
 }> = {
-  spongebob:   { bg: "#FEFCE8", border: "#FCD34D", textColor: "#92400E", badgeBg: "bg-yellow-100", badgeText: "text-yellow-800", shadow: "rgba(252,211,77,0.4)"   },
-  conan:       { bg: "#FFF1F2", border: "#FCA5A5", textColor: "#991B1B", badgeBg: "bg-red-100",    badgeText: "text-red-800",    shadow: "rgba(252,165,165,0.4)"   },
-  kungfupanda: { bg: "#F0FDF4", border: "#86EFAC", textColor: "#166534", badgeBg: "bg-green-100",  badgeText: "text-green-800",  shadow: "rgba(134,239,172,0.4)"   },
-  zootopia:    { bg: "#FFF7ED", border: "#FDBA74", textColor: "#9A3412", badgeBg: "bg-orange-100", badgeText: "text-orange-800", shadow: "rgba(253,186,116,0.4)"   },
-  toystory:    { bg: "#EFF6FF", border: "#93C5FD", textColor: "#1E40AF", badgeBg: "bg-blue-100",   badgeText: "text-blue-800",   shadow: "rgba(147,197,253,0.4)"   },
+  spongebob:   { bg: "#FEFCE8", border: "#FCD34D", textColor: "#92400E", badgeBg: "bg-yellow-100", badgeText: "text-yellow-800", shadow: "rgba(252,211,77,0.45)",  imgBg: "rgba(253,230,138,0.4)"  },
+  conan:       { bg: "#FFF1F2", border: "#FCA5A5", textColor: "#991B1B", badgeBg: "bg-red-100",    badgeText: "text-red-800",    shadow: "rgba(252,165,165,0.45)", imgBg: "rgba(254,202,202,0.35)" },
+  kungfupanda: { bg: "#F0FDF4", border: "#86EFAC", textColor: "#166534", badgeBg: "bg-green-100",  badgeText: "text-green-800",  shadow: "rgba(134,239,172,0.45)", imgBg: "rgba(187,247,208,0.35)" },
+  zootopia:    { bg: "#FFF7ED", border: "#FDBA74", textColor: "#9A3412", badgeBg: "bg-orange-100", badgeText: "text-orange-800", shadow: "rgba(253,186,116,0.45)", imgBg: "rgba(253,224,178,0.35)" },
+  toystory:    { bg: "#EFF6FF", border: "#93C5FD", textColor: "#1E40AF", badgeBg: "bg-blue-100",   badgeText: "text-blue-800",   shadow: "rgba(147,197,253,0.45)", imgBg: "rgba(191,219,254,0.35)" },
 };
 
 /* ── Timeline type config ────────────────────────────────────── */
@@ -36,9 +36,6 @@ const typeConfig: Record<string, { label: string; badge: string; nodeColor: stri
   social:   { label: "social",   badge: "bg-orange-100 text-orange-700 border-orange-200", nodeColor: CORAL, nodeBg: "#FFF7ED" },
 };
 
-/* ═══════════════════════════════════════════════════════════════
-   Timeline node — pastel circle with emoji
-═══════════════════════════════════════════════════════════════ */
 const TYPE_EMOJI: Record<string, string> = { talk: "🎬", workshop: "🎨", break: "🍿", social: "✨" };
 
 function CartoonNode({ type }: { type?: string }) {
@@ -46,21 +43,16 @@ function CartoonNode({ type }: { type?: string }) {
   return (
     <div style={{
       width: 44, height: 44, borderRadius: "50%",
-      background: cfg.nodeBg,
-      border: `2.5px solid ${cfg.nodeColor}`,
+      background: cfg.nodeBg, border: `2.5px solid ${cfg.nodeColor}`,
       display: "flex", alignItems: "center", justifyContent: "center",
-      fontSize: 20,
-      boxShadow: `0 4px 14px ${cfg.nodeColor}50`,
-      flexShrink: 0,
+      fontSize: 20, boxShadow: `0 4px 14px ${cfg.nodeColor}50`, flexShrink: 0,
     }}>
       {TYPE_EMOJI[type ?? "social"] ?? "✨"}
     </div>
   );
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   Slot-machine text reveal
-═══════════════════════════════════════════════════════════════ */
+/* ── Slot-machine text reveal ────────────────────────────────── */
 function SlotReveal({ text, delay = 0, triggered }: { text: string; delay?: number; triggered: boolean }) {
   return (
     <span className="inline-block overflow-hidden align-bottom">
@@ -75,9 +67,7 @@ function SlotReveal({ text, delay = 0, triggered }: { text: string; delay?: numb
   );
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   Entry card (pastel / light)
-═══════════════════════════════════════════════════════════════ */
+/* ── Timeline entry card ─────────────────────────────────────── */
 function EntryCard({ item, entryDelay }: { item: TimelineItem; entryDelay: number }) {
   const ref = useRef<HTMLDivElement>(null);
   const [triggered, setTriggered] = useState(false);
@@ -94,7 +84,6 @@ function EntryCard({ item, entryDelay }: { item: TimelineItem; entryDelay: numbe
   }, []);
 
   const cfg = typeConfig[item.type ?? "social"] ?? typeConfig.social;
-
   return (
     <div
       ref={ref}
@@ -119,9 +108,7 @@ function EntryCard({ item, entryDelay }: { item: TimelineItem; entryDelay: numbe
   );
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   Pastel timeline
-═══════════════════════════════════════════════════════════════ */
+/* ── Pastel timeline ─────────────────────────────────────────── */
 function PastelTimeline({ days }: { days: TimelineDay[] }) {
   return (
     <div className="space-y-16">
@@ -177,9 +164,7 @@ function PastelTimeline({ days }: { days: TimelineDay[] }) {
   );
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   Floating pastel bubble
-═══════════════════════════════════════════════════════════════ */
+/* ── Floating pastel bubble ──────────────────────────────────── */
 function PastelBubble({ emoji, style, animClass }: { emoji: string; style?: React.CSSProperties; animClass: string }) {
   return (
     <div aria-hidden="true" className={`absolute select-none pointer-events-none ${animClass}`} style={style}>
@@ -191,9 +176,7 @@ function PastelBubble({ emoji, style, animClass }: { emoji: string; style?: Reac
   );
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   Reduced-motion hook
-═══════════════════════════════════════════════════════════════ */
+/* ── Reduced-motion hook ─────────────────────────────────────── */
 function useReducedMotion(): boolean {
   const [reduced, setReduced] = useState(false);
   useEffect(() => {
@@ -222,7 +205,7 @@ export default function HelloWorldPage() {
         className="relative min-h-screen flex items-center px-4 overflow-hidden"
         style={{ background: "linear-gradient(145deg, #DBEFFE 0%, #FFFBEB 50%, #FFE8F4 100%)" }}
       >
-        {/* Soft ambient glows */}
+        {/* Ambient glows */}
         <div aria-hidden="true" className="absolute inset-0 pointer-events-none">
           <div className="absolute -top-20 left-1/4 w-[500px] h-[500px] rounded-full blur-[120px]"
             style={{ background: "rgba(186,230,253,0.55)" }} />
@@ -232,7 +215,7 @@ export default function HelloWorldPage() {
             style={{ background: "rgba(253,186,116,0.35)" }} />
         </div>
 
-        {/* Floating bubbles */}
+        {/* Floating cartoon bubbles */}
         {!reducedMotion && (
           <>
             <PastelBubble emoji="🧽" animClass="animate-[float-slow_8s_ease-in-out_infinite] opacity-90"   style={{ top: "14%", left: "4%" }} />
@@ -244,18 +227,16 @@ export default function HelloWorldPage() {
           </>
         )}
 
-        {/* Hero content — text left, Zootopia image right */}
+        {/* Hero content */}
         <div className="relative z-10 max-w-6xl mx-auto w-full flex flex-col lg:flex-row items-center gap-6 py-24">
 
           {/* ── Text side ── */}
           <div className="flex-1 text-center lg:text-left animate-fade-in">
-            {/* Badge */}
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-semibold mb-8 border"
               style={{ background: "rgba(255,255,255,0.8)", borderColor: `${AMBER}70`, color: "#B45309" }}>
               🎬 {hero.badge}
             </div>
 
-            {/* Title */}
             <h1 id="hw-hero-heading" className="font-display font-black tracking-tight leading-[0.9] mb-5">
               <span className="block" style={{
                 fontSize: "clamp(3.5rem, 9vw, 6.5rem)",
@@ -269,7 +250,6 @@ export default function HelloWorldPage() {
               }}>World</span>
             </h1>
 
-            {/* 5 cartoon emoji row */}
             <div aria-hidden="true" className="flex items-center justify-center lg:justify-start gap-3 my-5 text-[2rem]">
               {["🧽","🔍","🐼","🦊","🚀"].map((e) => (
                 <span key={e} className="hover:scale-125 transition-transform duration-200 cursor-default"
@@ -305,7 +285,6 @@ export default function HelloWorldPage() {
 
           {/* ── Zootopia image side ── */}
           <div className="flex-shrink-0 flex items-end justify-center w-full lg:w-auto">
-            {/* Soft glow behind image */}
             <div aria-hidden="true" className="absolute rounded-full pointer-events-none"
               style={{
                 width: 320, height: 320,
@@ -329,7 +308,6 @@ export default function HelloWorldPage() {
 
         </div>
 
-        {/* Bottom fade into next section */}
         <div aria-hidden="true" className="absolute bottom-0 left-0 right-0 h-20 pointer-events-none"
           style={{ background: "linear-gradient(to bottom, transparent, #FFFBF4)" }} />
       </section>
@@ -348,38 +326,102 @@ export default function HelloWorldPage() {
               style={{ background: `linear-gradient(90deg, transparent, ${AMBER}, transparent)` }} />
           </div>
 
-          <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
             {houses.items.map((house) => {
               const hp = housePastel[house.key] ?? housePastel.toystory;
               return (
                 <div
                   key={house.key}
-                  className="group relative overflow-hidden rounded-2xl p-6 text-center border-2 transition-all duration-300 hover:scale-[1.05] hover:-translate-y-1.5 cursor-default"
+                  className="group relative overflow-hidden rounded-3xl border-2 transition-all duration-300 hover:scale-[1.04] hover:-translate-y-2 cursor-default"
                   style={{
                     background: hp.bg,
                     borderColor: hp.border,
                     boxShadow: `0 4px 20px ${hp.shadow}`,
                   }}
                   onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLDivElement).style.boxShadow = `0 14px 36px ${hp.shadow}, 0 4px 12px rgba(0,0,0,0.07)`;
+                    (e.currentTarget as HTMLDivElement).style.boxShadow = `0 16px 40px ${hp.shadow}, 0 4px 12px rgba(0,0,0,0.07)`;
                   }}
                   onMouseLeave={(e) => {
                     (e.currentTarget as HTMLDivElement).style.boxShadow = `0 4px 20px ${hp.shadow}`;
                   }}
                 >
+                  {/* Character image area */}
                   <div
-                    className="text-5xl mb-4 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6"
-                    style={{ filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.12))" }}
+                    className="relative flex items-end justify-center overflow-hidden"
+                    style={{ height: 160, background: hp.imgBg }}
                   >
-                    {house.symbol}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={house.image}
+                      alt={`${house.name} character`}
+                      className="transition-transform duration-500 group-hover:scale-110 group-hover:-translate-y-1"
+                      style={{
+                        height: 145,
+                        width: "auto",
+                        objectFit: "contain",
+                        mixBlendMode: "multiply",
+                        filter: "drop-shadow(0 6px 12px rgba(0,0,0,0.12))",
+                      }}
+                    />
                   </div>
-                  <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold mb-2 ${hp.badgeBg} ${hp.badgeText}`}>
-                    {house.name}
-                  </span>
-                  <p className="text-xs mt-1 leading-relaxed" style={{ color: hp.textColor }}>{house.desc}</p>
+
+                  {/* Info */}
+                  <div className="p-4 text-center">
+                    <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold mb-2 ${hp.badgeBg} ${hp.badgeText}`}>
+                      {house.symbol} {house.name}
+                    </span>
+                    <p className="text-xs leading-relaxed" style={{ color: hp.textColor }}>{house.desc}</p>
+                  </div>
                 </div>
               );
             })}
+          </div>
+        </div>
+      </section>
+
+      {/* ══════════════════════ CARTOON SHOWCASE ══════════════════════ */}
+      <section className="py-16 px-4 overflow-hidden" style={{ background: "linear-gradient(135deg, #FFF7ED 0%, #FFFBF4 50%, #EFF6FF 100%)" }}>
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-10">
+            <h2 className="font-display text-2xl sm:text-3xl font-black" style={{ color: TEXT_D }}>
+              ตัวละครจากทุกบ้าน 🎬
+            </h2>
+            <p className="mt-2 text-sm" style={{ color: TEXT_M }}>เข้าร่วมแล้วค้นพบว่าคุณจะอยู่บ้านไหน!</p>
+          </div>
+
+          {/* Scrolling character strip */}
+          <div className="flex items-end justify-center gap-6 flex-wrap">
+            {[
+              { src: "/spongebob.png",         alt: "SpongeBob",    color: "#FCD34D", name: "SpongeBob" },
+              { src: "/conan_stand.png",        alt: "Conan",        color: "#FCA5A5", name: "Conan" },
+              { src: "/kungfu_panda.png",       alt: "Kung Fu Panda",color: "#86EFAC", name: "Kung Fu Panda" },
+              { src: "/zootopia_fox.png",       alt: "Nick Wilde",   color: "#FDBA74", name: "Zootopia" },
+              { src: "/toystory_buzzlightyear.png", alt: "Buzz Lightyear", color: "#93C5FD", name: "Toy Story" },
+            ].map((char, i) => (
+              <div
+                key={char.alt}
+                className="group flex flex-col items-center gap-2 cursor-default"
+                style={{ animationDelay: `${i * 0.1}s` }}
+              >
+                <div
+                  className="relative rounded-2xl overflow-hidden transition-all duration-300 group-hover:-translate-y-3 group-hover:shadow-xl"
+                  style={{
+                    width: 110, height: 150,
+                    background: `radial-gradient(circle at 50% 80%, ${char.color}40 0%, transparent 70%)`,
+                    border: `2px solid ${char.color}80`,
+                  }}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={char.src}
+                    alt={char.alt}
+                    className="w-full h-full object-contain"
+                    style={{ mixBlendMode: "multiply", padding: "8px 4px 0" }}
+                  />
+                </div>
+                <span className="text-xs font-semibold" style={{ color: TEXT_M }}>{char.name}</span>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -412,6 +454,26 @@ export default function HelloWorldPage() {
             style={{ background: "rgba(253,186,116,0.4)" }} />
           <div className="absolute bottom-0 left-0 w-72 h-72 rounded-full blur-[90px]"
             style={{ background: "rgba(186,230,253,0.4)" }} />
+        </div>
+
+        {/* Cartoon characters peeking at bottom */}
+        <div aria-hidden="true" className="absolute bottom-0 left-0 right-0 flex justify-around items-end px-8 pointer-events-none overflow-hidden">
+          {["/spongebob.png", "/conan_stand.png", "/toystory_woody.png"].map((src, i) => (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img
+              key={src}
+              src={src}
+              alt=""
+              className="opacity-20"
+              style={{
+                height: 120,
+                width: "auto",
+                objectFit: "contain",
+                mixBlendMode: "multiply",
+                animationDelay: `${i * 0.3}s`,
+              }}
+            />
+          ))}
         </div>
 
         <div className="max-w-2xl mx-auto text-center relative z-10">
