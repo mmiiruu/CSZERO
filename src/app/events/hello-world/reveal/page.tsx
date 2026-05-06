@@ -15,12 +15,13 @@ const housePastel: Record<string, {
   bg: string; border: string; glow: string;
   badgeBg: string; badgeText: string;
   gradient: string; textColor: string;
+  cardImgH: number; shuffleImgH: number; revealImgH: number;
 }> = {
-  spongebob:   { bg: "#FEFCE8", border: "#FCD34D", glow: "rgba(252,211,77,0.5)",   badgeBg: "bg-yellow-100", badgeText: "text-yellow-800", gradient: "linear-gradient(145deg,#FDE68A,#F59E0B)", textColor: "#92400E" },
-  conan:       { bg: "#FFF1F2", border: "#FCA5A5", glow: "rgba(252,165,165,0.5)",  badgeBg: "bg-red-100",    badgeText: "text-red-800",    gradient: "linear-gradient(145deg,#FEE2E2,#EF4444)", textColor: "#991B1B" },
-  kungfupanda: { bg: "#F0FDF4", border: "#86EFAC", glow: "rgba(134,239,172,0.5)",  badgeBg: "bg-green-100",  badgeText: "text-green-800",  gradient: "linear-gradient(145deg,#DCFCE7,#22C55E)", textColor: "#166534" },
-  zootopia:    { bg: "#FFF7ED", border: "#FDBA74", glow: "rgba(253,186,116,0.5)",  badgeBg: "bg-orange-100", badgeText: "text-orange-800", gradient: "linear-gradient(145deg,#FFEDD5,#F97316)", textColor: "#9A3412" },
-  toystory:    { bg: "#EFF6FF", border: "#93C5FD", glow: "rgba(147,197,253,0.5)",  badgeBg: "bg-blue-100",   badgeText: "text-blue-800",   gradient: "linear-gradient(145deg,#DBEAFE,#3B82F6)", textColor: "#1E40AF" },
+  spongebob:   { bg: "#FEFCE8", border: "#FCD34D", glow: "rgba(252,211,77,0.5)",   badgeBg: "bg-yellow-100", badgeText: "text-yellow-800", gradient: "linear-gradient(145deg,#FDE68A,#F59E0B)", textColor: "#92400E", cardImgH: 72,  shuffleImgH: 130, revealImgH: 230 },
+  conan:       { bg: "#FFF1F2", border: "#FCA5A5", glow: "rgba(252,165,165,0.5)",  badgeBg: "bg-red-100",    badgeText: "text-red-800",    gradient: "linear-gradient(145deg,#FEE2E2,#EF4444)", textColor: "#991B1B", cardImgH: 72,  shuffleImgH: 130, revealImgH: 230 },
+  kungfupanda: { bg: "#F0FDF4", border: "#86EFAC", glow: "rgba(134,239,172,0.5)",  badgeBg: "bg-green-100",  badgeText: "text-green-800",  gradient: "linear-gradient(145deg,#DCFCE7,#22C55E)", textColor: "#166534", cardImgH: 96,  shuffleImgH: 160, revealImgH: 270 },
+  zootopia:    { bg: "#FFF7ED", border: "#FDBA74", glow: "rgba(253,186,116,0.5)",  badgeBg: "bg-orange-100", badgeText: "text-orange-800", gradient: "linear-gradient(145deg,#FFEDD5,#F97316)", textColor: "#9A3412", cardImgH: 72,  shuffleImgH: 130, revealImgH: 230 },
+  toystory:    { bg: "#EFF6FF", border: "#93C5FD", glow: "rgba(147,197,253,0.5)",  badgeBg: "bg-blue-100",   badgeText: "text-blue-800",   gradient: "linear-gradient(145deg,#DBEAFE,#3B82F6)", textColor: "#1E40AF", cardImgH: 72,  shuffleImgH: 130, revealImgH: 230 },
 };
 
 /* ── Mystery card — shows house character image, face shown ─── */
@@ -48,7 +49,7 @@ function MysteryCard({ index = 0, delay = 0 }: { index?: number; delay?: number 
         <img
           src={house.image}
           alt={house.name}
-          style={{ height: 72, width: "auto", objectFit: "contain", mixBlendMode: "multiply" }}
+          style={{ height: hp.cardImgH, width: "auto", objectFit: "contain", mixBlendMode: "multiply" }}
         />
       </div>
       {/* Corner dots */}
@@ -193,7 +194,7 @@ export default function RevealPage() {
                 src={houseData.revealImage}
                 alt={`${houseData.name} character`}
                 style={{
-                  height: 230,
+                  height: hp.revealImgH,
                   width: "auto",
                   objectFit: "contain",
                   mixBlendMode: "multiply",
@@ -252,7 +253,7 @@ export default function RevealPage() {
                     <img
                       src={shuffleHouse.image}
                       alt={shuffleHouse.name}
-                      style={{ height: 130, width: "auto", objectFit: "contain", mixBlendMode: "multiply" }}
+                      style={{ height: sp.shuffleImgH, width: "auto", objectFit: "contain", mixBlendMode: "multiply" }}
                     />
                   </div>
                   <span className="absolute top-2 left-2.5 text-sm font-bold" style={{ color: sp.border }}>{shuffleHouse.symbol}</span>
