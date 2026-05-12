@@ -182,3 +182,10 @@ export const helloWorldConfig: HelloWorldConfig = {
     },
   },
 };
+
+// Behavior:
+//   - open: false → always Coming Soon (no countdown). Acts as kill switch.
+//   - open: true + opensAt: null → registration is open right now.
+//   - open: true + opensAt: <future ISO> → Coming Soon screen with a live 4-block countdown (วัน/ชั่วโมง/นาที/วินาที). When the time hits, the page auto-flips to the form — no refresh
+//   needed.
+//   - open: true + opensAt: <past ISO> → open.

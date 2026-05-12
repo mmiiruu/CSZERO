@@ -13,11 +13,17 @@ export const site = {
   },
 };
 
-export const navLinks = [
+export const navLinks: Array<{
+  href: string;
+  label: string;
+  adminOnly?: boolean;
+  candidateRegistration?: boolean;
+}> = [
   { href: "/events/cs101", label: "CS101" },
   { href: "/events/hello-world", label: "Hello World" },
   { href: "/team", label: "คณะทำงาน" },
   { href: "/vote", label: "โหวต", adminOnly: true },
+  { href: "/candidate/register", label: "สมัครผู้สมัคร", candidateRegistration: true },
 ];
 
 export const navbar = {

@@ -5,13 +5,18 @@ import Link from "next/link";
 import { signOut } from "next-auth/react";
 import { useTheme } from "@/components/providers/ThemeProvider";
 import { site, navLinks, navbar } from "@/config/site";
+import { candidateRegistrationConfig } from "@/config/candidate";
 
 export default function Navbar({ session }: { session: any }) {
   const [isOpen, setIsOpen] = useState(false);
   const { theme, mounted, toggleTheme } = useTheme();
   const isAdmin = session?.user?.role === "admin";
   const canAccessAdmin = isAdmin || session?.user?.role === "staff";
-  const visibleLinks = navLinks.filter((link) => !link.adminOnly || canAccessAdmin);
+  const visibleLinks = navLinks.filter((link) => {
+    if (link.adminOnly && !canAccessAdmin) return false;
+    if (link.candidateRegistration && !candidateRegistrationConfig.open && !canAccessAdmin) return false;
+    return true;
+  });
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/60 shadow-sm">

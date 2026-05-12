@@ -563,8 +563,259 @@ function UsersTab({ callerEmail, callerRole }: { callerEmail: string; callerRole
   );
 }
 
+/* ─── Candidates Tab ─────────────────────────────────────────────── */
+type CandidateApplication = {
+  _id: string;
+  name: string;
+  email: string;
+  studentId: string;
+  year: string;
+  role: string;
+  bio: string;
+  motivation: string;
+  image?: string;
+  promoted: boolean;
+  promotedCandidateId?: string;
+  createdAt: string;
+};
+
+function CandidatesTab({ callerRole }: { callerRole: Role }) {
+  const [apps, setApps] = useState<CandidateApplication[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [working, setWorking] = useState<string | null>(null);
+  const [detail, setDetail] = useState<CandidateApplication | null>(null);
+  const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
+  const [confirmClear, setConfirmClear] = useState(false);
+  const [clearing, setClearing] = useState(false);
+
+  const showToast = (msg: string, ok: boolean) => {
+    setToast({ msg, ok });
+    setTimeout(() => setToast(null), 3500);
+  };
+
+  const load = useCallback(() => {
+    setLoading(true);
+    fetch("/api/candidate-applications")
+      .then((r) => r.json())
+      .then((d) => { if (Array.isArray(d)) setApps(d); })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  const handlePromote = async (id: string) => {
+    setWorking(id);
+    try {
+      const res = await fetch(`/api/admin/candidate-applications/${id}/promote`, { method: "POST" });
+      const data = await res.json();
+      if (res.ok) {
+        setApps((p) => p.map((a) => a._id === id ? { ...a, promoted: true, promotedCandidateId: data.candidateId } : a));
+        showToast("✓ เพิ่มเข้าระบบโหวตแล้ว", true);
+      } else {
+        showToast(`✗ ${data.error}`, false);
+      }
+    } catch {
+      showToast("✗ Network error", false);
+    } finally {
+      setWorking(null);
+    }
+  };
+
+  const handleClearVotes = async () => {
+    setClearing(true);
+    try {
+      const res = await fetch("/api/admin/vote-data", { method: "DELETE" });
+      const data = await res.json();
+      if (res.ok) {
+        showToast(`✓ ลบแล้ว: ผู้สมัคร ${data.candidatesDeleted}, คะแนน ${data.votesDeleted}`, true);
+        load();
+      } else {
+        showToast(`✗ ${data.error}`, false);
+      }
+    } catch {
+      showToast("✗ Network error", false);
+    } finally {
+      setClearing(false);
+      setConfirmClear(false);
+    }
+  };
+
+  const stats = useMemo(() => ({
+    total: apps.length,
+    promoted: apps.filter((a) => a.promoted).length,
+    pending: apps.filter((a) => !a.promoted).length,
+  }), [apps]);
+
+  return (
+    <>
+      {toast && (
+        <div className={`fixed bottom-6 right-6 z-50 px-5 py-3 rounded-xl text-sm font-medium shadow-lg ${toast.ok ? "bg-green-600 text-white" : "bg-red-600 text-white"}`}>
+          {toast.msg}
+        </div>
+      )}
+
+      {/* Summary strip + Danger button */}
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6 text-sm">
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+          <span>
+            <strong className="font-semibold text-slate-800 dark:text-slate-100">{stats.total}</strong>
+            <span className="ml-1.5 text-slate-400 dark:text-slate-500">applications</span>
+          </span>
+          <span aria-hidden="true" className="hidden sm:block w-px h-4 bg-slate-200 dark:bg-slate-700" />
+          <span>
+            <strong className="font-semibold text-amber-600 dark:text-amber-400">{stats.pending}</strong>
+            <span className="ml-1.5 text-slate-400 dark:text-slate-500">pending</span>
+          </span>
+          <span aria-hidden="true" className="hidden sm:block w-px h-4 bg-slate-200 dark:bg-slate-700" />
+          <span>
+            <strong className="font-semibold text-green-600 dark:text-green-400">{stats.promoted}</strong>
+            <span className="ml-1.5 text-slate-400 dark:text-slate-500">promoted</span>
+          </span>
+        </div>
+        {callerRole === "admin" && (
+          <button
+            onClick={() => setConfirmClear(true)}
+            className="px-4 py-3 rounded-lg text-sm font-medium border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors cursor-pointer"
+          >
+            Clear all candidates & votes
+          </button>
+        )}
+      </div>
+
+      {loading ? (
+        <div role="status" aria-label="กำลังโหลด..." className="flex items-center justify-center py-20">
+          <div aria-hidden="true" className="w-8 h-8 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
+        </div>
+      ) : apps.length === 0 ? (
+        <div className="bg-card border border-border rounded-2xl p-12 text-center">
+          <p className="text-slate-400 dark:text-slate-500">No applications yet.</p>
+        </div>
+      ) : (
+        <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-700/50">
+                  {["Name","Email","Role","Year","Status","Actions"].map((h) => (
+                    <th key={h} className="text-left px-6 py-4 text-slate-500 dark:text-slate-400 font-medium">{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {apps.map((a) => (
+                  <tr key={a._id} className="border-b border-slate-50 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
+                    <td className="px-6 py-4 text-slate-800 dark:text-slate-200 font-medium">{a.name}</td>
+                    <td className="px-6 py-4 text-slate-500 dark:text-slate-400">{a.email}</td>
+                    <td className="px-6 py-4 text-slate-700 dark:text-slate-300">{a.role}</td>
+                    <td className="px-6 py-4 text-slate-500 dark:text-slate-400">{a.year}</td>
+                    <td className="px-6 py-4">
+                      {a.promoted ? (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800">
+                          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                          </svg>
+                          Promoted
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800">
+                          Pending
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <button onClick={() => setDetail(a)} className="text-primary hover:text-primary-dark text-sm font-medium cursor-pointer">View</button>
+                        {callerRole === "admin" && !a.promoted && (
+                          <button
+                            onClick={() => handlePromote(a._id)}
+                            disabled={working === a._id}
+                            className="text-sm font-medium px-3 py-1.5 rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60 cursor-pointer transition-colors"
+                          >
+                            {working === a._id ? "..." : "Add to Vote"}
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Detail modal */}
+      {detail && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+          onClick={(e) => { if (e.target === e.currentTarget) setDetail(null); }}>
+          <div role="dialog" aria-modal="true" className="relative w-full max-w-lg max-h-[80vh] flex flex-col rounded-2xl shadow-2xl bg-card border border-border">
+            <div className="flex items-start justify-between gap-4 px-6 py-5 border-b border-slate-100 dark:border-slate-700">
+              <div>
+                <h3 className="text-base font-semibold text-slate-800 dark:text-slate-100">{detail.name}</h3>
+                <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">{detail.email}</p>
+              </div>
+              <button onClick={() => setDetail(null)} className="p-3 -mr-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors cursor-pointer" aria-label="Close">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="overflow-y-auto flex-1 px-6 py-5 space-y-4">
+              {[
+                ["Student ID", detail.studentId],
+                ["Year", detail.year],
+                ["Position", detail.role],
+                ["Bio", detail.bio],
+                ["Motivation", detail.motivation],
+                ["Image URL", detail.image || "—"],
+                ["Submitted", new Date(detail.createdAt).toLocaleString()],
+              ].map(([k, v]) => (
+                <div key={k} className="rounded-xl bg-slate-50 dark:bg-slate-700/50 px-4 py-3">
+                  <p className="text-xs font-medium text-slate-400 dark:text-slate-500 mb-1">{k}</p>
+                  <p className="text-sm text-slate-700 dark:text-slate-200 whitespace-pre-wrap break-words">{v}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Clear confirmation modal */}
+      {confirmClear && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+          onClick={(e) => { if (e.target === e.currentTarget && !clearing) setConfirmClear(false); }}>
+          <div role="dialog" aria-modal="true" className="w-full max-w-md rounded-2xl shadow-2xl bg-card border border-border p-6">
+            <div className="flex items-start gap-4 mb-4">
+              <div className="shrink-0 w-10 h-10 rounded-full bg-red-50 dark:bg-red-900/30 flex items-center justify-center">
+                <svg className="w-5 h-5 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="font-semibold text-slate-800 dark:text-slate-100">Clear all candidates & votes?</h3>
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+                  This deletes every Candidate and Vote document, resets user vote flags, and unmarks promoted applications so they can be re-promoted. This cannot be undone.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center justify-end gap-3">
+              <button onClick={() => setConfirmClear(false)} disabled={clearing} className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors cursor-pointer">
+                Cancel
+              </button>
+              <button onClick={handleClearVotes} disabled={clearing} className="px-4 py-2 text-sm font-medium bg-red-600 text-white hover:bg-red-700 disabled:opacity-60 rounded-lg transition-colors cursor-pointer">
+                {clearing ? "Clearing..." : "Yes, clear"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
 /* ─── PAGE ───────────────────────────────────────────────────────── */
-type Tab = "registrations" | "users";
+type Tab = "registrations" | "users" | "candidates";
 
 export default function AdminPage() {
   const router = useRouter();
@@ -624,6 +875,7 @@ export default function AdminPage() {
         <div role="tablist" aria-label="Dashboard sections" className="flex gap-1 mb-8 bg-card border border-border rounded-xl p-1 w-fit">
           {([
             { id: "registrations" as Tab, label: "Registrations", icon: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" },
+            { id: "candidates" as Tab,    label: "Candidates",    icon: "M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" },
             { id: "users" as Tab,         label: "Users",         icon: "M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" },
           ]).map(({ id, label, icon }) => (
             <button key={id} id={`tab-${id}`} onClick={() => setTab(id)}
@@ -640,6 +892,9 @@ export default function AdminPage() {
         {/* Tab content */}
         <div role="tabpanel" id="panel-registrations" aria-labelledby="tab-registrations" hidden={tab !== "registrations"}>
           <RegistrationsTab />
+        </div>
+        <div role="tabpanel" id="panel-candidates" aria-labelledby="tab-candidates" hidden={tab !== "candidates"}>
+          <CandidatesTab callerRole={(role as Role) ?? "staff"} />
         </div>
         <div role="tabpanel" id="panel-users" aria-labelledby="tab-users" hidden={tab !== "users"}>
           <UsersTab callerEmail={callerEmail} callerRole={(role as Role) ?? "staff"} />
