@@ -20,11 +20,16 @@ const houseColor: Record<string, {
   badgeColor: string; badgeText: string; shadow: string; imgBg: string;
   imgW: number; imgH: number;
 }> = {
-  spongebob:   { bg: "#FFFBEB", border: "#D97706", textColor: "#78350F", badgeColor: "#D97706", badgeText: "#ffffff", shadow: "rgba(217,119,6,0.38)",  imgBg: "#ffffff", imgW: 395, imgH: 632 },
-  conan:       { bg: "#FFF1F2", border: "#DC2626", textColor: "#7F1D1D", badgeColor: "#DC2626", badgeText: "#ffffff", shadow: "rgba(220,38,38,0.38)",  imgBg: "#ffffff", imgW: 535, imgH: 466 },
-  kungfupanda: { bg: "#F0FDF4", border: "#16A34A", textColor: "#14532D", badgeColor: "#16A34A", badgeText: "#ffffff", shadow: "rgba(22,163,74,0.38)",  imgBg: "#ffffff", imgW: 432, imgH: 578 },
-  zootopia:    { bg: "#FFF7ED", border: "#EA580C", textColor: "#7C2D12", badgeColor: "#EA580C", badgeText: "#ffffff", shadow: "rgba(234,88,12,0.38)",  imgBg: "#ffffff", imgW: 400, imgH: 588 },
-  toystory:    { bg: "#EFF6FF", border: "#2563EB", textColor: "#1E3A8A", badgeColor: "#2563EB", badgeText: "#ffffff", shadow: "rgba(37,99,235,0.38)",  imgBg: "#ffffff", imgW: 577, imgH: 433 },
+  // SpongeBob — yellow body + pink accent
+  spongebob:   { bg: "#FEF9C3", border: "#EC4899", textColor: "#831843", badgeColor: "#EC4899", badgeText: "#ffffff", shadow: "rgba(236,72,153,0.38)", imgBg: "#ffffff", imgW: 395, imgH: 632 },
+  // Conan — blue suit + red bowtie
+  conan:       { bg: "#DBEAFE", border: "#DC2626", textColor: "#7F1D1D", badgeColor: "#DC2626", badgeText: "#ffffff", shadow: "rgba(220,38,38,0.38)",  imgBg: "#ffffff", imgW: 535, imgH: 466 },
+  // Kung Fu Panda — green dragon + gold accents
+  kungfupanda: { bg: "#DCFCE7", border: "#CA8A04", textColor: "#14532D", badgeColor: "#CA8A04", badgeText: "#ffffff", shadow: "rgba(202,138,4,0.38)",  imgBg: "#ffffff", imgW: 432, imgH: 578 },
+  // Zootopia — Judy's gray + Nick's orange
+  zootopia:    { bg: "#F3F4F6", border: "#F97316", textColor: "#7C2D12", badgeColor: "#F97316", badgeText: "#ffffff", shadow: "rgba(249,115,22,0.38)", imgBg: "#ffffff", imgW: 400, imgH: 588 },
+  // Toy Story — Buzz purple + white
+  toystory:    { bg: "#F5F3FF", border: "#9333EA", textColor: "#4C1D95", badgeColor: "#9333EA", badgeText: "#ffffff", shadow: "rgba(147,51,234,0.38)", imgBg: "#ffffff", imgW: 577, imgH: 433 },
 };
 
 /* ── Timeline type config ────────────────────────────────────── */

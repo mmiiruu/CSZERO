@@ -17,11 +17,16 @@ const housePastel: Record<string, {
   gradient: string; textColor: string;
   cardImgH: number; shuffleImgH: number; revealImgH: number; imgScale: number;
 }> = {
-  spongebob:   { bg: "#FEF08A", border: "#CA8A04", glow: "rgba(202,138,4,0.5)",   badgeBg: "bg-yellow-400", badgeText: "text-yellow-950", gradient: "linear-gradient(145deg,#FEF08A,#CA8A04)", textColor: "#713F12", cardImgH: 72, shuffleImgH: 130, revealImgH: 230, imgScale: 1    },
-  conan:       { bg: "#BFDBFE", border: "#1D4ED8", glow: "rgba(29,78,216,0.45)",   badgeBg: "bg-blue-700",   badgeText: "text-white",       gradient: "linear-gradient(145deg,#DBEAFE,#1D4ED8)", textColor: "#1E3A8A", cardImgH: 72, shuffleImgH: 130, revealImgH: 230, imgScale: 1.4  },
-  kungfupanda: { bg: "#BBF7D0", border: "#15803D", glow: "rgba(21,128,61,0.45)",   badgeBg: "bg-green-700",  badgeText: "text-white",       gradient: "linear-gradient(145deg,#DCFCE7,#15803D)", textColor: "#14532D", cardImgH: 72, shuffleImgH: 130, revealImgH: 230, imgScale: 1.55 },
-  zootopia:    { bg: "#FED7AA", border: "#EA580C", glow: "rgba(234,88,12,0.5)",    badgeBg: "bg-orange-500", badgeText: "text-white",       gradient: "linear-gradient(145deg,#FFEDD5,#EA580C)", textColor: "#7C2D12", cardImgH: 72, shuffleImgH: 130, revealImgH: 230, imgScale: 1.4  },
-  toystory:    { bg: "#BAE6FD", border: "#0284C7", glow: "rgba(2,132,199,0.5)",    badgeBg: "bg-sky-600",    badgeText: "text-white",       gradient: "linear-gradient(145deg,#E0F2FE,#0284C7)", textColor: "#075985", cardImgH: 72, shuffleImgH: 130, revealImgH: 230, imgScale: 1.4  },
+  // SpongeBob — yellow body + pink shorts accent
+  spongebob:   { bg: "#FEF08A", border: "#EC4899", glow: "rgba(236,72,153,0.5)",  badgeBg: "bg-pink-500",   badgeText: "text-white",       gradient: "linear-gradient(145deg,#FEF9C3,#EC4899)", textColor: "#831843", cardImgH: 72, shuffleImgH: 130, revealImgH: 230, imgScale: 1    },
+  // Conan — blue suit + red bowtie
+  conan:       { bg: "#BFDBFE", border: "#DC2626", glow: "rgba(220,38,38,0.5)",   badgeBg: "bg-red-600",    badgeText: "text-white",       gradient: "linear-gradient(145deg,#DBEAFE,#DC2626)", textColor: "#7F1D1D", cardImgH: 72, shuffleImgH: 130, revealImgH: 230, imgScale: 1.4  },
+  // Kung Fu Panda — green + gold
+  kungfupanda: { bg: "#BBF7D0", border: "#CA8A04", glow: "rgba(202,138,4,0.5)",   badgeBg: "bg-yellow-600", badgeText: "text-white",       gradient: "linear-gradient(145deg,#DCFCE7,#CA8A04)", textColor: "#14532D", cardImgH: 72, shuffleImgH: 130, revealImgH: 230, imgScale: 1.55 },
+  // Zootopia — gray + orange
+  zootopia:    { bg: "#E5E7EB", border: "#F97316", glow: "rgba(249,115,22,0.5)",  badgeBg: "bg-orange-500", badgeText: "text-white",       gradient: "linear-gradient(145deg,#F3F4F6,#F97316)", textColor: "#7C2D12", cardImgH: 72, shuffleImgH: 130, revealImgH: 230, imgScale: 1.4  },
+  // Toy Story — purple + white
+  toystory:    { bg: "#DDD6FE", border: "#9333EA", glow: "rgba(147,51,234,0.5)",  badgeBg: "bg-purple-600", badgeText: "text-white",       gradient: "linear-gradient(145deg,#FFFFFF,#9333EA)", textColor: "#4C1D95", cardImgH: 72, shuffleImgH: 130, revealImgH: 230, imgScale: 1.4  },
 };
 
 /* ── Mystery card — shows house character image, face shown ─── */
