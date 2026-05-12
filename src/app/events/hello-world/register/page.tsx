@@ -391,8 +391,8 @@ function HelloWorldRegisterForm() {
         <>
           <Bubble emoji="🧽" bg="#FDE047" style={{ top: "8%",  left: "3%" }} />
           <Bubble emoji="🐼" bg="#86EFAC" style={{ bottom: "20%", left: "4%" }} delay="1.8s" />
-          <Bubble emoji="🦊" bg="#FDBA74" style={{ top: "12%", right: "4%" }} delay="1s" />
-          <Bubble emoji="🚀" bg="#7DD3FC" style={{ bottom: "25%", right: "3%" }} delay="2.4s" />
+          <Bubble emoji="🦊" bg="#D1D5DB" style={{ top: "12%", right: "4%" }} delay="1s" />
+          <Bubble emoji="🚀" bg="#C4B5FD" style={{ bottom: "25%", right: "3%" }} delay="2.4s" />
         </>
       )}
 
@@ -556,7 +556,7 @@ function HelloWorldRegisterForm() {
         <div aria-hidden="true" className="mt-8 flex justify-center gap-3">
           {[
             { e: "🧽", bg: "#FDE047" }, { e: "🔍", bg: "#93C5FD" }, { e: "🐼", bg: "#86EFAC" },
-            { e: "🦊", bg: "#FDBA74" }, { e: "🚀", bg: "#7DD3FC" },
+            { e: "🦊", bg: "#D1D5DB" }, { e: "🚀", bg: "#C4B5FD" },
           ].map(({ e, bg }) => (
             <span key={e} className="w-9 h-9 rounded-full flex items-center justify-center text-base opacity-60"
               style={{ background: bg }}>

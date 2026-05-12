@@ -201,8 +201,8 @@ export default function HelloWorldPage() {
             <CartoonBubble emoji="🧽" bg="#FDE047" animClass="animate-[float-slow_8s_ease-in-out_infinite]"   style={{ top: "14%", left: "4%" }} />
             <CartoonBubble emoji="🔍" bg="#93C5FD" animClass="animate-[float-mid_6s_ease-in-out_infinite]"    style={{ top: "20%", left: "18%", animationDelay: "1.2s" }} className="hidden sm:block" />
             <CartoonBubble emoji="🐼" bg="#86EFAC" animClass="animate-[float-fast_4.5s_ease-in-out_infinite]" style={{ bottom: "28%", left: "6%", animationDelay: "2s" }} />
-            <CartoonBubble emoji="🚀" bg="#7DD3FC" animClass="animate-[float-slow_7s_ease-in-out_infinite]"   style={{ bottom: "18%", left: "22%", animationDelay: "0.5s" }} className="hidden sm:block" />
-            <CartoonBubble emoji="🦊" bg="#FDBA74" animClass="animate-[float-mid_5.5s_ease-in-out_infinite]"  style={{ top: "55%", left: "2%", animationDelay: "1.5s" }} />
+            <CartoonBubble emoji="🚀" bg="#C4B5FD" animClass="animate-[float-slow_7s_ease-in-out_infinite]"   style={{ bottom: "18%", left: "22%", animationDelay: "0.5s" }} className="hidden sm:block" />
+            <CartoonBubble emoji="🦊" bg="#D1D5DB" animClass="animate-[float-mid_5.5s_ease-in-out_infinite]"  style={{ top: "55%", left: "2%", animationDelay: "1.5s" }} />
             <CartoonBubble emoji="⭐" bg="#FDE047" animClass="animate-[float-fast_4s_ease-in-out_infinite]"   style={{ top: "8%", left: "42%", animationDelay: "0.8s" }} className="hidden sm:block" />
           </>
         )}
@@ -236,8 +236,8 @@ export default function HelloWorldPage() {
                 { e: "🧽", bg: "#FDE047" },
                 { e: "🔍", bg: "#93C5FD" },
                 { e: "🐼", bg: "#86EFAC" },
-                { e: "🦊", bg: "#FDBA74" },
-                { e: "🚀", bg: "#7DD3FC" },
+                { e: "🦊", bg: "#D1D5DB" },
+                { e: "🚀", bg: "#C4B5FD" },
               ].map(({ e, bg }) => (
                 <span key={e}
                   className="w-10 h-10 rounded-full flex items-center justify-center text-xl hover:scale-125 transition-transform duration-200 cursor-default"
@@ -432,7 +432,7 @@ export default function HelloWorldPage() {
           <div aria-hidden="true" className="mt-8 flex justify-center gap-3">
             {[
               { e: "🧽", bg: "#FDE047" }, { e: "🔍", bg: "#93C5FD" }, { e: "🐼", bg: "#86EFAC" },
-              { e: "🦊", bg: "#FDBA74" }, { e: "🚀", bg: "#7DD3FC" },
+              { e: "🦊", bg: "#D1D5DB" }, { e: "🚀", bg: "#C4B5FD" },
             ].map(({ e, bg }) => (
               <span key={e} className="w-9 h-9 rounded-full flex items-center justify-center text-lg"
                 style={{ background: bg, boxShadow: `0 3px 10px ${bg}90` }}>{e}</span>
