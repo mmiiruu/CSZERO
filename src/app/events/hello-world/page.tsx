@@ -41,16 +41,39 @@ const typeConfig: Record<string, { badge: string; nodeColor: string; nodeBg: str
 };
 const TYPE_EMOJI: Record<string, string> = { talk: "🎬", workshop: "🎨", break: "🍿", social: "✨" };
 
-function CartoonNode({ type }: { type?: string }) {
+function CartoonNode({ type, animateIn = false, delay = 0 }: { type?: string; animateIn?: boolean; delay?: number }) {
   const cfg = typeConfig[type ?? "social"] ?? typeConfig.social;
   return (
-    <div style={{
-      width: 44, height: 44, borderRadius: "50%",
-      background: cfg.nodeBg, border: `2.5px solid ${cfg.nodeColor}`,
-      display: "flex", alignItems: "center", justifyContent: "center",
-      fontSize: 20, boxShadow: `0 4px 14px ${cfg.nodeColor}55`, flexShrink: 0,
-    }}>
-      {TYPE_EMOJI[type ?? "social"] ?? "✨"}
+    // Outer = entry pop animation (scale + opacity)
+    <div
+      style={{
+        animation: animateIn ? `hw-node-pop 0.5s cubic-bezier(0.22,1,0.36,1) ${delay}s both` : "none",
+        opacity: animateIn ? undefined : 0,
+        willChange: "transform, opacity",
+      }}
+    >
+      {/* Inner = idle bob; starts after entry finishes so transforms don't fight */}
+      <div
+        className="hw-node-bob"
+        style={{
+          width: 44, height: 44, borderRadius: "50%",
+          background: cfg.nodeBg, border: `2.5px solid ${cfg.nodeColor}`,
+          display: "flex", alignItems: "center", justifyContent: "center",
+          fontSize: 20, boxShadow: `0 4px 14px ${cfg.nodeColor}55`, flexShrink: 0,
+          animationDelay: `${delay + 0.5}s`,
+          transition: "transform 0.2s cubic-bezier(0.22,1,0.36,1), box-shadow 0.2s ease",
+        }}
+        onMouseEnter={(e) => {
+          (e.currentTarget as HTMLElement).style.transform = "scale(1.12)";
+          (e.currentTarget as HTMLElement).style.boxShadow = `0 6px 22px ${cfg.nodeColor}80`;
+        }}
+        onMouseLeave={(e) => {
+          (e.currentTarget as HTMLElement).style.transform = "";
+          (e.currentTarget as HTMLElement).style.boxShadow = `0 4px 14px ${cfg.nodeColor}55`;
+        }}
+      >
+        {TYPE_EMOJI[type ?? "social"] ?? "✨"}
+      </div>
     </div>
   );
 }
@@ -71,7 +94,17 @@ function SlotReveal({ text, delay = 0, triggered }: { text: string; delay?: numb
 }
 
 /* ── Timeline entry card ─────────────────────────────────────── */
-const EntryCard = React.memo(function EntryCard({ item, entryDelay }: { item: TimelineItem; entryDelay: number }) {
+type CardSide = "left" | "right" | "up";
+
+const EntryCard = React.memo(function EntryCard({
+  item,
+  entryDelay,
+  side = "up",
+}: {
+  item: TimelineItem;
+  entryDelay: number;
+  side?: CardSide;
+}) {
   const ref = useRef<HTMLDivElement>(null);
   const [triggered, setTriggered] = useState(false);
   useEffect(() => {
@@ -80,12 +113,31 @@ const EntryCard = React.memo(function EntryCard({ item, entryDelay }: { item: Ti
     obs.observe(el); return () => obs.disconnect();
   }, []);
   const cfg = typeConfig[item.type ?? "social"] ?? typeConfig.social;
+  const slideKf =
+    side === "left" ? "hw-card-slide-left" :
+    side === "right" ? "hw-card-slide-right" : "hw-card-slide-up";
+
   return (
-    <div ref={ref} className="rounded-2xl p-4 border-2 bg-white transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5"
-      style={{ borderColor: `${cfg.nodeColor}40`, boxShadow: "0 2px 10px rgba(0,0,0,0.06)" }}>
+    <div
+      ref={ref}
+      className="rounded-2xl p-4 border-2 bg-white transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5"
+      style={{
+        borderColor: `${cfg.nodeColor}40`,
+        boxShadow: "0 2px 10px rgba(0,0,0,0.06)",
+        animation: triggered ? `${slideKf} 0.55s cubic-bezier(0.22,1,0.36,1) both` : "none",
+        opacity: triggered ? undefined : 0,
+        willChange: "transform, opacity",
+      }}
+    >
       <div className="flex items-center gap-2 mb-2 flex-wrap">
         <span className="text-xs font-mono tabular-nums font-bold" style={{ color: cfg.nodeColor }}>{item.time}</span>
-        {item.type && <span className={`text-xs px-2 py-0.5 rounded-full border font-semibold ${cfg.badge}`}>{item.type}</span>}
+        {item.type && (
+          <span
+            className={`text-xs px-2 py-0.5 rounded-full border font-semibold ${cfg.badge} transition-transform duration-200 hover:scale-105`}
+          >
+            {item.type}
+          </span>
+        )}
       </div>
       <h3 className="font-bold text-sm leading-snug mb-1 overflow-hidden" style={{ color: TEXT_D }}>
         {item.title.split(" ").map((word, wi) => (
@@ -97,51 +149,134 @@ const EntryCard = React.memo(function EntryCard({ item, entryDelay }: { item: Ti
   );
 });
 
+/* ── Single day block — coordinates trunk draw + node pop stagger ─ */
+function DayBlock({ day }: { day: TimelineDay }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [enteredView, setEnteredView] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([e]) => {
+        if (e.isIntersecting) {
+          setEnteredView(true);
+          obs.disconnect();
+        }
+      },
+      { threshold: 0.1 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  const N = Math.max(day.items.length, 1);
+  // Trunk takes ~1s to draw; first node pops at 0.15s, last at ~1s, so they
+  // appear as if the line "delivers" each node down the page.
+  const nodeDelay = (ii: number) => 0.15 + (ii / N) * 0.85;
+
+  const trunkStyle: React.CSSProperties = {
+    background: `linear-gradient(180deg, transparent, ${AMBER}60 8%, ${AMBER}60 92%, transparent)`,
+    transformOrigin: "top",
+    transform: enteredView ? "scaleY(1)" : "scaleY(0)",
+    transition: "transform 1s cubic-bezier(0.22,1,0.36,1)",
+    willChange: "transform",
+  };
+
+  const headerStyle: React.CSSProperties = {
+    animation: enteredView ? "hw-day-fade 0.55s cubic-bezier(0.22,1,0.36,1) both" : "none",
+    opacity: enteredView ? undefined : 0,
+    willChange: "transform, opacity",
+  };
+
+  return (
+    <div ref={ref}>
+      <div className="flex items-center gap-3 mb-10" style={headerStyle}>
+        <div className="w-3 h-3 rounded-full shrink-0" style={{ background: AMBER, boxShadow: `0 0 10px ${AMBER}90` }} />
+        <div className="h-px flex-1" style={{ background: `linear-gradient(90deg, ${AMBER}80, transparent)` }} />
+        <div className="text-center px-4">
+          <p className="text-base font-black" style={{ color: TEXT_D }}>{day.day}</p>
+          <p className="text-xs mt-0.5" style={{ color: TEXT_M }}>{day.date}</p>
+        </div>
+        <div className="h-px flex-1" style={{ background: `linear-gradient(270deg, ${AMBER}80, transparent)` }} />
+        <div className="w-3 h-3 rounded-full shrink-0" style={{ background: AMBER, boxShadow: `0 0 10px ${AMBER}90` }} />
+      </div>
+
+      {/* Desktop two-column */}
+      <div className="hidden md:block relative">
+        <div className="absolute left-1/2 top-0 bottom-0 -translate-x-1/2 w-px" style={trunkStyle} />
+        <div className="space-y-6">
+          {day.items.map((item, ii) => {
+            const isLeft = ii % 2 === 0;
+            return (
+              <div key={ii} className="relative grid grid-cols-[1fr_80px_1fr] items-center">
+                {isLeft  ? <div className="pr-6"><EntryCard item={item} entryDelay={ii * 80} side="left" /></div> : <div />}
+                <div className="flex justify-center z-20">
+                  <CartoonNode type={item.type} animateIn={enteredView} delay={nodeDelay(ii)} />
+                </div>
+                {!isLeft ? <div className="pl-6"><EntryCard item={item} entryDelay={ii * 80} side="right" /></div> : <div />}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Mobile single-column */}
+      <div className="md:hidden relative">
+        <div
+          className="absolute left-[21px] top-0 bottom-0 w-px rounded-full"
+          style={{ background: `${AMBER}60`, transformOrigin: "top", transform: enteredView ? "scaleY(1)" : "scaleY(0)", transition: "transform 1s cubic-bezier(0.22,1,0.36,1)" }}
+        />
+        <div className="pl-14 space-y-5">
+          {day.items.map((item, ii) => (
+            <div key={ii} className="relative">
+              <div className="absolute -left-9 top-1/2 -translate-y-1/2 z-20">
+                <CartoonNode type={item.type} animateIn={enteredView} delay={nodeDelay(ii)} />
+              </div>
+              <EntryCard item={item} entryDelay={ii * 80} side="up" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ── Timeline ────────────────────────────────────────────────── */
 function CartoonTimeline({ days }: { days: TimelineDay[] }) {
   return (
     <div className="space-y-16">
-      {days.map((day, di) => (
-        <div key={di}>
-          <div className="flex items-center gap-3 mb-10">
-            <div className="w-3 h-3 rounded-full shrink-0" style={{ background: AMBER, boxShadow: `0 0 10px ${AMBER}90` }} />
-            <div className="h-px flex-1" style={{ background: `linear-gradient(90deg, ${AMBER}80, transparent)` }} />
-            <div className="text-center px-4">
-              <p className="text-base font-black" style={{ color: TEXT_D }}>{day.day}</p>
-              <p className="text-xs mt-0.5" style={{ color: TEXT_M }}>{day.date}</p>
-            </div>
-            <div className="h-px flex-1" style={{ background: `linear-gradient(270deg, ${AMBER}80, transparent)` }} />
-            <div className="w-3 h-3 rounded-full shrink-0" style={{ background: AMBER, boxShadow: `0 0 10px ${AMBER}90` }} />
-          </div>
-          <div className="hidden md:block relative">
-            <div className="absolute left-1/2 top-0 bottom-0 -translate-x-1/2 w-px"
-              style={{ background: `linear-gradient(180deg, transparent, ${AMBER}60 8%, ${AMBER}60 92%, transparent)` }} />
-            <div className="space-y-6">
-              {day.items.map((item, ii) => {
-                const isLeft = ii % 2 === 0;
-                return (
-                  <div key={ii} className="relative grid grid-cols-[1fr_80px_1fr] items-center">
-                    {isLeft  ? <div className="pr-6"><EntryCard item={item} entryDelay={ii * 80} /></div> : <div />}
-                    <div className="flex justify-center z-20"><CartoonNode type={item.type} /></div>
-                    {!isLeft ? <div className="pl-6"><EntryCard item={item} entryDelay={ii * 80} /></div> : <div />}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-          <div className="md:hidden relative">
-            <div className="absolute left-[21px] top-0 bottom-0 w-px rounded-full" style={{ background: `${AMBER}60` }} />
-            <div className="pl-14 space-y-5">
-              {day.items.map((item, ii) => (
-                <div key={ii} className="relative">
-                  <div className="absolute -left-9 top-1/2 -translate-y-1/2 z-20"><CartoonNode type={item.type} /></div>
-                  <EntryCard item={item} entryDelay={ii * 80} />
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      ))}
+      <style>{`
+        @keyframes hw-node-pop {
+          0%   { transform: scale(0.4); opacity: 0; }
+          70%  { transform: scale(1.08); opacity: 1; }
+          100% { transform: scale(1); opacity: 1; }
+        }
+        @keyframes hw-node-bob {
+          0%, 100% { transform: translateY(0); }
+          50%       { transform: translateY(-3px); }
+        }
+        .hw-node-bob {
+          animation: hw-node-bob 3.6s ease-in-out infinite;
+        }
+        @keyframes hw-card-slide-left {
+          from { transform: translateX(-24px); opacity: 0; }
+          to   { transform: translateX(0);     opacity: 1; }
+        }
+        @keyframes hw-card-slide-right {
+          from { transform: translateX(24px);  opacity: 0; }
+          to   { transform: translateX(0);     opacity: 1; }
+        }
+        @keyframes hw-card-slide-up {
+          from { transform: translateY(16px);  opacity: 0; }
+          to   { transform: translateY(0);     opacity: 1; }
+        }
+        @keyframes hw-day-fade {
+          from { opacity: 0; transform: translateY(-8px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
+      {days.map((day, di) => <DayBlock key={di} day={day} />)}
     </div>
   );
 }
