@@ -8,9 +8,12 @@ import Image from "next/image";
 import Input from "@/components/ui/Input";
 import { ForceTheme } from "@/components/providers/ForceTheme";
 import { helloWorldFormConfig, type HWFormField, type ChoiceField } from "@/config/forms/hello-world-register";
+import { helloWorldConfig } from "@/config/events/hello-world";
 import { useFormDraft } from "@/lib/useFormDraft";
+import { useRegistrationStatus, type Countdown } from "@/lib/registration";
 
 const config = helloWorldFormConfig;
+const eventConfig = helloWorldConfig;
 
 const AMBER    = "#D97706";
 const AMBER_LT = "#FEF08A";
@@ -133,10 +136,107 @@ function Bubble({ emoji, bg, style, delay = "0s" }: { emoji: string; bg: string;
   );
 }
 
+/* ── Countdown blocks ────────────────────────────────────────────── */
+function CountdownBlocks({ countdown }: { countdown: Countdown }) {
+  const cells: Array<[string, number]> = [
+    ["วัน", countdown.days],
+    ["ชั่วโมง", countdown.hours],
+    ["นาที", countdown.minutes],
+    ["วินาที", countdown.seconds],
+  ];
+  return (
+    <div role="timer" aria-live="polite" className="grid grid-cols-4 gap-2 mb-6">
+      {cells.map(([label, value]) => (
+        <div
+          key={label}
+          className="rounded-2xl py-3 px-1 text-center"
+          style={{
+            background: "#FFFFFF",
+            border: "2px solid rgba(202,138,4,0.35)",
+            boxShadow: "0 4px 14px rgba(202,138,4,0.18)",
+          }}
+        >
+          <div
+            className="font-display font-black"
+            style={{
+              fontSize: "clamp(1.25rem, 5vw, 1.75rem)",
+              color: TEXT_D,
+              lineHeight: 1,
+              fontVariantNumeric: "tabular-nums",
+            }}
+          >
+            {String(value).padStart(2, "0")}
+          </div>
+          <div
+            className="mt-1 text-[0.65rem] font-bold uppercase tracking-wider"
+            style={{ color: AMBER }}
+          >
+            {label}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ── Coming Soon screen ──────────────────────────────────────────── */
+function ComingSoonScreen({ countdown }: { countdown: Countdown | null }) {
+  const { title, message, backButton } = eventConfig.registration.comingSoon;
+  return (
+    <main className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden" style={{ background: BG }}>
+      <ForceTheme theme="light" />
+
+      <div aria-hidden="true" className="absolute inset-0 pointer-events-none">
+        <div className="absolute -top-20 left-1/4 w-96 h-96 rounded-full blur-[100px]" style={{ background: "rgba(254,240,138,0.6)" }} />
+        <div className="absolute bottom-0 right-1/4 w-80 h-80 rounded-full blur-[90px]" style={{ background: "rgba(186,230,253,0.5)" }} />
+      </div>
+
+      <div className="relative z-10 text-center max-w-md w-full animate-fade-in">
+        <div className="rounded-3xl p-8 sm:p-10"
+          style={{ background: "#FFFFFF", border: "3px solid rgba(202,138,4,0.35)", boxShadow: "0 24px 64px rgba(202,138,4,0.18), 0 4px 16px rgba(0,0,0,0.06)" }}>
+
+          <div aria-hidden="true" className="flex justify-center gap-2 mb-5 text-3xl">
+            <span>🚧</span>
+          </div>
+
+          <h1 className="font-display font-black text-3xl sm:text-4xl mb-3" style={{ color: TEXT_D }}>
+            {title}
+          </h1>
+          <p className="text-sm leading-relaxed mb-6" style={{ color: TEXT_M }}>
+            {message}
+          </p>
+
+          {countdown && <CountdownBlocks countdown={countdown} />}
+
+          <Link
+            href={backButton.href}
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-black transition-all duration-200 hover:scale-105 hover:shadow-xl"
+            style={{ background: AMBER, color: "#FFFFFF", boxShadow: "0 6px 20px rgba(217,119,6,0.4)" }}
+          >
+            {backButton.label}
+          </Link>
+
+          <div aria-hidden="true" className="mt-6 flex justify-center gap-2 opacity-60">
+            {["🧽","🔍","🐼","🦊","🚀"].map((e) => <span key={e}>{e}</span>)}
+          </div>
+        </div>
+      </div>
+    </main>
+  );
+}
+
 /* ════════════════════════════════════════════════════════════════════
    PAGE
 ════════════════════════════════════════════════════════════════════ */
 export default function HelloWorldRegisterPage() {
+  const { isOpen, countdown } = useRegistrationStatus(eventConfig.registration);
+  if (!isOpen) {
+    return <ComingSoonScreen countdown={countdown} />;
+  }
+  return <HelloWorldRegisterForm />;
+}
+
+function HelloWorldRegisterForm() {
   const router = useRouter();
   const { data: session } = useSession();
   const reducedMotion = useReducedMotion();

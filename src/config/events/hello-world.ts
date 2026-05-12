@@ -50,6 +50,18 @@ export interface HelloWorldConfig {
     shufflingTitle: string;
     shufflingSubtitle: string;
   };
+  registration: {
+    open: boolean;
+    // ISO datetime (e.g. "2026-06-01T09:00:00+07:00"). If set and in the future,
+    // the page shows the Coming Soon screen with a countdown and auto-opens at that time.
+    // Leave null to use `open` as the only gate.
+    opensAt: string | null;
+    comingSoon: {
+      title: string;
+      message: string;
+      backButton: { label: string; href: string };
+    };
+  };
 }
 
 export const helloWorldConfig: HelloWorldConfig = {
@@ -159,5 +171,14 @@ export const helloWorldConfig: HelloWorldConfig = {
     revealAgainButton: "เปิดเผยอีกครั้ง",
     shufflingTitle: "กำลังสุ่มบ้าน...",
     shufflingSubtitle: "กำลังค้นหาบ้านการ์ตูนของคุณ",
+  },
+  registration: {
+    open: true,
+    opensAt: "2026-05-12T11:59:29Z",
+    comingSoon: {
+      title: "เปิดรับสมัครเร็วๆ นี้",
+      message: "การสมัคร Hello World ยังไม่เปิด คอยติดตามได้เร็วๆ นี้!",
+      backButton: { label: "กลับไปหน้า Hello World", href: "/events/hello-world" },
+    },
   },
 };

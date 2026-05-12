@@ -10,7 +10,9 @@ import MarioFormStep    from "../_components/MarioFormStep";
 import MarioInput       from "../_components/MarioInput";
 import MarioCheckboxGroup from "../_components/MarioCheckboxGroup";
 import { cs101FormConfig, type FormField } from "@/config/forms/cs101-register";
+import { cs101Config } from "@/config/events/cs101";
 import { useFormDraft } from "@/lib/useFormDraft";
+import { useRegistrationStatus, type Countdown } from "@/lib/registration";
 
 const fredoka = Fredoka({
   subsets: ["latin"],
@@ -20,6 +22,7 @@ const fredoka = Fredoka({
 });
 
 const config = cs101FormConfig;
+const eventConfig = cs101Config;
 
 /* ── Small decorative floating coin ─────────────────────────────────── */
 function FloatCoin({ style }: { style?: React.CSSProperties }) {
@@ -36,6 +39,166 @@ function FloatCoin({ style }: { style?: React.CSSProperties }) {
       }}
     >
       🪙
+    </div>
+  );
+}
+
+/* ── Countdown block (Mario themed) ─────────────────────────────────── */
+function CountdownBlocks({ countdown }: { countdown: Countdown }) {
+  const cells: Array<[string, number]> = [
+    ["วัน", countdown.days],
+    ["ชั่วโมง", countdown.hours],
+    ["นาที", countdown.minutes],
+    ["วินาที", countdown.seconds],
+  ];
+  return (
+    <div
+      role="timer"
+      aria-live="polite"
+      style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
+        gap: "0.5rem",
+        marginBottom: "1.5rem",
+      }}
+    >
+      {cells.map(([label, value]) => (
+        <div
+          key={label}
+          style={{
+            background: "linear-gradient(135deg,#FFE135 0%,#FBD000 60%,#E8B800 100%)",
+            border: "3px solid #C8950A",
+            borderRadius: "0.75rem",
+            padding: "0.6rem 0.25rem",
+            boxShadow: "inset 0 3px 0 rgba(255,255,255,0.45), inset 0 -3px 0 rgba(0,0,0,0.18), 0 5px 0 #8B6914",
+            textAlign: "center",
+          }}
+        >
+          <div
+            style={{
+              fontFamily: "var(--font-fredoka), 'Fredoka', sans-serif",
+              fontWeight: 700,
+              fontSize: "clamp(1.4rem, 5vw, 1.85rem)",
+              color: "#1a1000",
+              lineHeight: 1,
+              fontVariantNumeric: "tabular-nums",
+            }}
+          >
+            {String(value).padStart(2, "0")}
+          </div>
+          <div
+            style={{
+              fontFamily: "var(--font-fredoka), var(--font-prompt), sans-serif",
+              fontWeight: 600,
+              fontSize: "0.7rem",
+              color: "#5A3E00",
+              marginTop: 4,
+              textTransform: "uppercase",
+              letterSpacing: "0.08em",
+            }}
+          >
+            {label}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ── Coming Soon screen (Mario themed) ──────────────────────────────── */
+function ComingSoonScreen({ fredokaVar, countdown }: { fredokaVar: string; countdown: Countdown | null }) {
+  const { title, message, backButton } = eventConfig.registration.comingSoon;
+  return (
+    <div
+      className={fredokaVar}
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "2rem 1rem",
+        background: "linear-gradient(180deg,#12143A 0%,#1C1F52 55%,#0E1030 100%)",
+        position: "relative",
+        overflow: "hidden",
+      }}
+    >
+      <style>{`
+        @keyframes mario-coin-float {
+          0%,100% { transform: translateY(0px) rotate(0deg); }
+          50%     { transform: translateY(-16px) rotate(-8deg); }
+        }
+        @keyframes mario-gate-pop {
+          from { opacity: 0; transform: translateY(18px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          [aria-hidden="true"], [aria-hidden="true"] * { animation: none !important; }
+        }
+      `}</style>
+
+      <FloatCoin style={{ top: "12%", left: "10%", animationDelay: "0s" }} />
+      <FloatCoin style={{ top: "20%", right: "12%", animationDelay: "1.2s" }} />
+      <FloatCoin style={{ bottom: "18%", left: "14%", animationDelay: "0.6s" }} />
+      <FloatCoin style={{ bottom: "22%", right: "10%", animationDelay: "1.8s" }} />
+
+      <div style={{ textAlign: "center", maxWidth: 460, animation: "mario-gate-pop 0.5s cubic-bezier(0.34,1.56,0.64,1) both" }}>
+        <div aria-hidden="true" style={{ fontSize: 72, marginBottom: 12, filter: "drop-shadow(0 6px 12px rgba(0,0,0,0.4))" }}>🚧</div>
+        <h1
+          style={{
+            fontFamily: "var(--font-fredoka), 'Fredoka', sans-serif",
+            fontWeight: 700,
+            fontSize: "clamp(1.6rem,5vw,2.2rem)",
+            color: "#FBD000",
+            textShadow: "0 3px 0 #C8950A, 0 5px 0 #8B6914, 2px 2px 0 #E52521",
+            marginBottom: "0.85rem",
+            lineHeight: 1.2,
+          }}
+        >
+          {title}
+        </h1>
+        <p
+          style={{
+            fontFamily: "var(--font-fredoka), var(--font-prompt), sans-serif",
+            fontSize: "0.95rem",
+            color: "rgba(255,255,255,0.7)",
+            marginBottom: "1.75rem",
+            lineHeight: 1.65,
+          }}
+        >
+          {message}
+        </p>
+        {countdown && <CountdownBlocks countdown={countdown} />}
+        <Link
+          href={backButton.href}
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 8,
+            fontFamily: "var(--font-fredoka), sans-serif",
+            fontWeight: 700,
+            fontSize: "1rem",
+            color: "#1a0800",
+            background: "linear-gradient(180deg,#FFE135 0%,#FBD000 100%)",
+            border: "3px solid #C8950A",
+            borderRadius: "0.85rem",
+            padding: "0.85rem 1.75rem",
+            boxShadow: "0 6px 0 #8B6914, 0 8px 20px rgba(200,149,10,0.4)",
+            textDecoration: "none",
+            transition: "transform 0.18s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.18s ease",
+          }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLElement).style.transform = "translateY(-4px) scale(1.04)";
+            (e.currentTarget as HTMLElement).style.boxShadow = "0 10px 0 #8B6914, 0 12px 28px rgba(200,149,10,0.5)";
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLElement).style.transform = "translateY(0) scale(1)";
+            (e.currentTarget as HTMLElement).style.boxShadow = "0 6px 0 #8B6914, 0 8px 20px rgba(200,149,10,0.4)";
+          }}
+        >
+          <span aria-hidden="true">🍄</span>
+          {backButton.label}
+        </Link>
+      </div>
     </div>
   );
 }
@@ -300,6 +463,7 @@ export default function CS101RegisterPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { data: session, status } = useSession();
+  const { isOpen, countdown } = useRegistrationStatus(eventConfig.registration);
   const [step, setStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -406,7 +570,10 @@ export default function CS101RegisterPage() {
     }
   };
 
-  /* ── Gate order: success → loading → unauthenticated → form ───────── */
+  /* ── Gate order: closed → success → loading → unauthenticated → form ─ */
+  if (!isOpen) {
+    return <ComingSoonScreen fredokaVar={fredoka.variable} countdown={countdown} />;
+  }
   if (searchParams.get("success") === "true") {
     return <SuccessScreen fredokaVar={fredoka.variable} />;
   }

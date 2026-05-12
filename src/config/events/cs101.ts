@@ -35,6 +35,18 @@ export interface CS101Config {
     description: string;
     button: { label: string; href: string };
   };
+  registration: {
+    open: boolean;
+    // ISO datetime (e.g. "2026-06-01T09:00:00+07:00"). If set and in the future,
+    // the page shows the Coming Soon screen with a countdown and auto-opens at that time.
+    // Leave null to use `open` as the only gate.
+    opensAt: string | null;
+    comingSoon: {
+      title: string;
+      message: string;
+      backButton: { label: string; href: string };
+    };
+  };
 }
 
 export const cs101Config: CS101Config = {
@@ -110,5 +122,14 @@ export const cs101Config: CS101Config = {
     title: "พร้อมเริ่มต้นการเดินทาง CS ของคุณแล้วหรือยัง?",
     description: "ที่นั่งมีจำนวนจำกัด สมัครเลยเพื่อจองที่นั่งของคุณ",
     button: { label: "สมัคร CS101", href: "/events/cs101/register" },
+  },
+  registration: {
+    open: true,
+    opensAt: null,
+    comingSoon: {
+      title: "เปิดรับสมัครเร็วๆ นี้",
+      message: "การสมัคร CS101 ยังไม่เปิด คอยติดตามได้เร็วๆ นี้!",
+      backButton: { label: "กลับไปหน้า CS101", href: "/events/cs101" },
+    },
   },
 };

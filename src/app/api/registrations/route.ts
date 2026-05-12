@@ -4,8 +4,16 @@ import clientPromise from "@/lib/mongodb-client";
 import dbConnect from "@/lib/mongodb";
 import Registration from "@/models/Registration";
 import { notifyRegistration } from "@/lib/discord";
+import { cs101Config } from "@/config/events/cs101";
+import { helloWorldConfig } from "@/config/events/hello-world";
+import { isRegistrationOpen } from "@/lib/registration";
 
 const ALLOWED_EVENTS = ["cs101", "hello-world"] as const;
+
+const REGISTRATION_CONFIG = {
+  "cs101": cs101Config.registration,
+  "hello-world": helloWorldConfig.registration,
+} as const;
 
 function sanitizeAnswers(input: unknown): Record<string, string> {
   if (!input || typeof input !== "object" || Array.isArray(input)) return {};
@@ -31,6 +39,9 @@ export async function POST(req: NextRequest) {
 
     if (typeof event !== "string" || !ALLOWED_EVENTS.includes(event as typeof ALLOWED_EVENTS[number])) {
       return NextResponse.json({ error: "Invalid event type" }, { status: 400 });
+    }
+    if (!isRegistrationOpen(REGISTRATION_CONFIG[event as typeof ALLOWED_EVENTS[number]])) {
+      return NextResponse.json({ error: "Registration is not open for this event" }, { status: 403 });
     }
     if (typeof name !== "string" || name.trim().length === 0 || name.length > 200) {
       return NextResponse.json({ error: "Invalid name" }, { status: 400 });
