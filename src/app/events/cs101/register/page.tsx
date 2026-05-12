@@ -12,7 +12,8 @@ import MarioCheckboxGroup from "../_components/MarioCheckboxGroup";
 import { cs101FormConfig, type FormField } from "@/config/forms/cs101-register";
 import { cs101Config } from "@/config/events/cs101";
 import { useFormDraft } from "@/lib/useFormDraft";
-import { useRegistrationStatus, type Countdown } from "@/lib/registration";
+import { useRegistrationStatus } from "@/lib/useRegistrationStatus";
+import type { Countdown } from "@/lib/registration";
 
 const fredoka = Fredoka({
   subsets: ["latin"],

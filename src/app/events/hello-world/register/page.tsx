@@ -10,7 +10,8 @@ import { ForceTheme } from "@/components/providers/ForceTheme";
 import { helloWorldFormConfig, type HWFormField, type ChoiceField } from "@/config/forms/hello-world-register";
 import { helloWorldConfig } from "@/config/events/hello-world";
 import { useFormDraft } from "@/lib/useFormDraft";
-import { useRegistrationStatus, type Countdown } from "@/lib/registration";
+import { useRegistrationStatus } from "@/lib/useRegistrationStatus";
+import type { Countdown } from "@/lib/registration";
 
 const config = helloWorldFormConfig;
 const eventConfig = helloWorldConfig;

@@ -1,5 +1,3 @@
-import { useEffect, useState } from "react";
-
 export interface RegistrationConfig {
   open: boolean;
   opensAt?: string | null;
@@ -31,7 +29,7 @@ export interface Countdown {
   totalMs: number;
 }
 
-function computeCountdown(targetMs: number, nowMs: number): Countdown {
+export function computeCountdown(targetMs: number, nowMs: number): Countdown {
   const totalMs = Math.max(0, targetMs - nowMs);
   const totalSec = Math.floor(totalMs / 1000);
   return {
@@ -41,26 +39,4 @@ function computeCountdown(targetMs: number, nowMs: number): Countdown {
     seconds: totalSec % 60,
     totalMs,
   };
-}
-
-export function useRegistrationStatus(reg: RegistrationConfig): {
-  isOpen: boolean;
-  countdown: Countdown | null;
-} {
-  const opensAt = getOpensAtMs(reg);
-  const [now, setNow] = useState<number>(() => Date.now());
-
-  useEffect(() => {
-    if (!reg.open || opensAt === null) return;
-    if (Date.now() >= opensAt) return;
-    const id = window.setInterval(() => setNow(Date.now()), 1000);
-    return () => window.clearInterval(id);
-  }, [reg.open, opensAt]);
-
-  const isOpen = isRegistrationOpen(reg, now);
-  const countdown = !reg.open || opensAt === null || now >= opensAt
-    ? null
-    : computeCountdown(opensAt, now);
-
-  return { isOpen, countdown };
 }
