@@ -9,7 +9,7 @@ export const site = {
   email: "thitikorn.ba@ku.th",
   social: {
     github: "https://github.com/mmiiruu",
-    instagram: "https://www.instagram.com/comsci40.ku/",
+    instagram: "https://www.instagram.com/ku.comsciclub/",
   },
 };
 
@@ -44,9 +44,7 @@ export const footer = {
   quickLinksHeading: "ลิงก์",
   connectHeading: "ติดต่อเรา",
   socialLinks: [
-    { label: "GitHub", href: site.social.github, external: true },
     { label: "Instagram", href: site.social.instagram, external: true },
-    { label: site.email, href: `mailto:${site.email}`, external: false },
   ],
 };
 

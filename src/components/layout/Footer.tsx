@@ -23,7 +23,7 @@ export default function Footer() {
           <div>
             <h4 className="text-foreground font-semibold text-sm mb-4">{footer.quickLinksHeading}</h4>
             <div className="flex flex-col gap-2">
-              {navLinks.filter((link) => !link.adminOnly).map((link) => (
+              {navLinks.filter((link) => !link.adminOnly && !link.candidateRegistration).map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
