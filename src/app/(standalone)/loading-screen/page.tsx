@@ -1,26 +1,23 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import Image from "next/image";
+import { useEffect, useState } from "react";
 
 /* ── Constants ────────────────────────────────────────────────────── */
-const TOTAL       = 41;
-const START_DELAY = 400;
 const SEGMENTS    = 7;
+const DURATION_MS = 3000;
+const TICK_MS     = 80;
 const EASE        = "cubic-bezier(0.22, 1, 0.36, 1)";
-
-const MIN_MS = 20;
-const MAX_MS = 130;
 
 /* ── Page ─────────────────────────────────────────────────────────── */
 export default function LoadingScreenPreview() {
-  const [count,   setCount]   = useState(0);
-  const [ready,   setReady]   = useState(false);
-  const [visible, setVisible] = useState(false);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [progress, setProgress] = useState(0);
+  const [ready,    setReady]    = useState(false);
+  const [visible,  setVisible]  = useState(false);
 
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setCount(TOTAL);
+      setProgress(1);
       setReady(true);
       setVisible(true);
       return;
@@ -28,31 +25,25 @@ export default function LoadingScreenPreview() {
 
     const fadeIn = setTimeout(() => setVisible(true), 80);
 
-    const scheduleNext = (current: number) => {
-      const progress = current / TOTAL;
-      const delay    = Math.round(MIN_MS + (MAX_MS - MIN_MS) * progress * progress);
-      timerRef.current = setTimeout(() => {
-        const next = current + 1;
-        setCount(next);
-        if (next < TOTAL) {
-          scheduleNext(next);
-        } else {
-          timerRef.current = setTimeout(() => setReady(true), 1500);
-        }
-      }, delay);
-    };
-
-    const startDelay = setTimeout(() => scheduleNext(0), START_DELAY);
+    const start    = performance.now();
+    const interval = setInterval(() => {
+      const elapsed = performance.now() - start;
+      const next    = Math.min(elapsed / DURATION_MS, 1);
+      setProgress(next);
+      if (next >= 1) {
+        clearInterval(interval);
+        setTimeout(() => setReady(true), 800);
+      }
+    }, TICK_MS);
 
     return () => {
       clearTimeout(fadeIn);
-      clearTimeout(startDelay);
-      if (timerRef.current) clearTimeout(timerRef.current);
+      clearInterval(interval);
     };
   }, []);
 
-  const pct         = Math.round((count / TOTAL) * 100);
-  const litSegments = Math.ceil((count / TOTAL) * SEGMENTS);
+  const pct         = Math.round(progress * 100);
+  const litSegments = Math.ceil(progress * SEGMENTS);
 
   return (
     <div
@@ -82,23 +73,23 @@ export default function LoadingScreenPreview() {
           C S · K U
         </p>
 
-        {/* ── Main counter ─────────────────────────────────────── */}
-        <div className="flex items-end">
-          {/* Large italic gradient number */}
-          <span
-            className="font-display font-black italic tabular-nums leading-none"
-            style={{
-              fontSize: "clamp(72px, 14vw, 160px)",
-              background: "linear-gradient(175deg, #b8ddf8 0%, #5aaae8 40%, #2e78c8 100%)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              backgroundClip: "text",
-              letterSpacing: "-0.04em",
-              padding: "0.05em 0.2em",
-            }}
-          >
-            {String(count).padStart(2, "0")}
-          </span>
+        {/* ── Logo mark ────────────────────────────────────────── */}
+        <div
+          className="flex items-center justify-center"
+          style={{
+            width:     "clamp(120px, 22vw, 220px)",
+            height:    "clamp(120px, 22vw, 220px)",
+            animation: "logo-breathe 2.6s ease-in-out infinite",
+          }}
+        >
+          <Image
+            src="/logo-white.png"
+            alt="CSKU logo"
+            width={220}
+            height={220}
+            priority
+            className="w-full h-full object-contain"
+          />
         </div>
 
         {/* ── Segmented pill progress bar ───────────────────────── */}
@@ -139,6 +130,18 @@ export default function LoadingScreenPreview() {
         </p>
 
       </div>
+
+      <style jsx>{`
+        @keyframes logo-breathe {
+          0%, 100% { opacity: 0.85; transform: scale(1); }
+          50%      { opacity: 1;    transform: scale(1.04); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          div[style*="logo-breathe"] {
+            animation: none !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }
