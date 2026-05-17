@@ -9,7 +9,7 @@ export interface ChoiceField {
   label: string;
   type: "choice";
   layout: "grid2" | "flex";
-  theme: "purple" | "pink";
+  theme: "purple" | "pink" | "amber";
   options: ChoiceOption[];
   required?: boolean;
 }
@@ -17,12 +17,20 @@ export interface ChoiceField {
 export interface SimpleField {
   name: string;
   label: string;
-  type: "text" | "email" | "textarea";
+  type: "text" | "email" | "tel" | "textarea";
   placeholder?: string;
   required?: boolean;
 }
 
-export type HWFormField = SimpleField | ChoiceField;
+export interface ImageField {
+  name: string;
+  label: string;
+  type: "image";
+  helperText?: string;
+  required?: boolean;
+}
+
+export type HWFormField = SimpleField | ChoiceField | ImageField;
 
 export interface HWFormStepConfig {
   title: string;
@@ -61,51 +69,49 @@ export const helloWorldFormConfig: HelloWorldFormConfig = {
       title: "ข้อมูลพื้นฐาน",
       description: "บอกเราว่าคุณเป็นใคร",
       fields: [
-        { name: "name", label: "ชื่อ-นามสกุล", type: "text", placeholder: "ชื่อของคุณ", required: true },
-        { name: "email", label: "อีเมล", type: "email", placeholder: "your@email.com", required: true },
+        { name: "name",            label: "ชื่อ-นามสกุล",                       type: "text",  placeholder: "เช่น นาย สมชาย ใจดี", required: true },
+        { name: "nickname",        label: "ชื่อเล่น",                            type: "text",  placeholder: "เช่น อาร์ม",         required: true },
+        { name: "email",           label: "อีเมล",                               type: "email", placeholder: "your@email.com",     required: true },
+        { name: "phone",           label: "เบอร์โทรศัพท์ส่วนตัว",               type: "tel",   placeholder: "08x-xxx-xxxx",       required: true },
+        { name: "emergencyPhone",  label: "เบอร์โทรศัพท์ติดต่อกรณีฉุกเฉิน",     type: "tel",   placeholder: "08x-xxx-xxxx",       required: true },
+        {
+          name: "educationType",
+          label: "ประเภทการศึกษา",
+          type: "choice",
+          layout: "flex",
+          theme: "amber",
+          required: true,
+          options: [
+            { value: "regular", label: "📘 ภาคปกติ" },
+            { value: "special", label: "📗 ภาคพิเศษ" },
+          ],
+        },
+        {
+          name: "tcasImage",
+          label: "รูปยืนยันสิทธิ์การเข้าศึกษา (รอบ TCAS 1–3)",
+          type: "image",
+          helperText: "อัปโหลดภาพหน้าจอผลการยืนยันสิทธิ์ TCAS",
+          required: true,
+        },
+        {
+          name: "selfImage",
+          label: "รูปถ่ายตนเองที่เห็นใบหน้าชัดเจน",
+          type: "image",
+          helperText: "ใช้สำหรับยืนยันตัวตนในวันงาน",
+          required: true,
+        },
       ],
     },
     {
-      title: "บุคลิกภาพและความชอบ",
+      title: "บุคลิกภาพและทัศนคติ",
       description: "อะไรทำให้คุณเป็นคุณ?",
       fields: [
         {
-          name: "personalityType",
-          label: "ประเภทบุคลิกภาพ",
-          type: "choice",
-          layout: "grid2",
-          theme: "purple",
+          name: "introduction",
+          label: "แนะนำตนเองโดยสังเขป",
+          type: "textarea",
+          placeholder: "เล่าเกี่ยวกับตัวคุณ ความสนใจ หรือเรื่องที่อยากให้ทีมรู้...",
           required: true,
-          options: [
-            { value: "thinker", label: "🧠 นักคิด", desc: "วิเคราะห์และมีเหตุผล" },
-            { value: "action", label: "⚡ คนลงมือ", desc: "กล้าหาญและตัดสินใจเด็ดขาด" },
-            { value: "creative", label: "🎨 ครีเอทีฟ", desc: "จินตนาการและแสดงออก" },
-            { value: "team", label: "🤝 ทีมเวิร์ก", desc: "ทำงานร่วมกันและสนับสนุนผู้อื่น" },
-          ],
-        },
-        {
-          name: "codingExperience",
-          label: "มีประสบการณ์เขียนโค้ดไหม?",
-          type: "choice",
-          layout: "flex",
-          theme: "purple",
-          required: true,
-          options: [
-            { value: "yes", label: "✅ มี" },
-            { value: "no", label: "🙅 ไม่มี" },
-          ],
-        },
-        {
-          name: "eventVibe",
-          label: "บรรยากาศงานที่ชอบ",
-          type: "choice",
-          layout: "grid2",
-          theme: "pink",
-          required: true,
-          options: [
-            { value: "fun", label: "🎉 สนุกและผ่อนคลาย", desc: "เกม เสียงหัวเราะ และบรรยากาศดี ๆ" },
-            { value: "serious", label: "📚 จริงจังและมีโครงสร้าง", desc: "เน้นการเรียนรู้และเป็นระบบ" },
-          ],
         },
       ],
     },
@@ -113,14 +119,26 @@ export const helloWorldFormConfig: HelloWorldFormConfig = {
       title: "แรงจูงใจ",
       description: "ทำไมคุณถึงอยากเข้าร่วม?",
       fields: [
-        { name: "whyJoin", label: "ทำไมคุณถึงอยากเข้าร่วม Hello World?", type: "textarea", placeholder: "บอกเราว่าอะไรทำให้คุณตื่นเต้นกับงานนี้..." },
+        {
+          name: "motivation",
+          label: "เหตุผลที่สนใจสมัครเข้าร่วมกิจกรรม Hello World",
+          type: "textarea",
+          placeholder: "อะไรทำให้คุณตื่นเต้นกับงานนี้?",
+          required: true,
+        },
       ],
     },
     {
       title: "ความคาดหวัง",
-      description: "มีอะไรอื่นไหม?",
+      description: "อยากได้อะไรกลับไปจากกิจกรรม?",
       fields: [
-        { name: "expectations", label: "คุณคาดหวังอะไรจากงานนี้?", type: "textarea", placeholder: "ความสนุก การเรียนรู้ เพื่อนใหม่..." },
+        {
+          name: "expectations",
+          label: "สิ่งที่คาดหวังจากการเข้าร่วมกิจกรรม",
+          type: "textarea",
+          placeholder: "ความสนุก การเรียนรู้ เพื่อนใหม่...",
+          required: true,
+        },
       ],
     },
   ],
