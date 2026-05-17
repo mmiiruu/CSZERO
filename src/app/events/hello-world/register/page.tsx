@@ -350,11 +350,52 @@ export default function HelloWorldRegisterPage() {
 
 function HelloWorldRegisterForm() {
   const router = useRouter();
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const reducedMotion = useReducedMotion();
   const [step, setStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  if (status === "loading") {
+    return (
+      <main className="min-h-screen flex items-center justify-center px-4" style={{ background: BG }}>
+        <ForceTheme theme="light" />
+        <div className="text-sm font-semibold" style={{ color: TEXT_M }}>กำลังตรวจสอบสถานะการเข้าสู่ระบบ...</div>
+      </main>
+    );
+  }
+
+  if (!session?.user?.email) {
+    return (
+      <main className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden" style={{ background: BG }}>
+        <ForceTheme theme="light" />
+        <div aria-hidden="true" className="absolute inset-0 pointer-events-none">
+          <div className="absolute -top-20 left-1/4 w-96 h-96 rounded-full blur-[100px]" style={{ background: "rgba(254,240,138,0.6)" }} />
+          <div className="absolute bottom-0 right-1/4 w-80 h-80 rounded-full blur-[90px]" style={{ background: "rgba(186,230,253,0.5)" }} />
+        </div>
+        <div className="relative z-10 text-center max-w-md w-full animate-fade-in">
+          <div className="rounded-3xl p-8 sm:p-10"
+            style={{ background: "#FFFFFF", border: "3px solid rgba(202,138,4,0.35)", boxShadow: "0 24px 64px rgba(202,138,4,0.18), 0 4px 16px rgba(0,0,0,0.06)" }}>
+            <div aria-hidden="true" className="text-4xl mb-4">🔒</div>
+            <h1 className="font-display font-black text-2xl sm:text-3xl mb-3" style={{ color: TEXT_D }}>
+              ต้องเข้าสู่ระบบก่อน
+            </h1>
+            <p className="text-sm leading-relaxed mb-6" style={{ color: TEXT_M }}>
+              กรุณาเข้าสู่ระบบด้วยบัญชี Google เพื่อสมัครและอัปโหลดเอกสาร
+            </p>
+            <button
+              type="button"
+              onClick={() => signIn("google", { callbackUrl: "/events/hello-world/register" })}
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-black transition-all duration-200 hover:scale-105 hover:shadow-xl cursor-pointer"
+              style={{ background: AMBER, color: "#FFFFFF", boxShadow: "0 6px 20px rgba(217,119,6,0.4)" }}
+            >
+              เข้าสู่ระบบด้วย Google
+            </button>
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   const initialData = Object.fromEntries(
     config.steps.flatMap((s) => s.fields.map((f) => [f.name, ""]))
