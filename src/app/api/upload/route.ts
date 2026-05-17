@@ -12,10 +12,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  if (!process.env.BLOB_READ_WRITE_TOKEN) {
-    console.error("[upload] BLOB_READ_WRITE_TOKEN is not set");
+  const blobToken =
+    process.env.CSZERO_READ_WRITE_TOKEN ?? process.env.BLOB_READ_WRITE_TOKEN;
+  if (!blobToken) {
+    console.error("[upload] CSZERO_READ_WRITE_TOKEN is not set");
     return NextResponse.json(
-      { error: "Server is missing BLOB_READ_WRITE_TOKEN" },
+      { error: "Server is missing CSZERO_READ_WRITE_TOKEN" },
       { status: 500 }
     );
   }
@@ -26,6 +28,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const result = await handleUpload({
       request,
       body,
+      token: blobToken,
       onBeforeGenerateToken: async (pathname) => ({
         allowedContentTypes: ALLOWED,
         maximumSizeInBytes:  MAX_BYTES,
