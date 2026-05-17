@@ -125,7 +125,7 @@ export const cs101Config: CS101Config = {
   },
   registration: {
     open: true,
-    opensAt: "2026-05-20T09:00:00+07:00",
+    opensAt: null,
     comingSoon: {
       title: "เปิดรับสมัครเร็วๆ นี้",
       message: "การสมัคร CS101 ยังไม่เปิด คอยติดตามได้เร็วๆ นี้!",
