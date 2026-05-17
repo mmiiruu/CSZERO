@@ -43,7 +43,7 @@ export const teamConfig = {
     "นิสิตที่มีความมุ่งมั่นเบื้องหลัง CSKU ร่วมกันสร้างชุมชน CS ที่ยอดเยี่ยม",
   viewProfileLabel: "ดูโปรไฟล์",
   // Roles that appear in the featured leadership row
-  leadershipRoles: ["ประธาน", "รองประธาน"],
+  leadershipRoles: ["ประธาน", "รองประธาน", "เลขานุการ"],
   sections: {
     leadership: "คณะกรรมการบริหาร",
     members: "ชุมนุมนิสิต",
