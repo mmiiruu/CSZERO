@@ -8,7 +8,16 @@ const ALLOWED   = ["image/jpeg", "image/png", "image/webp", "image/heic"];
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const session = await auth();
   if (!session?.user?.email) {
+    console.warn("[upload] unauthenticated request");
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  if (!process.env.BLOB_READ_WRITE_TOKEN) {
+    console.error("[upload] BLOB_READ_WRITE_TOKEN is not set");
+    return NextResponse.json(
+      { error: "Server is missing BLOB_READ_WRITE_TOKEN" },
+      { status: 500 }
+    );
   }
 
   const body = (await request.json()) as HandleUploadBody;
@@ -30,6 +39,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     });
     return NextResponse.json(result);
   } catch (err) {
+    console.error("[upload] handleUpload failed:", err);
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Upload failed" },
       { status: 400 }
