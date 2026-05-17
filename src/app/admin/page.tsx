@@ -27,6 +27,59 @@ const roleBadge: Record<Role, string> = {
   user:  "bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-600",
 };
 
+/* ─── Answer value renderer ──────────────────────────────────────── */
+function AnswerValue({ value }: { value: string }) {
+  const text = String(value ?? "").trim();
+  if (!text) {
+    return <p className="text-sm text-slate-400 dark:text-slate-500">—</p>;
+  }
+  const isUrl     = /^https?:\/\/\S+$/i.test(text);
+  const isImage   = isUrl && /\.(jpe?g|png|webp|heic|gif|avif)(\?|$)/i.test(text);
+  const isBlobImg = isUrl && /\.public\.blob\.vercel-storage\.com\//i.test(text);
+
+  if (isImage || isBlobImg) {
+    return (
+      <div className="space-y-2">
+        <a href={text} target="_blank" rel="noopener noreferrer" className="block">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={text}
+            alt="answer attachment"
+            className="rounded-lg max-h-64 w-auto object-contain border border-slate-200 dark:border-slate-600 bg-white"
+          />
+        </a>
+        <a
+          href={text}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-xs font-medium text-blue-600 dark:text-blue-400 hover:underline break-all inline-block"
+        >
+          {text} ↗
+        </a>
+      </div>
+    );
+  }
+
+  if (isUrl) {
+    return (
+      <a
+        href={text}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-sm text-blue-600 dark:text-blue-400 hover:underline break-all"
+      >
+        {text} ↗
+      </a>
+    );
+  }
+
+  return (
+    <p className="text-sm text-slate-700 dark:text-slate-200 whitespace-pre-wrap break-words">
+      {text}
+    </p>
+  );
+}
+
 /* ─── Response Modal ─────────────────────────────────────────────── */
 function ResponseModal({ reg, onClose }: { reg: Registration; onClose: () => void }) {
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -89,7 +142,7 @@ function ResponseModal({ reg, onClose }: { reg: Registration; onClose: () => voi
               {Object.entries(reg.answers).map(([key, value]) => (
                 <div key={key} className="rounded-xl bg-slate-50 dark:bg-slate-700/50 px-4 py-3">
                   <p className="text-xs font-medium text-slate-400 dark:text-slate-500 mb-1">{key}</p>
-                  <p className="text-sm text-slate-700 dark:text-slate-200 whitespace-pre-wrap">{value || "—"}</p>
+                  <AnswerValue value={value} />
                 </div>
               ))}
             </div>
