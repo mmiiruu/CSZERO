@@ -1,11 +1,15 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
 
+export type HouseKey = "spongebob" | "conan" | "kungfupanda" | "zootopia" | "toystory";
+
+export const HOUSE_KEYS: HouseKey[] = ["spongebob", "conan", "kungfupanda", "zootopia", "toystory"];
+
 export interface IRegistration extends Document {
   event: "cs101" | "hello-world";
   name: string;
   email: string;
   answers: Record<string, unknown>;
-  house?: "spade" | "heart" | "diamond" | "club";
+  house?: HouseKey;
   createdAt: Date;
 }
 
@@ -21,7 +25,7 @@ const RegistrationSchema = new Schema<IRegistration>(
     answers: { type: Schema.Types.Mixed, default: {} },
     house: {
       type: String,
-      enum: ["spade", "heart", "diamond", "club"],
+      enum: HOUSE_KEYS,
     },
   },
   { timestamps: true }

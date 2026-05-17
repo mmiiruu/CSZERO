@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import clientPromise from "@/lib/mongodb-client";
 import dbConnect from "@/lib/mongodb";
-import Registration from "@/models/Registration";
+import Registration, { HOUSE_KEYS, type HouseKey } from "@/models/Registration";
 import { notifyRegistration } from "@/lib/discord";
 import { cs101Config } from "@/config/events/cs101";
 import { helloWorldConfig } from "@/config/events/hello-world";
@@ -14,6 +14,24 @@ const REGISTRATION_CONFIG = {
   "cs101": cs101Config.registration,
   "hello-world": helloWorldConfig.registration,
 } as const;
+
+// Pick the house with the smallest current population; ties broken randomly.
+// Not transactional — a slight imbalance is acceptable for this event scale.
+async function pickBalancedHouse(): Promise<HouseKey> {
+  const grouped = await Registration.aggregate<{ _id: HouseKey | null; count: number }>([
+    { $match: { event: "hello-world" } },
+    { $group: { _id: "$house", count: { $sum: 1 } } },
+  ]);
+  const counts: Record<HouseKey, number> = Object.fromEntries(
+    HOUSE_KEYS.map((k) => [k, 0])
+  ) as Record<HouseKey, number>;
+  for (const g of grouped) {
+    if (g._id && counts[g._id] !== undefined) counts[g._id] = g.count;
+  }
+  const min = Math.min(...Object.values(counts));
+  const candidates = HOUSE_KEYS.filter((k) => counts[k] === min);
+  return candidates[Math.floor(Math.random() * candidates.length)];
+}
 
 function sanitizeAnswers(input: unknown): Record<string, string> {
   if (!input || typeof input !== "object" || Array.isArray(input)) return {};
@@ -61,11 +79,14 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const house = event === "hello-world" ? await pickBalancedHouse() : undefined;
+
     const registration = await Registration.create({
       event,
       name: cleanName,
       email,
       answers: cleanAnswers,
+      ...(house && { house }),
     });
 
     notifyRegistration({ event: event as "cs101" | "hello-world", name: cleanName, email, answers: cleanAnswers });
