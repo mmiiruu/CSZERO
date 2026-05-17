@@ -138,6 +138,11 @@ function ImageUpload({
   const [localError, setLocalError] = useState<string | null>(null);
 
   const handleFile = async (file: File) => {
+    if (file.size > 8 * 1024 * 1024) {
+      setLocalError("ต้องอัปโหลดน้อยกว่า 8 MB");
+      setStatus("error");
+      return;
+    }
     setStatus("uploading");
     setLocalError(null);
     try {
@@ -148,7 +153,9 @@ function ImageUpload({
       onChange(result.url);
       setStatus("idle");
     } catch (err) {
-      setLocalError(err instanceof Error ? err.message : "อัปโหลดไม่สำเร็จ");
+      const raw = err instanceof Error ? err.message : "";
+      const tooLarge = /size|too large|exceed|limit/i.test(raw);
+      setLocalError(tooLarge ? "ต้องอัปโหลดน้อยกว่า 8 MB" : (raw || "อัปโหลดไม่สำเร็จ"));
       setStatus("error");
     }
   };
