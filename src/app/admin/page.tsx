@@ -148,16 +148,36 @@ function RegistrationsTab() {
     helloWorld: registrations.filter((r) => r.event === "hello-world").length,
   }), [registrations]);
 
-  const handleExportCSV = () => {
+  const handleExportExcel = async () => {
     if (filtered.length === 0) return;
+    const { default: ExcelJS } = await import("exceljs");
     const answerKeys = Array.from(new Set(filtered.flatMap((r) => Object.keys(r.answers ?? {}))));
     const headers = ["Name", "Email", "Event", "House", "Date", ...answerKeys];
-    const escape = (v: string) => { const s = String(v ?? ""); return s.includes(",") || s.includes('"') || s.includes("\n") ? `"${s.replace(/"/g, '""')}"` : s; };
-    const rows = filtered.map((r) => [r.name, r.email, r.event === "cs101" ? "CS101" : "Hello World", r.house || "", new Date(r.createdAt).toLocaleDateString(), ...answerKeys.map((k) => r.answers?.[k] ?? "")]);
-    const csv = "\uFEFF" + [headers.map(escape).join(","), ...rows.map((r) => r.map(escape).join(","))].join("\n");
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const rows = filtered.map((r) => [
+      r.name,
+      r.email,
+      r.event === "cs101" ? "CS101" : "Hello World",
+      r.house || "",
+      new Date(r.createdAt).toLocaleDateString(),
+      ...answerKeys.map((k) => String(r.answers?.[k] ?? "")),
+    ]);
+
+    const workbook = new ExcelJS.Workbook();
+    const sheet = workbook.addWorksheet("Registrations");
+    sheet.addRow(headers).font = { bold: true };
+    sheet.addRows(rows);
+    sheet.columns.forEach((col, i) => {
+      const widest = Math.max(headers[i].length, ...rows.map((r) => String(r[i] ?? "").length));
+      col.width = Math.min(Math.max(widest + 2, 12), 60);
+    });
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement("a"); a.href = url; a.download = `registrations-${filter}-${new Date().toISOString().slice(0,10)}.csv`; a.click();
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `registrations-${filter}-${new Date().toISOString().slice(0, 10)}.xlsx`;
+    a.click();
     URL.revokeObjectURL(url);
   };
 
@@ -172,10 +192,10 @@ function RegistrationsTab() {
             {f === "all" ? "All" : f === "cs101" ? "CS101" : "Hello World"}
           </button>
         ))}
-        <button onClick={handleExportCSV} disabled={filtered.length === 0}
+        <button onClick={handleExportExcel} disabled={filtered.length === 0}
           className="px-4 py-3 rounded-lg text-sm font-medium bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-60 transition-colors cursor-pointer flex items-center gap-1.5">
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-          Export CSV
+          Export Excel
         </button>
         <button onClick={handleSeedCandidates} disabled={seeding}
           className="px-4 py-3 rounded-lg text-sm font-medium bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-60 transition-colors cursor-pointer">
