@@ -37,8 +37,8 @@ export interface FallbackMember {
 }
 
 export const teamConfig = {
-  eyebrow: "คณะทำงานของเรา",
-  title: "พบกับคณะทำงาน",
+  eyebrow: "ชุมนุมนิสิตของเรา",
+  title: "พบกับชุมนุมนิสิต",
   description:
     "นิสิตที่มีความมุ่งมั่นเบื้องหลัง CSKU ร่วมกันสร้างชุมชน CS ที่ยอดเยี่ยม",
   viewProfileLabel: "ดูโปรไฟล์",
@@ -46,7 +46,7 @@ export const teamConfig = {
   leadershipRoles: ["ประธาน", "รองประธาน"],
   sections: {
     leadership: "คณะกรรมการบริหาร",
-    members: "คณะทำงาน",
+    members: "ชุมนุมนิสิต",
   },
   fallbackMembers: [
     { _id: "1", name: "Alex Chen", role: "ประธาน", image: "", bio: "นำพา CSKU ด้วยวิสัยทัศน์และความมุ่งมั่น" },
