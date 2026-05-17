@@ -76,6 +76,15 @@ function FloatBubble({ emoji, style }: { emoji: string; style?: React.CSSPropert
   );
 }
 
+function getCountdown(target: number) {
+  const diff = Math.max(0, target - Date.now());
+  const days    = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours   = Math.floor((diff / (1000 * 60 * 60)) % 24);
+  const minutes = Math.floor((diff / (1000 * 60)) % 60);
+  const seconds = Math.floor((diff / 1000) % 60);
+  return { days, hours, minutes, seconds, done: diff === 0 };
+}
+
 export default function RevealPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -86,6 +95,20 @@ export default function RevealPage() {
   const [shuffleIndex, setShuffleIndex] = useState(0);
   const [liveAnnouncement, setLiveAnnouncement] = useState("");
   const revealHeadingRef = useRef<HTMLHeadingElement>(null);
+
+  const revealAtMs = reveal.revealAt ? new Date(reveal.revealAt).getTime() : null;
+  const [countdown, setCountdown] = useState(() =>
+    revealAtMs ? getCountdown(revealAtMs) : null
+  );
+  const isBeforeReveal = !!(revealAtMs && countdown && !countdown.done);
+
+  useEffect(() => {
+    if (!revealAtMs) return;
+    const tick = () => setCountdown(getCountdown(revealAtMs));
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [revealAtMs]);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -146,6 +169,76 @@ export default function RevealPage() {
       <div role="status" aria-label="กำลังโหลด..." className="min-h-screen flex items-center justify-center" style={{ background: "#FFFBF4" }}>
         <div aria-hidden="true" className="w-8 h-8 border-2 border-amber-200 border-t-amber-500 rounded-full animate-spin" />
       </div>
+    );
+  }
+
+  if (isBeforeReveal && countdown) {
+    return (
+      <main
+        className="min-h-screen flex items-center justify-center px-4 overflow-hidden relative"
+        style={{ background: "linear-gradient(145deg, #DBEFFE 0%, #FFFBEB 50%, #FFE8F4 100%)" }}
+      >
+        <ForceTheme theme="light" />
+
+        <div aria-hidden="true" className="absolute inset-0 pointer-events-none">
+          <div className="absolute -top-20 left-1/4 w-[500px] h-[500px] rounded-full blur-[120px]" style={{ background: "rgba(186,230,253,0.55)" }} />
+          <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] rounded-full blur-[100px]" style={{ background: "rgba(253,230,138,0.45)" }} />
+        </div>
+
+        <FloatBubble emoji="🎬" style={{ top: "8%",  left: "5%",  animationDelay: "0s" }} />
+        <FloatBubble emoji="⭐" style={{ top: "15%", right: "8%", animationDelay: "1s" }} />
+        <FloatBubble emoji="🎉" style={{ bottom: "15%", left: "8%", animationDelay: "2s" }} />
+        <FloatBubble emoji="✨" style={{ bottom: "20%", right: "6%", animationDelay: "1.5s" }} />
+
+        <div className="relative z-10 max-w-md w-full text-center animate-fade-in">
+          <div
+            className="rounded-3xl p-8 sm:p-10"
+            style={{
+              background: "rgba(255,255,255,0.92)",
+              backdropFilter: "blur(12px)",
+              border: "3px solid rgba(245,158,11,0.35)",
+              boxShadow: "0 24px 64px rgba(245,158,11,0.18), 0 4px 16px rgba(0,0,0,0.06)",
+            }}
+          >
+            <div aria-hidden="true" className="text-5xl mb-4">⏳</div>
+            <h1 className="font-display font-black text-3xl sm:text-4xl mb-3" style={{ color: "#1C1917" }}>
+              {reveal.beforeReveal.title}
+            </h1>
+            <p className="text-sm leading-relaxed mb-6" style={{ color: "#57534E" }}>
+              {reveal.beforeReveal.message}
+            </p>
+
+            <div role="timer" aria-live="polite" className="grid grid-cols-4 gap-2 mb-2">
+              {([
+                ["วัน", countdown.days],
+                ["ชั่วโมง", countdown.hours],
+                ["นาที", countdown.minutes],
+                ["วินาที", countdown.seconds],
+              ] as Array<[string, number]>).map(([label, value]) => (
+                <div
+                  key={label}
+                  className="rounded-2xl py-3 px-1 text-center"
+                  style={{
+                    background: "#FFFFFF",
+                    border: "2px solid rgba(245,158,11,0.35)",
+                    boxShadow: "0 4px 14px rgba(245,158,11,0.18)",
+                  }}
+                >
+                  <div
+                    className="font-display font-black tabular-nums"
+                    style={{ fontSize: "clamp(1.25rem,5vw,1.75rem)", color: "#1C1917", lineHeight: 1 }}
+                  >
+                    {String(value).padStart(2, "0")}
+                  </div>
+                  <div className="mt-1 text-[0.65rem] font-bold uppercase tracking-wider" style={{ color: "#D97706" }}>
+                    {label}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </main>
     );
   }
 

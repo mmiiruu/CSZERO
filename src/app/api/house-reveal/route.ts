@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/mongodb";
 import Registration from "@/models/Registration";
 import { auth } from "@/lib/auth";
+import { helloWorldConfig } from "@/config/events/hello-world";
 
 export async function POST(_req: NextRequest) {
     try {
@@ -10,6 +11,14 @@ export async function POST(_req: NextRequest) {
       return NextResponse.json(
         { error: "Authentication required" },
         { status: 401 }
+      );
+    }
+
+    const { revealAt } = helloWorldConfig.reveal;
+    if (revealAt && Date.now() < new Date(revealAt).getTime()) {
+      return NextResponse.json(
+        { error: "ยังไม่ถึงเวลาประกาศบ้าน", notReady: true, revealAt },
+        { status: 403 }
       );
     }
 

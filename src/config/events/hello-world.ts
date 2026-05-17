@@ -49,6 +49,13 @@ export interface HelloWorldConfig {
     revealAgainButton: string;
     shufflingTitle: string;
     shufflingSubtitle: string;
+    // ISO datetime when houses can be revealed. If set and in the future,
+    // the reveal page shows "รอประกาศบ้าน" with a countdown. null = always revealable.
+    revealAt: string | null;
+    beforeReveal: {
+      title: string;
+      message: string;
+    };
   };
   registration: {
     open: boolean;
@@ -170,6 +177,11 @@ export const helloWorldConfig: HelloWorldConfig = {
     revealAgainButton: "เปิดเผยอีกครั้ง",
     shufflingTitle: "กำลังสุ่มบ้าน...",
     shufflingSubtitle: "กำลังค้นหาบ้านการ์ตูนของคุณ",
+    revealAt: "2026-05-25T09:00:00+07:00",
+    beforeReveal: {
+      title: "รอประกาศบ้าน",
+      message: "บ้านการ์ตูนของคุณจะถูกประกาศตามเวลาที่กำหนด คอยติดตามด้านล่างได้เลย!",
+    },
   },
   registration: {
     open: true,
