@@ -1,4 +1,5 @@
 import React from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { site, navLinks, footer } from "@/config/site";
 
@@ -9,10 +10,22 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="md:col-span-2">
             <div className="flex items-center gap-2 mb-4">
-              {/* Filled accent — kept literal; see globals.css note */}
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">{site.shortName}</span>
-              </div>
+              <span className="relative inline-block w-8 h-8">
+                <Image
+                  src="/logo.png"
+                  alt={`${site.name} logo`}
+                  width={32}
+                  height={32}
+                  className="w-8 h-8 object-contain block dark:hidden"
+                />
+                <Image
+                  src="/logo-white.png"
+                  alt={`${site.name} logo`}
+                  width={32}
+                  height={32}
+                  className="w-8 h-8 object-contain hidden dark:block"
+                />
+              </span>
               <span className="text-foreground font-bold text-lg">{site.name}</span>
             </div>
             <p className="text-secondary text-sm leading-relaxed max-w-md">

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { signOut } from "next-auth/react";
 import { useTheme } from "@/components/providers/ThemeProvider";
@@ -24,10 +25,24 @@ export default function Navbar({ session }: { session: any }) {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
-            {/* Filled accent — kept literal; see globals.css note */}
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
-              <span className="text-white font-bold text-sm">{site.shortName}</span>
-            </div>
+            <span className="relative inline-block w-8 h-8 group-hover:scale-110 transition-transform duration-200">
+              <Image
+                src="/logo.png"
+                alt={`${site.name} logo`}
+                width={32}
+                height={32}
+                priority
+                className="w-8 h-8 object-contain block dark:hidden"
+              />
+              <Image
+                src="/logo-white.png"
+                alt={`${site.name} logo`}
+                width={32}
+                height={32}
+                priority
+                className="w-8 h-8 object-contain hidden dark:block"
+              />
+            </span>
             <span className="text-foreground font-bold text-lg tracking-tight">
               {site.name}
             </span>
