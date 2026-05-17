@@ -65,14 +65,10 @@ export const cs101FormConfig: CS101FormConfig = {
       title: "ข้อมูลส่วนตัว",
       description: "บอกเราเกี่ยวกับตัวคุณ",
       fields: [
-        { name: "name",       label: "ชื่อ-นามสกุล",      type: "text", placeholder: "เช่น สมชาย ใจดี",        required: true },
+        { name: "name",       label: "คำนำหน้า ชื่อ-นามสกุล", type: "text", placeholder: "เช่น นาย สมชาย ใจดี",     required: true },
         { name: "nickname",   label: "ชื่อเล่น",            type: "text", placeholder: "เช่น อาร์ม",              required: true },
         { name: "studentId",  label: "รหัสนิสิต (ถ้ามี)",  type: "text", placeholder: "เช่น 6710405xxx",         helperText: "เฉพาะนิสิต KU ถ้าไม่มีให้ข้าม" },
         { name: "contact",    label: "ช่องทางติดต่อ",      type: "text", placeholder: "เช่น Line ID, IG, เบอร์โทร", required: true },
-        { name: "gender", label: "เพศ", type: "select", required: true, options: [
-          { value: "male",   label: "ชาย" },
-          { value: "female", label: "หญิง" },
-        ]},
         { name: "type", label: "ภาค", type: "select", required: true, options: [
           { value: "regular", label: "ปกติ" },
           { value: "special", label: "พิเศษ" },
