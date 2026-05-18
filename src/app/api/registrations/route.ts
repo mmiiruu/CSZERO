@@ -58,7 +58,11 @@ export async function POST(req: NextRequest) {
     if (typeof event !== "string" || !ALLOWED_EVENTS.includes(event as typeof ALLOWED_EVENTS[number])) {
       return NextResponse.json({ error: "Invalid event type" }, { status: 400 });
     }
-    if (!isRegistrationOpen(REGISTRATION_CONFIG[event as typeof ALLOWED_EVENTS[number]])) {
+    const db = (await clientPromise).db();
+    const caller = await db.collection("users").findOne({ email: session.user.email });
+    const role: string = caller?.role || "user";
+    const canBypassGate = role === "admin" || role === "staff";
+    if (!canBypassGate && !isRegistrationOpen(REGISTRATION_CONFIG[event as typeof ALLOWED_EVENTS[number]])) {
       return NextResponse.json({ error: "Registration is not open for this event" }, { status: 403 });
     }
     if (typeof name !== "string" || name.trim().length === 0 || name.length > 200) {

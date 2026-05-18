@@ -185,7 +185,7 @@ export const helloWorldConfig: HelloWorldConfig = {
   },
   registration: {
     open: true,
-    opensAt: "2026-05-12T12:30:45Z",
+    opensAt: "2026-05-24T09:00:00+07:00",
     comingSoon: {
       title: "เปิดรับสมัครเร็วๆ นี้",
       message: "การสมัคร Hello World ยังไม่เปิด คอยติดตามได้เร็วๆ นี้!",

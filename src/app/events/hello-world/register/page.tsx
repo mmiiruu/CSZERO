@@ -342,7 +342,10 @@ function ComingSoonScreen({ countdown }: { countdown: Countdown | null }) {
 ════════════════════════════════════════════════════════════════════ */
 export default function HelloWorldRegisterPage() {
   const { isOpen, countdown } = useRegistrationStatus(eventConfig.registration);
-  if (!isOpen) {
+  const { data: session } = useSession();
+  const role = (session?.user as { role?: string } | undefined)?.role;
+  const canBypassGate = role === "admin" || role === "staff";
+  if (!isOpen && !canBypassGate) {
     return <ComingSoonScreen countdown={countdown} />;
   }
   return <HelloWorldRegisterForm />;

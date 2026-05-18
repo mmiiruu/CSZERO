@@ -571,8 +571,11 @@ export default function CS101RegisterPage() {
     }
   };
 
+  const role = (session?.user as { role?: string } | undefined)?.role;
+  const canBypassGate = role === "admin" || role === "staff";
+
   /* ── Gate order: closed → success → loading → unauthenticated → form ─ */
-  if (!isOpen) {
+  if (!isOpen && !canBypassGate) {
     return <ComingSoonScreen fredokaVar={fredoka.variable} countdown={countdown} />;
   }
   if (searchParams.get("success") === "true") {
