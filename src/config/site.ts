@@ -19,7 +19,7 @@ export const navLinks: Array<{
   adminOnly?: boolean;
   candidateRegistration?: boolean;
 }> = [
-  { href: "/events/cs101", label: "CS101" },
+  { href: "/events/cs101", label: "CS101", adminOnly: true },
   { href: "/events/hello-world", label: "Hello World", adminOnly: true },
   { href: "/team", label: "ชุมนุมนิสิต", adminOnly: true },
   { href: "/vote", label: "โหวต", adminOnly: true },
