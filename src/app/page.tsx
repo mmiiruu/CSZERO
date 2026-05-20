@@ -19,6 +19,7 @@ export default function Home() {
   const { data: session } = useSession();
   const role = (session?.user as { role?: string } | undefined)?.role;
   const canSeeTeam = role === "admin" || role === "staff";
+  const canSeeHelloWorld = role === "admin" || role === "staff";
 
   return (
     <div className="relative">
@@ -69,12 +70,14 @@ export default function Home() {
             >
               {hero.primaryButton.label}
             </Link>
-            <Link
-              href={hero.secondaryButton.href}
-              className="px-8 py-3.5 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-xl font-medium hover:bg-slate-50 dark:hover:bg-slate-700 hover:border-blue-200 dark:hover:border-blue-700 active:scale-[0.98] transition-all duration-200 text-sm w-full sm:w-auto text-center shadow-sm"
-            >
-              {hero.secondaryButton.label}
-            </Link>
+            {canSeeHelloWorld && (
+              <Link
+                href={hero.secondaryButton.href}
+                className="px-8 py-3.5 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-xl font-medium hover:bg-slate-50 dark:hover:bg-slate-700 hover:border-blue-200 dark:hover:border-blue-700 active:scale-[0.98] transition-all duration-200 text-sm w-full sm:w-auto text-center shadow-sm"
+              >
+                {hero.secondaryButton.label}
+              </Link>
+            )}
           </div>
         </div>
       </section>
@@ -87,7 +90,7 @@ export default function Home() {
             <h2 id="events-heading" className="font-display text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-800 dark:text-white">{eventsSection.title}</h2>
           </ScrollReveal>
 
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className={`grid gap-6 ${canSeeHelloWorld ? "md:grid-cols-2" : "md:grid-cols-1 max-w-2xl mx-auto"}`}>
             <Link href={cs101Card.href} className="group rounded-2xl active:scale-[0.995] transition-transform duration-100">
               <div className="relative overflow-hidden bg-gradient-to-br from-blue-50 to-white dark:from-blue-900/20 dark:to-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-8 h-full hover:shadow-lg hover:border-blue-200 dark:hover:border-blue-700 transition-all duration-300">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-blue-100/50 dark:bg-blue-800/30 rounded-full blur-2xl transform translate-x-8 -translate-y-8 group-hover:scale-150 transition-transform duration-500 will-change-transform" />
@@ -105,6 +108,7 @@ export default function Home() {
               </div>
             </Link>
 
+            {canSeeHelloWorld && (
             <Link href={hwCard.href} className="group rounded-2xl active:scale-[0.995] transition-transform duration-100">
               {/* Always dark — the event forces its own world even on the homepage */}
               <div className="relative overflow-hidden bg-slate-900 border border-slate-800 rounded-2xl p-8 h-full hover:shadow-xl hover:shadow-black/40 hover:border-amber-500/30 transition-all duration-300">
@@ -123,6 +127,7 @@ export default function Home() {
                 </div>
               </div>
             </Link>
+            )}
           </div>
         </div>
       </section>
@@ -178,9 +183,11 @@ export default function Home() {
             <Link href={cta.primaryButton.href} className="px-10 py-4 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 active:scale-[0.98] transition-all duration-200 text-base w-full sm:w-auto text-center shadow-lg shadow-blue-500/30">
               {cta.primaryButton.label}
             </Link>
-            <Link href={cta.secondaryButton.href} className="px-10 py-4 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-xl font-medium hover:bg-slate-50 dark:hover:bg-slate-700 active:scale-[0.98] transition-all duration-200 text-base w-full sm:w-auto text-center shadow-md">
-              {cta.secondaryButton.label}
-            </Link>
+            {canSeeHelloWorld && (
+              <Link href={cta.secondaryButton.href} className="px-10 py-4 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-xl font-medium hover:bg-slate-50 dark:hover:bg-slate-700 active:scale-[0.98] transition-all duration-200 text-base w-full sm:w-auto text-center shadow-md">
+                {cta.secondaryButton.label}
+              </Link>
+            )}
           </div>
         </div>
       </section>
