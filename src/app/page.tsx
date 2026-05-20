@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 import { homePage } from "@/config/site";
 import { cs101Config } from "@/config/events/cs101";
 import { helloWorldConfig } from "@/config/events/hello-world";
@@ -15,6 +16,9 @@ const hwCard = helloWorldConfig.homeCard;
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
+  const { data: session } = useSession();
+  const role = (session?.user as { role?: string } | undefined)?.role;
+  const canSeeTeam = role === "admin" || role === "staff";
 
   return (
     <div className="relative">
@@ -123,7 +127,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Team Preview */}
+      {/* Team Preview — gated; the /team page itself is admin/staff-only */}
+      {canSeeTeam && (
       <section aria-labelledby="team-heading" className="py-20 px-4 bg-slate-50 dark:bg-slate-800">
         <div className="max-w-6xl mx-auto">
           <ScrollReveal className="text-center mb-16">
@@ -162,6 +167,7 @@ export default function Home() {
           </div>
         </div>
       </section>
+      )}
 
       {/* CTA Section — extra vertical space lets this closing beat breathe */}
       <section aria-labelledby="cta-heading" className="pt-24 pb-32 px-4 bg-white dark:bg-slate-900">

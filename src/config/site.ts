@@ -21,7 +21,7 @@ export const navLinks: Array<{
 }> = [
   { href: "/events/cs101", label: "CS101" },
   { href: "/events/hello-world", label: "Hello World" },
-  { href: "/team", label: "ชุมนุมนิสิต" },
+  { href: "/team", label: "ชุมนุมนิสิต", adminOnly: true },
   { href: "/vote", label: "โหวต", adminOnly: true },
   { href: "/candidate/register", label: "สมัครผู้สมัคร", candidateRegistration: true },
 ];
