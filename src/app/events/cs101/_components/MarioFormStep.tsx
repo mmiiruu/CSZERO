@@ -166,22 +166,12 @@ export default function MarioFormStep({
         style={{
           display: "flex",
           alignItems: "center",
-          justifyContent: "space-between",
+          justifyContent: "flex-end",
           paddingTop: 20,
           borderTop: "2px dashed #C8950A40",
           marginTop: 4,
         }}
       >
-        {/* {!isFirst ? (
-          <button type="button" onClick={onBack} className="mario-back-btn">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-            </svg>
-            Back
-          </button>
-        ) : (
-          <div />
-        )} */}
 
         {isLast ? (
           <button
