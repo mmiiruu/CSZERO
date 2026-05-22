@@ -516,37 +516,34 @@ export default function HelloWorldPage() {
         </div>
 
         {/* Corner characters */}
-        <div aria-hidden="true" className="absolute bottom-0 left-0 pointer-events-none select-none" style={{ opacity: 0.35 }}>
+        <div
+          aria-hidden="true"
+          className="absolute bottom-0 left-0 pointer-events-none select-none"
+          style={{ height: "100%", transform: "translateX(-6%)" }}
+        >
           <Image
-            src="/toystory_friend1.png"
+            src="/cowboy_girl.png"
             alt=""
-            width={482}
-            height={517}
+            width={1600}
+            height={1200}
             loading="lazy"
-            sizes="260px"
-            style={{ height: "clamp(160px, 30vw, 260px)", width: "auto", objectFit: "contain", mixBlendMode: "multiply" }}
+            sizes="50vw"
+            style={{ height: "100%", width: "auto", objectFit: "contain" }}
           />
         </div>
-        <div aria-hidden="true" className="absolute bottom-0 right-0 pointer-events-none select-none" style={{ opacity: 0.35 }}>
-          <Image
-            src="/toystory_friend2.png"
-            alt=""
-            width={490}
-            height={509}
-            loading="lazy"
-            sizes="260px"
-            style={{ height: "clamp(160px, 30vw, 260px)", width: "auto", objectFit: "contain", mixBlendMode: "multiply" }}
-          />
-        </div>
-        <div aria-hidden="true" className="absolute top-0 right-0 pointer-events-none select-none" style={{ opacity: 0.35 }}>
+        <div
+          aria-hidden="true"
+          className="absolute bottom-0 pointer-events-none select-none"
+          style={{ right: "10%", height: "85%" }}
+        >
           <Image
             src="/toystory_friend3.png"
             alt=""
             width={523}
             height={477}
             loading="lazy"
-            sizes="220px"
-            style={{ height: "clamp(130px, 26vw, 220px)", width: "auto", objectFit: "contain", mixBlendMode: "multiply" }}
+            sizes="40vw"
+            style={{ height: "100%", width: "auto", objectFit: "contain" }}
           />
         </div>
 
