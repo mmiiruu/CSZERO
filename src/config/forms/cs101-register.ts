@@ -146,8 +146,8 @@ export const cs101FormConfig: CS101FormConfig = {
       fields: [
         { name: "availability", label: "สามารถเข้าร่วมกิจกรรมได้ครบตามช่วงเวลาที่กำหนดหรือไม่", type: "select", required: true, options: [
           { value: "full",           label: "ได้ ครบทั้งหมด" },
-          { value: "missing-day-9",  label: "ไม่ครบ ไม่สะดวกวันที่ 9" },
-          { value: "missing-day-10", label: "ไม่ครบ ไม่สะดวกวันที่ 10" },
+          { value: "missing-day-13", label: "ไม่ครบ ไม่สะดวกวันที่ 13" },
+          { value: "missing-day-14", label: "ไม่ครบ ไม่สะดวกวันที่ 14" },
         ]},
       ],
     },
