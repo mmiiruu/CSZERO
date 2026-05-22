@@ -75,7 +75,7 @@ export async function POST(req: NextRequest) {
 
     await dbConnect();
 
-    const existing = await Registration.findOne({ email, event });
+    const existing = await Registration.findOne({ email, event: event as typeof ALLOWED_EVENTS[number] });
     if (existing) {
       return NextResponse.json(
         { error: "You have already registered for this event" },
