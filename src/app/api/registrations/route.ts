@@ -86,7 +86,7 @@ export async function POST(req: NextRequest) {
     const house = event === "hello-world" ? await pickBalancedHouse() : undefined;
 
     const registration = await Registration.create({
-      event,
+      event: event as typeof ALLOWED_EVENTS[number],
       name: cleanName,
       email,
       answers: cleanAnswers,
