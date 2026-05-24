@@ -679,6 +679,41 @@ export default function CS101RegisterPage() {
         className="mario-register-page"
         style={{ maxWidth: 600, margin: "0 auto", position: "relative", zIndex: 1, animation: "mario-reg-fade 0.5s ease-out both" }}
       >
+        {/* ── Back to CS101 ── */}
+        <div style={{ marginBottom: 20 }}>
+          <Link
+            href="/events/cs101"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 8,
+              fontFamily: "var(--font-fredoka), sans-serif",
+              fontWeight: 700,
+              fontSize: "0.85rem",
+              color: "#1a0800",
+              background: "linear-gradient(180deg,#FFE135 0%,#FBD000 100%)",
+              border: "2.5px solid #C8950A",
+              borderRadius: "0.75rem",
+              padding: "0.55rem 1.1rem",
+              boxShadow: "0 4px 0 #8B6914, 0 6px 14px rgba(200,149,10,0.3)",
+              textDecoration: "none",
+              transition: "transform 0.18s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.18s ease",
+            }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLElement).style.transform = "translateY(-2px)";
+              (e.currentTarget as HTMLElement).style.boxShadow = "0 6px 0 #8B6914, 0 9px 18px rgba(200,149,10,0.4)";
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLElement).style.transform = "translateY(0)";
+              (e.currentTarget as HTMLElement).style.boxShadow = "0 4px 0 #8B6914, 0 6px 14px rgba(200,149,10,0.3)";
+            }}
+          >
+            <span aria-hidden="true">←</span>
+            <span aria-hidden="true">🍄</span>
+            กลับไปหน้า CS101
+          </Link>
+        </div>
+
         {/* ── Page header ── */}
         <div style={{ marginBottom: 32, textAlign: "center" }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}

@@ -571,12 +571,17 @@ function HelloWorldRegisterForm() {
         {/* Page header */}
         <div className="text-center mb-8 animate-fade-in">
           <Link href="/events/hello-world"
-            className="inline-flex items-center gap-1.5 text-xs font-semibold mb-5 transition-opacity hover:opacity-70"
-            style={{ color: TEXT_M }}>
-            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-black mb-6 transition-all duration-200 hover:scale-105 hover:-translate-y-0.5"
+            style={{
+              background: "#FFFFFF",
+              border: `2px solid ${AMBER}`,
+              color: AMBER,
+              boxShadow: "0 4px 14px rgba(217,119,6,0.18)",
+            }}>
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
             </svg>
-            Hello World
+            กลับไปหน้า Hello World
           </Link>
 
           <h1 className="font-display font-black tracking-tight" style={{ fontSize: "clamp(2rem, 6vw, 3rem)", color: TEXT_D }}>
