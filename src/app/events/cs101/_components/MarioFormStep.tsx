@@ -93,19 +93,26 @@ export default function MarioFormStep({
           gap: 6px;
           font-family: var(--font-fredoka), var(--font-prompt), sans-serif;
           font-weight: 700;
-          font-size: 0.9rem;
-          color: rgba(255,255,255,0.55);
-          background: transparent;
-          border: 2px solid rgba(255,255,255,0.15);
-          border-radius: 0.75rem;
-          padding: 0.75rem 1.1rem;
+          font-size: 0.95rem;
+          color: #7A5C20;
+          background: #FFFFFF;
+          border: 2.5px solid #C8950A;
+          border-radius: 0.85rem;
+          padding: 0.75rem 1.25rem;
           cursor: pointer;
-          transition: color 0.15s, border-color 0.15s, transform 0.15s;
+          box-shadow: 0 4px 0 #8B6914;
+          transition: color 0.15s, background 0.15s, transform 0.18s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.18s ease;
         }
         .mario-back-btn:hover {
-          color: rgba(255,255,255,0.85);
-          border-color: rgba(255,255,255,0.35);
-          transform: translateX(-3px);
+          color: #1a1000;
+          background: #FFF8E8;
+          transform: translateY(-2px);
+          box-shadow: 0 6px 0 #8B6914, 0 8px 16px rgba(200,149,10,0.25);
+        }
+        .mario-back-btn:active {
+          transform: translateY(2px);
+          box-shadow: 0 2px 0 #8B6914;
+          transition-duration: 0.08s;
         }
       `}</style>
 
@@ -166,12 +173,27 @@ export default function MarioFormStep({
         style={{
           display: "flex",
           alignItems: "center",
-          justifyContent: "flex-end",
+          justifyContent: !isFirst && onBack ? "space-between" : "flex-end",
+          gap: 12,
           paddingTop: 20,
           borderTop: "2px dashed #C8950A40",
           marginTop: 4,
+          flexWrap: "wrap",
         }}
       >
+        {!isFirst && onBack && (
+          <button
+            type="button"
+            onClick={onBack}
+            disabled={isSubmitting}
+            className="mario-back-btn"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+            ย้อนกลับ
+          </button>
+        )}
 
         {isLast ? (
           <button
