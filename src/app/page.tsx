@@ -20,7 +20,7 @@ export default function Home() {
   const role = (session?.user as { role?: string } | undefined)?.role;
   const canSeeTeam = role === "admin" || role === "staff";
   const canSeeHelloWorld = role === "admin" || role === "staff";
-  const canSeeCs101 = role === "admin" || role === "staff";
+  const canSeeCs101 = true;
   const visibleEventCount = (canSeeCs101 ? 1 : 0) + (canSeeHelloWorld ? 1 : 0);
 
   return (
