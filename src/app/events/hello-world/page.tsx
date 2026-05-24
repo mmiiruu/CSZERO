@@ -515,10 +515,10 @@ export default function HelloWorldPage() {
           <div className="absolute bottom-0 left-0 w-80 h-80 rounded-full blur-[100px]"  style={{ background: "rgba(234,88,12,0.25)" }} />
         </div>
 
-        {/* Corner characters */}
+        {/* Corner characters — hidden on mobile */}
         <div
           aria-hidden="true"
-          className="absolute bottom-0 left-0 pointer-events-none select-none"
+          className="hidden md:block absolute bottom-0 left-0 pointer-events-none select-none"
           style={{ height: "100%", transform: "translateX(-6%)" }}
         >
           <Image
@@ -533,7 +533,7 @@ export default function HelloWorldPage() {
         </div>
         <div
           aria-hidden="true"
-          className="absolute bottom-0 pointer-events-none select-none"
+          className="hidden md:block absolute bottom-0 pointer-events-none select-none"
           style={{ right: "10%", height: "85%" }}
         >
           <Image
