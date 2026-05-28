@@ -63,6 +63,12 @@ export interface HelloWorldConfig {
     // the page shows the Coming Soon screen with a countdown and auto-opens at that time.
     // Leave null to use `open` as the only gate.
     opensAt: string | null;
+    // Capacity limits — checked at submit time. Slight overflow is possible
+    // under concurrent writes (no transaction); acceptable for this event scale.
+    capacity: {
+      total: number;
+      perHouse: number;
+    };
     comingSoon: {
       title: string;
       message: string;
@@ -186,6 +192,10 @@ export const helloWorldConfig: HelloWorldConfig = {
   registration: {
     open: true,
     opensAt: "2026-05-24T00:00:00+07:00",
+    capacity: {
+      total: 100,
+      perHouse: 20,
+    },
     comingSoon: {
       title: "เปิดรับสมัครเร็วๆ นี้",
       message: "การสมัคร Hello World ยังไม่เปิด คอยติดตามได้เร็วๆ นี้!",

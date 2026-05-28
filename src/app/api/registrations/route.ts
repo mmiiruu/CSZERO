@@ -15,9 +15,10 @@ const REGISTRATION_CONFIG = {
   "hello-world": helloWorldConfig.registration,
 } as const;
 
-// Pick the house with the smallest current population; ties broken randomly.
+// Pick the least-populated house that still has room. Returns null when all
+// houses are at capacity so the caller can reject with a friendly error.
 // Not transactional — a slight imbalance is acceptable for this event scale.
-async function pickBalancedHouse(): Promise<HouseKey> {
+async function pickBalancedHouse(perHouseLimit: number): Promise<HouseKey | null> {
   const grouped = await Registration.aggregate<{ _id: HouseKey | null; count: number }>([
     { $match: { event: "hello-world" } },
     { $group: { _id: "$house", count: { $sum: 1 } } },
@@ -28,8 +29,10 @@ async function pickBalancedHouse(): Promise<HouseKey> {
   for (const g of grouped) {
     if (g._id && counts[g._id] !== undefined) counts[g._id] = g.count;
   }
-  const min = Math.min(...Object.values(counts));
-  const candidates = HOUSE_KEYS.filter((k) => counts[k] === min);
+  const available = HOUSE_KEYS.filter((k) => counts[k] < perHouseLimit);
+  if (available.length === 0) return null;
+  const min = Math.min(...available.map((k) => counts[k]));
+  const candidates = available.filter((k) => counts[k] === min);
   return candidates[Math.floor(Math.random() * candidates.length)];
 }
 
@@ -83,7 +86,25 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const house = event === "hello-world" ? await pickBalancedHouse() : undefined;
+    let house: HouseKey | undefined;
+    if (event === "hello-world") {
+      const { total, perHouse } = helloWorldConfig.registration.capacity;
+      const currentTotal = await Registration.countDocuments({ event: "hello-world" });
+      if (currentTotal >= total) {
+        return NextResponse.json(
+          { error: "ขออภัย — ที่นั่ง Hello World เต็มแล้ว" },
+          { status: 403 }
+        );
+      }
+      const picked = await pickBalancedHouse(perHouse);
+      if (!picked) {
+        return NextResponse.json(
+          { error: "ขออภัย — บ้านทั้งหมดเต็มแล้ว" },
+          { status: 403 }
+        );
+      }
+      house = picked;
+    }
 
     const registration = await Registration.create({
       event: event as typeof ALLOWED_EVENTS[number],
