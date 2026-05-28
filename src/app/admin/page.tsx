@@ -182,13 +182,45 @@ function ResponseModal({ reg, onClose }: { reg: Registration; onClose: () => voi
 }
 
 /* ─── Registrations Tab ──────────────────────────────────────────── */
-function RegistrationsTab() {
+function RegistrationsTab({ callerRole }: { callerRole: Role }) {
   const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>("all");
   const [modalReg, setModalReg] = useState<Registration | null>(null);
   const [seeding, setSeeding] = useState(false);
   const [seedMsg, setSeedMsg] = useState("");
+  const [confirmDelete, setConfirmDelete] = useState<Registration | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
+
+  const showToast = (msg: string, ok: boolean) => {
+    setToast({ msg, ok });
+    setTimeout(() => setToast(null), 3500);
+  };
+
+  const handleDelete = async () => {
+    if (!confirmDelete) return;
+    setDeleting(true);
+    try {
+      const res = await fetch("/api/registrations", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: confirmDelete._id }),
+      });
+      if (res.ok) {
+        setRegistrations((p) => p.filter((r) => r._id !== confirmDelete._id));
+        showToast(`✓ Deleted ${confirmDelete.name}`, true);
+      } else {
+        const data = await res.json();
+        showToast(`✗ ${data.error}`, false);
+      }
+    } catch {
+      showToast("✗ Network error", false);
+    } finally {
+      setDeleting(false);
+      setConfirmDelete(null);
+    }
+  };
 
   useEffect(() => {
     fetch("/api/registrations")
@@ -360,7 +392,12 @@ function RegistrationsTab() {
                       </td>
                       <td className="px-6 py-4 text-slate-400 dark:text-slate-500 text-xs">{new Date(reg.createdAt).toLocaleDateString()}</td>
                       <td className="px-6 py-4">
-                        <button onClick={() => setModalReg(reg)} aria-label={`View responses for ${reg.name}`} className="text-primary hover:text-primary-dark text-sm font-medium cursor-pointer transition-colors">View</button>
+                        <div className="flex items-center gap-3">
+                          <button onClick={() => setModalReg(reg)} aria-label={`View responses for ${reg.name}`} className="text-primary hover:text-primary-dark text-sm font-medium cursor-pointer transition-colors">View</button>
+                          {callerRole === "admin" && (
+                            <button onClick={() => setConfirmDelete(reg)} aria-label={`Delete registration for ${reg.name}`} className="text-red-500 hover:text-red-700 dark:hover:text-red-400 text-sm font-medium cursor-pointer transition-colors">Delete</button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -381,13 +418,24 @@ function RegistrationsTab() {
                     </span>
                     <span className="text-xs text-slate-400 dark:text-slate-500 tabular-nums">{new Date(reg.createdAt).toLocaleDateString()}</span>
                   </div>
-                  <button
-                    onClick={() => setModalReg(reg)}
-                    aria-label={`View responses for ${reg.name}`}
-                    className="shrink-0 min-h-[44px] inline-flex items-center px-3 -mr-1 text-primary hover:text-primary-dark text-sm font-medium cursor-pointer transition-colors"
-                  >
-                    View
-                  </button>
+                  <div className="shrink-0 flex items-center gap-1">
+                    <button
+                      onClick={() => setModalReg(reg)}
+                      aria-label={`View responses for ${reg.name}`}
+                      className="min-h-[44px] inline-flex items-center px-3 text-primary hover:text-primary-dark text-sm font-medium cursor-pointer transition-colors"
+                    >
+                      View
+                    </button>
+                    {callerRole === "admin" && (
+                      <button
+                        onClick={() => setConfirmDelete(reg)}
+                        aria-label={`Delete registration for ${reg.name}`}
+                        className="min-h-[44px] inline-flex items-center px-3 -mr-1 text-red-500 hover:text-red-700 dark:hover:text-red-400 text-sm font-medium cursor-pointer transition-colors"
+                      >
+                        Delete
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 {/* Identity */}
@@ -420,6 +468,43 @@ function RegistrationsTab() {
       )}
 
       {modalReg && <ResponseModal reg={modalReg} onClose={() => setModalReg(null)} />}
+
+      {/* Delete confirmation modal */}
+      {confirmDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+          onClick={(e) => { if (e.target === e.currentTarget && !deleting) setConfirmDelete(null); }}>
+          <div role="dialog" aria-modal="true" className="w-full max-w-md rounded-2xl shadow-2xl bg-card border border-border p-6">
+            <div className="flex items-start gap-4 mb-4">
+              <div className="shrink-0 w-10 h-10 rounded-full bg-red-50 dark:bg-red-900/30 flex items-center justify-center">
+                <svg className="w-5 h-5 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="font-semibold text-slate-800 dark:text-slate-100">Delete registration?</h3>
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+                  This will permanently delete <strong className="text-slate-700 dark:text-slate-200">{confirmDelete.name}</strong> ({confirmDelete.email}) from <strong className="text-slate-700 dark:text-slate-200">{confirmDelete.event === "cs101" ? "CS101" : "Hello World"}</strong>. This cannot be undone.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center justify-end gap-3">
+              <button onClick={() => setConfirmDelete(null)} disabled={deleting} className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors cursor-pointer">
+                Cancel
+              </button>
+              <button onClick={handleDelete} disabled={deleting} className="px-4 py-2 text-sm font-medium bg-red-600 text-white hover:bg-red-700 disabled:opacity-60 rounded-lg transition-colors cursor-pointer">
+                {deleting ? "Deleting..." : "Yes, delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Toast */}
+      {toast && (
+        <div className={`fixed bottom-6 right-6 z-50 px-5 py-3 rounded-xl text-sm font-medium shadow-lg ${toast.ok ? "bg-green-600 text-white" : "bg-red-600 text-white"}`}>
+          {toast.msg}
+        </div>
+      )}
     </>
   );
 }
@@ -1002,7 +1087,7 @@ export default function AdminPage() {
 
         {/* Tab content */}
         <div role="tabpanel" id="panel-registrations" aria-labelledby="tab-registrations" hidden={tab !== "registrations"}>
-          <RegistrationsTab />
+          <RegistrationsTab callerRole={(role as Role) ?? "staff"} />
         </div>
         <div role="tabpanel" id="panel-candidates" aria-labelledby="tab-candidates" hidden={tab !== "candidates"}>
           <CandidatesTab callerRole={(role as Role) ?? "staff"} />

@@ -129,6 +129,36 @@ export async function POST(req: NextRequest) {
   }
 }
 
+export async function DELETE(req: NextRequest) {
+  try {
+    const session = await auth();
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    const db = (await clientPromise).db();
+    const caller = await db.collection("users").findOne({ email: session.user.email });
+    if (caller?.role !== "admin") {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    const { id } = await req.json();
+    if (!id || typeof id !== "string") {
+      return NextResponse.json({ error: "Missing registration id" }, { status: 400 });
+    }
+
+    await dbConnect();
+    const result = await Registration.findByIdAndDelete(id);
+    if (!result) {
+      return NextResponse.json({ error: "Registration not found" }, { status: 404 });
+    }
+
+    return NextResponse.json({ message: "Deleted" });
+  } catch (error) {
+    console.error("Delete registration error:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
+}
+
 export async function GET() {
   try {
     // Only admin and staff may read all registrations
