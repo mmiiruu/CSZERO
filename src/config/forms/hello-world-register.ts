@@ -72,6 +72,7 @@ export const helloWorldFormConfig: HelloWorldFormConfig = {
         { name: "name",            label: "ชื่อ-นามสกุล",                       type: "text",  placeholder: "เช่น นาย สมชาย ใจดี", required: true },
         { name: "nickname",        label: "ชื่อเล่น",                            type: "text",  placeholder: "เช่น อาร์ม",         required: true },
         { name: "email",           label: "อีเมล",                               type: "email", placeholder: "your@email.com",     required: true },
+        { name: "contactChannel",  label: "ช่องทางติดต่อ (ig, line)",           type: "text",  placeholder: "เช่น IG: @armm หรือ Line: armcoder", required: true },
         { name: "phone",           label: "เบอร์โทรศัพท์ส่วนตัว",               type: "tel",   placeholder: "08x-xxx-xxxx",       required: true },
         { name: "emergencyPhone",  label: "เบอร์โทรศัพท์ติดต่อกรณีฉุกเฉิน",     type: "tel",   placeholder: "08x-xxx-xxxx",       required: true },
         {

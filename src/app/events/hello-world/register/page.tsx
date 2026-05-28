@@ -451,6 +451,7 @@ function HelloWorldRegisterForm() {
           name: formData.name,
           answers: {
             nickname:       formData.nickname,
+            contactChannel: formData.contactChannel,
             phone:          formData.phone,
             emergencyPhone: formData.emergencyPhone,
             educationType:  formData.educationType,

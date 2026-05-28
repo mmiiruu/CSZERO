@@ -3,6 +3,18 @@
 import React, { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useTheme } from "@/components/providers/ThemeProvider";
+import { helloWorldFormConfig } from "@/config/forms/hello-world-register";
+import { cs101FormConfig } from "@/config/forms/cs101-register";
+
+// Expected answer keys per event — used so that registrations submitted
+// before a new field was added still show that field (as "-") in the
+// dashboard and Excel export. `name` and `email` are stored top-level on the
+// Registration document, not inside `answers`, so they're excluded here.
+const TOP_LEVEL_KEYS = new Set(["name", "email"]);
+const EXPECTED_ANSWER_KEYS: Record<string, string[]> = {
+  "hello-world": helloWorldFormConfig.steps.flatMap((s) => s.fields.map((f) => f.name)).filter((n) => !TOP_LEVEL_KEYS.has(n)),
+  "cs101":       cs101FormConfig.steps.flatMap((s) => s.fields.map((f) => f.name)).filter((n) => !TOP_LEVEL_KEYS.has(n)),
+};
 
 /* ─── Types ─────────────────────────────────────────────────────── */
 type Registration = {
@@ -137,18 +149,32 @@ function ResponseModal({ reg, onClose }: { reg: Registration; onClose: () => voi
         </div>
         <div className="overflow-y-auto flex-1 px-6 py-5">
           <h4 className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-4">Form Responses</h4>
-          {reg.answers && Object.keys(reg.answers).length > 0 ? (
-            <div className="space-y-4">
-              {Object.entries(reg.answers).map(([key, value]) => (
-                <div key={key} className="rounded-xl bg-slate-50 dark:bg-slate-700/50 px-4 py-3">
-                  <p className="text-xs font-medium text-slate-400 dark:text-slate-500 mb-1">{key}</p>
-                  <AnswerValue value={value} />
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-slate-400 dark:text-slate-500 text-sm">No answers recorded.</p>
-          )}
+          {(() => {
+            // Merge expected keys for the event (from the current form config)
+            // with whatever the registration actually has, so newly-added fields
+            // still render as "-" for older submissions.
+            const expected = EXPECTED_ANSWER_KEYS[reg.event] ?? [];
+            const actualKeys = Object.keys(reg.answers ?? {});
+            const seen = new Set<string>();
+            const orderedKeys = [...expected, ...actualKeys].filter((k) => {
+              if (seen.has(k)) return false;
+              seen.add(k);
+              return true;
+            });
+            if (orderedKeys.length === 0) {
+              return <p className="text-slate-400 dark:text-slate-500 text-sm">No answers recorded.</p>;
+            }
+            return (
+              <div className="space-y-4">
+                {orderedKeys.map((key) => (
+                  <div key={key} className="rounded-xl bg-slate-50 dark:bg-slate-700/50 px-4 py-3">
+                    <p className="text-xs font-medium text-slate-400 dark:text-slate-500 mb-1">{key}</p>
+                    <AnswerValue value={reg.answers?.[key] ?? ""} />
+                  </div>
+                ))}
+              </div>
+            );
+          })()}
         </div>
       </div>
     </div>
@@ -204,15 +230,27 @@ function RegistrationsTab() {
   const handleExportExcel = async () => {
     if (filtered.length === 0) return;
     const { default: ExcelJS } = await import("exceljs");
-    const answerKeys = Array.from(new Set(filtered.flatMap((r) => Object.keys(r.answers ?? {}))));
+    // Include expected keys per event so newly-added form fields appear as
+    // columns even if old registrations don't have a value for them.
+    const expectedKeys = Array.from(new Set(filtered.flatMap((r) => EXPECTED_ANSWER_KEYS[r.event] ?? [])));
+    const actualKeys = Array.from(new Set(filtered.flatMap((r) => Object.keys(r.answers ?? {}))));
+    const seen = new Set<string>();
+    const answerKeys = [...expectedKeys, ...actualKeys].filter((k) => {
+      if (seen.has(k)) return false;
+      seen.add(k);
+      return true;
+    });
     const headers = ["Name", "Email", "Event", "House", "Date", ...answerKeys];
     const rows = filtered.map((r) => [
       r.name,
       r.email,
       r.event === "cs101" ? "CS101" : "Hello World",
-      r.house || "",
+      r.house || "-",
       new Date(r.createdAt).toLocaleDateString(),
-      ...answerKeys.map((k) => String(r.answers?.[k] ?? "")),
+      ...answerKeys.map((k) => {
+        const v = r.answers?.[k];
+        return v == null || v === "" ? "-" : String(v);
+      }),
     ]);
 
     const workbook = new ExcelJS.Workbook();
