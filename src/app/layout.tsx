@@ -38,10 +38,29 @@ const prompt = Prompt({
   display: "swap",
 });
 
+const DESCRIPTION =
+  "Computer Science Student Organization at Kasetsart University. Building community, sharing knowledge, and creating opportunities.";
+
 export const metadata: Metadata = {
-  title: "CSKU — Computer Science Student Organization",
-  description:
-    "Computer Science Student Organization at Kasetsart University. Building community, sharing knowledge, and creating opportunities.",
+  metadataBase: new URL("https://cszero.vercel.app"),
+  title: {
+    default: "CSKU — Computer Science Student Organization",
+    template: "%s — CSKU",
+  },
+  description: DESCRIPTION,
+  openGraph: {
+    type: "website",
+    locale: "th_TH",
+    url: "https://cszero.vercel.app",
+    siteName: "CSKU",
+    title: "CSKU — Computer Science Student Organization",
+    description: DESCRIPTION,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "CSKU — Computer Science Student Organization",
+    description: DESCRIPTION,
+  },
 };
 
 export default async function RootLayout({

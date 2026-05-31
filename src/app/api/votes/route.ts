@@ -65,17 +65,16 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Check if user already voted.
-    const existingVote = await Vote.findOne({ userId: session.user.id });
-    if (existingVote) {
-      return NextResponse.json(
-        { error: "You have already voted" },
-        { status: 409 }
-      );
+    // Persist the vote — the unique index on userId makes this atomic.
+    // A duplicate key error (11000) means the user already voted.
+    try {
+      await Vote.create({ userId: session.user.id, candidateId });
+    } catch (err: any) {
+      if (err?.code === 11000) {
+        return NextResponse.json({ error: "You have already voted" }, { status: 409 });
+      }
+      throw err;
     }
-
-    // Persist the vote.
-    await Vote.create({ userId: session.user.id, candidateId });
 
     // Increment candidate vote count.
     await Candidate.findByIdAndUpdate(candidateId, {
