@@ -3,10 +3,21 @@
 import React, { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
+function isLineInAppBrowser() {
+  if (typeof navigator === "undefined") return false;
+  return /Line\//i.test(navigator.userAgent);
+}
+
 function SignInContent() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/";
   const [loading, setLoading] = React.useState(false);
+  const [isLine, setIsLine] = React.useState(false);
+  const [copied, setCopied] = React.useState(false);
+
+  React.useEffect(() => {
+    setIsLine(isLineInAppBrowser());
+  }, []);
 
   const handleGoogleSignIn = async () => {
     if (loading) return;
@@ -14,6 +25,44 @@ function SignInContent() {
     const { signIn } = await import("next-auth/react");
     await signIn("google", { callbackUrl });
   };
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(window.location.href).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+
+  if (isLine) {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-blue-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800">
+        <div className="max-w-md w-full">
+          <div className="text-center mb-8">
+            <div className="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-blue-500/20">
+              <span className="text-white font-bold text-xl">CS</span>
+            </div>
+            <h1 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">เปิดใน Browser ก่อนนะ</h1>
+            <p className="text-slate-500 dark:text-slate-400 text-sm">Google ไม่อนุญาตให้ล็อกอินใน LINE Browser กรุณาเปิดลิงก์นี้ใน Safari หรือ Chrome</p>
+          </div>
+
+          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 sm:p-8 shadow-sm space-y-3">
+            <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-700 rounded-xl px-4 py-3 text-xs text-slate-500 dark:text-slate-400 break-all">
+              {window.location.href}
+            </div>
+            <button
+              onClick={handleCopyLink}
+              className="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-medium transition-all duration-200"
+            >
+              {copied ? "คัดลอกแล้ว ✓" : "คัดลอกลิงก์"}
+            </button>
+            <p className="text-center text-slate-400 dark:text-slate-500 text-xs">
+              แล้วเปิด Safari / Chrome วางลิงก์ในแถบที่อยู่
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-blue-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800">
