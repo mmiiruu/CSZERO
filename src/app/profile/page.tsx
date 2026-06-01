@@ -93,23 +93,6 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* House Card — only if Hello World registration with assigned house */}
-        {helloWorldReg?.house && houseStyles[helloWorldReg.house] && (
-          <div className={`${houseStyles[helloWorldReg.house].bg} border ${houseStyles[helloWorldReg.house].border} rounded-3xl p-8 mb-8 animate-slide-up`}>
-            <div className="flex items-center gap-5">
-              <div className={`w-20 h-20 rounded-2xl bg-gradient-to-br ${houseStyles[helloWorldReg.house].gradient} flex items-center justify-center shadow-lg`}>
-                <span className="text-white text-4xl">{houseStyles[helloWorldReg.house].symbol}</span>
-              </div>
-              <div>
-                <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">กระโจมของคุณ</p>
-                <h2 className={`text-2xl font-bold ${houseStyles[helloWorldReg.house].text}`}>
-                  บ้าน{houseStyles[helloWorldReg.house].name}
-                </h2>
-                <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Hello World Event</p>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* Registered Events */}
         <div className="space-y-4">
