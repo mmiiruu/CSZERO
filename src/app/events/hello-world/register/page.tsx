@@ -236,6 +236,7 @@ function ImageUpload({
 
 /* ── Survey popup modal ──────────────────────────────────────────── */
 function SurveyModal({ onClose }: { onClose: () => void }) {
+  const [clicked, setClicked] = useState(false);
   return (
     <div
       role="dialog"
@@ -290,6 +291,7 @@ function SurveyModal({ onClose }: { onClose: () => void }) {
           href="https://forms.gle/e7m6YhZXmwzh2b3M7"
           target="_blank"
           rel="noopener noreferrer"
+          onClick={() => setClicked(true)}
           className="flex items-center justify-center gap-2 w-full px-5 py-3 rounded-2xl font-black text-sm mb-3 transition-all duration-200 hover:scale-[1.02] hover:shadow-xl"
           style={{
             background: AMBER,
@@ -305,11 +307,23 @@ function SurveyModal({ onClose }: { onClose: () => void }) {
           </svg>
         </a>
 
+        {!clicked && (
+          <p className="text-xs text-center mb-2" style={{ color: AMBER }}>
+            กรุณากดลิงก์แบบสำรวจก่อนนะ 🙏
+          </p>
+        )}
+
         <button
           type="button"
           onClick={onClose}
-          className="w-full py-2.5 rounded-2xl text-sm font-semibold border-2 transition-all duration-200 hover:bg-stone-50 cursor-pointer"
-          style={{ borderColor: "#E5E7EB", color: TEXT_M }}
+          disabled={!clicked}
+          className="w-full py-2.5 rounded-2xl text-sm font-semibold border-2 transition-all duration-200"
+          style={{
+            borderColor: clicked ? "#E5E7EB" : "#F3F4F6",
+            color: clicked ? TEXT_M : "#D1D5DB",
+            cursor: clicked ? "pointer" : "not-allowed",
+            opacity: clicked ? 1 : 0.5,
+          }}
         >
           ตกลง
         </button>

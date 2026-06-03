@@ -461,6 +461,7 @@ function SuccessScreen({ fredokaVar }: { fredokaVar: string }) {
 
 /* ── Survey popup modal (Mario themed) ─────────────────────────────── */
 function SurveyModal({ onClose }: { onClose: () => void }) {
+  const [clicked, setClicked] = useState(false);
   return (
     <div
       role="dialog"
@@ -532,6 +533,7 @@ function SurveyModal({ onClose }: { onClose: () => void }) {
           href="https://forms.gle/e7m6YhZXmwzh2b3M7"
           target="_blank"
           rel="noopener noreferrer"
+          onClick={() => setClicked(true)}
           style={{
             display: "flex",
             alignItems: "center",
@@ -566,28 +568,46 @@ function SurveyModal({ onClose }: { onClose: () => void }) {
           </svg>
         </a>
 
+        {!clicked && (
+          <p
+            style={{
+              fontFamily: "var(--font-fredoka), var(--font-prompt), sans-serif",
+              fontSize: "0.8rem",
+              color: "#C8950A",
+              textAlign: "center",
+              marginBottom: "0.6rem",
+            }}
+          >
+            กรุณากดลิงก์แบบสำรวจก่อนนะ 🙏
+          </p>
+        )}
+
         <button
           type="button"
           onClick={onClose}
+          disabled={!clicked}
           style={{
             display: "block",
             width: "100%",
             fontFamily: "var(--font-fredoka), sans-serif",
             fontWeight: 600,
             fontSize: "0.9rem",
-            color: "#8B6914",
+            color: clicked ? "#8B6914" : "#C8A96E",
             background: "transparent",
-            border: "2px solid rgba(200,149,10,0.35)",
+            border: `2px solid ${clicked ? "rgba(200,149,10,0.35)" : "rgba(200,149,10,0.18)"}`,
             borderRadius: "0.75rem",
             padding: "0.65rem",
-            cursor: "pointer",
+            cursor: clicked ? "pointer" : "not-allowed",
+            opacity: clicked ? 1 : 0.5,
             transition: "background 0.15s ease, border-color 0.15s ease",
           }}
           onMouseEnter={(e) => {
+            if (!clicked) return;
             (e.currentTarget as HTMLElement).style.background = "rgba(200,149,10,0.08)";
             (e.currentTarget as HTMLElement).style.borderColor = "rgba(200,149,10,0.55)";
           }}
           onMouseLeave={(e) => {
+            if (!clicked) return;
             (e.currentTarget as HTMLElement).style.background = "transparent";
             (e.currentTarget as HTMLElement).style.borderColor = "rgba(200,149,10,0.35)";
           }}
