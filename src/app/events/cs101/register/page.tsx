@@ -611,7 +611,7 @@ export default function CS101RegisterPage() {
   const [showSurveyModal, setShowSurveyModal] = useState(false);
 
   useEffect(() => {
-    if (status === "authenticated" && !sessionStorage.getItem("survey-popup-shown")) {
+    if (status !== "loading" && !sessionStorage.getItem("survey-popup-shown")) {
       setShowSurveyModal(true);
     }
   }, [status]);
@@ -726,9 +726,11 @@ export default function CS101RegisterPage() {
   const role = (session?.user as { role?: string } | undefined)?.role;
   const canBypassGate = role === "admin" || role === "staff";
 
+  const surveyOverlay = showSurveyModal ? <SurveyModal onClose={closeSurveyModal} /> : null;
+
   /* ── Gate order: closed → success → loading → unauthenticated → form ─ */
   if (!isOpen && !canBypassGate) {
-    return <ComingSoonScreen fredokaVar={fredoka.variable} countdown={countdown} />;
+    return <>{surveyOverlay}<ComingSoonScreen fredokaVar={fredoka.variable} countdown={countdown} /></>;
   }
   if (searchParams.get("success") === "true") {
     return <SuccessScreen fredokaVar={fredoka.variable} />;
@@ -737,7 +739,7 @@ export default function CS101RegisterPage() {
     return <MarioLoading fredokaVar={fredoka.variable} />;
   }
   if (status === "unauthenticated") {
-    return <AuthGate fredokaVar={fredoka.variable} />;
+    return <>{surveyOverlay}<AuthGate fredokaVar={fredoka.variable} /></>;
   }
 
   const currentStepCfg = config.steps[step];

@@ -445,7 +445,7 @@ function HelloWorldRegisterForm() {
   const [showSurveyModal, setShowSurveyModal] = useState(false);
 
   useEffect(() => {
-    if (status === "authenticated" && !sessionStorage.getItem("survey-popup-shown")) {
+    if (status !== "loading" && !sessionStorage.getItem("survey-popup-shown")) {
       setShowSurveyModal(true);
     }
   }, [status]);
