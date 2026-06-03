@@ -611,13 +611,12 @@ export default function CS101RegisterPage() {
   const [showSurveyModal, setShowSurveyModal] = useState(false);
 
   useEffect(() => {
-    if (status !== "loading" && !sessionStorage.getItem("survey-popup-shown")) {
+    if (status !== "loading") {
       setShowSurveyModal(true);
     }
   }, [status]);
 
   const closeSurveyModal = () => {
-    sessionStorage.setItem("survey-popup-shown", "1");
     setShowSurveyModal(false);
   };
 
