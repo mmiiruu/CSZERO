@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
@@ -459,6 +459,146 @@ function SuccessScreen({ fredokaVar }: { fredokaVar: string }) {
   );
 }
 
+/* ── Survey popup modal (Mario themed) ─────────────────────────────── */
+function SurveyModal({ onClose }: { onClose: () => void }) {
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="survey-modal-title"
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 1000,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "1rem",
+        background: "rgba(0,0,0,0.72)",
+        backdropFilter: "blur(4px)",
+      }}
+    >
+      <div
+        style={{
+          maxWidth: 420,
+          width: "100%",
+          background: "linear-gradient(135deg,#FFF8E8 0%,#FFFDE7 100%)",
+          border: "3px solid #C8950A",
+          borderRadius: "1.5rem",
+          padding: "2rem 1.75rem",
+          boxShadow: "0 8px 0 #5A3E00, 0 16px 48px rgba(0,0,0,0.45), inset 0 3px 0 rgba(255,255,255,0.6)",
+          animation: "mario-gate-pop 0.4s cubic-bezier(0.34,1.56,0.64,1) both",
+          position: "relative",
+        }}
+      >
+        <style>{`
+          @keyframes mario-gate-pop {
+            from { opacity: 0; transform: scale(0.85) translateY(12px); }
+            to   { opacity: 1; transform: scale(1) translateY(0); }
+          }
+        `}</style>
+
+        <div aria-hidden="true" style={{ fontSize: 48, textAlign: "center", marginBottom: "0.75rem" }}>📋</div>
+
+        <h2
+          id="survey-modal-title"
+          style={{
+            fontFamily: "var(--font-fredoka), 'Fredoka', sans-serif",
+            fontWeight: 700,
+            fontSize: "1.25rem",
+            color: "#5A3E00",
+            textAlign: "center",
+            marginBottom: "0.85rem",
+            lineHeight: 1.4,
+          }}
+        >
+          แบบสำรวจจากภาควิชา
+        </h2>
+
+        <p
+          style={{
+            fontFamily: "var(--font-fredoka), var(--font-prompt), sans-serif",
+            fontSize: "0.95rem",
+            color: "#7C5A00",
+            textAlign: "center",
+            lineHeight: 1.7,
+            marginBottom: "1.5rem",
+          }}
+        >
+          ก่อนลงทะเบียนกิจกรรม รบกวนน้องๆกรอกแบบสำรวจให้ทางภาควิชาหน่อยนะ 🙏
+        </p>
+
+        <a
+          href="https://forms.gle/e7m6YhZXmwzh2b3M7"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 8,
+            fontFamily: "var(--font-fredoka), sans-serif",
+            fontWeight: 700,
+            fontSize: "1rem",
+            color: "#1a0800",
+            background: "linear-gradient(180deg,#FFE135 0%,#FBD000 100%)",
+            border: "3px solid #C8950A",
+            borderRadius: "0.85rem",
+            padding: "0.85rem 1.5rem",
+            boxShadow: "0 5px 0 #8B6914, 0 8px 20px rgba(200,149,10,0.35)",
+            textDecoration: "none",
+            marginBottom: "0.85rem",
+            transition: "transform 0.15s ease, box-shadow 0.15s ease",
+          }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLElement).style.transform = "translateY(-3px)";
+            (e.currentTarget as HTMLElement).style.boxShadow = "0 8px 0 #8B6914, 0 12px 24px rgba(200,149,10,0.45)";
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLElement).style.transform = "translateY(0)";
+            (e.currentTarget as HTMLElement).style.boxShadow = "0 5px 0 #8B6914, 0 8px 20px rgba(200,149,10,0.35)";
+          }}
+        >
+          <span aria-hidden="true">📝</span>
+          กรอกแบบสำรวจ
+          <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3" />
+          </svg>
+        </a>
+
+        <button
+          type="button"
+          onClick={onClose}
+          style={{
+            display: "block",
+            width: "100%",
+            fontFamily: "var(--font-fredoka), sans-serif",
+            fontWeight: 600,
+            fontSize: "0.9rem",
+            color: "#8B6914",
+            background: "transparent",
+            border: "2px solid rgba(200,149,10,0.35)",
+            borderRadius: "0.75rem",
+            padding: "0.65rem",
+            cursor: "pointer",
+            transition: "background 0.15s ease, border-color 0.15s ease",
+          }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLElement).style.background = "rgba(200,149,10,0.08)";
+            (e.currentTarget as HTMLElement).style.borderColor = "rgba(200,149,10,0.55)";
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLElement).style.background = "transparent";
+            (e.currentTarget as HTMLElement).style.borderColor = "rgba(200,149,10,0.35)";
+          }}
+        >
+          ตกลง
+        </button>
+      </div>
+    </div>
+  );
+}
+
 /* ── Main register page ─────────────────────────────────────────────── */
 export default function CS101RegisterPage() {
   const router = useRouter();
@@ -468,6 +608,18 @@ export default function CS101RegisterPage() {
   const [step, setStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showSurveyModal, setShowSurveyModal] = useState(false);
+
+  useEffect(() => {
+    if (status === "authenticated" && !sessionStorage.getItem("survey-popup-shown")) {
+      setShowSurveyModal(true);
+    }
+  }, [status]);
+
+  const closeSurveyModal = () => {
+    sessionStorage.setItem("survey-popup-shown", "1");
+    setShowSurveyModal(false);
+  };
 
   const initialData = Object.fromEntries(
     config.steps.flatMap((s) => s.fields.map((f) => [f.name, ""]))
@@ -602,6 +754,8 @@ export default function CS101RegisterPage() {
         overflow: "hidden",
       }}
     >
+      {showSurveyModal && <SurveyModal onClose={closeSurveyModal} />}
+
       {/* ── Keyframes ── */}
       <style>{`
         @keyframes mario-coin-float {
