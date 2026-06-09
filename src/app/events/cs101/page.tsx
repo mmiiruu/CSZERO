@@ -397,9 +397,7 @@ export default function CS101Page() {
             className="mario-hero-content-delay flex flex-col sm:flex-row gap-4 justify-center"
             style={{ marginTop: "2rem" }}
           >
-            <Link href={hero.primaryButton.href} className="mario-btn mario-btn-primary">
-              {hero.primaryButton.label}
-            </Link>
+            {/* Registration is currently closed */}
             <a href={hero.secondaryButton.href} className="mario-btn mario-btn-secondary">
               {hero.secondaryButton.label}
             </a>
@@ -727,9 +725,7 @@ export default function CS101Page() {
             {cta.description}
           </p>
 
-          <Link href={cta.button.href} className="mario-btn mario-btn-secondary">
-            {cta.button.label}
-          </Link>
+          {/* Registration is currently closed */}
         </div>
       </section>
     </div>

@@ -186,11 +186,7 @@ export default function Home() {
           <h2 id="cta-heading" className="font-display text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-800 dark:text-white mb-6">{cta.title}</h2>
           <p className="text-slate-500 dark:text-slate-400 mb-10 max-w-xl mx-auto text-lg leading-relaxed">{cta.description}</p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-            {canSeeCs101 && (
-              <Link href={cta.primaryButton.href} className="px-10 py-4 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 active:scale-[0.98] transition-all duration-200 text-base w-full sm:w-auto text-center shadow-lg shadow-blue-500/30">
-                {cta.primaryButton.label}
-              </Link>
-            )}
+            {/* CS101 registration closed */}
             {canSeeHelloWorld && (
               <Link href={cta.secondaryButton.href} className="px-10 py-4 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-xl font-medium hover:bg-slate-50 dark:hover:bg-slate-700 active:scale-[0.98] transition-all duration-200 text-base w-full sm:w-auto text-center shadow-md">
                 {cta.secondaryButton.label}
