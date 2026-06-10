@@ -41,6 +41,9 @@ export interface CS101Config {
     // the page shows the Coming Soon screen with a countdown and auto-opens at that time.
     // Leave null to use `open` as the only gate.
     opensAt: string | null;
+    capacity: {
+      total: number;
+    };
     comingSoon: {
       title: string;
       message: string;
@@ -126,6 +129,9 @@ export const cs101Config: CS101Config = {
   registration: {
     open: true,
     opensAt: "2026-05-20T00:00:00+07:00",
+    capacity: {
+      total: 100,
+    },
     comingSoon: {
       title: "เปิดรับสมัครเร็วๆ นี้",
       message: "การสมัคร CS101 ยังไม่เปิด คอยติดตามได้เร็วๆ นี้!",

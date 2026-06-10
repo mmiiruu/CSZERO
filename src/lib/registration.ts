@@ -1,6 +1,9 @@
 export interface RegistrationConfig {
   open: boolean;
   opensAt?: string | null;
+  capacity?: {
+    total: number;
+  };
   comingSoon: {
     title: string;
     message: string;

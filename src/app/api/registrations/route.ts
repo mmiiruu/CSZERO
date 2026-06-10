@@ -7,6 +7,7 @@ import { notifyRegistration } from "@/lib/discord";
 import { cs101Config } from "@/config/events/cs101";
 import { helloWorldConfig } from "@/config/events/hello-world";
 import { isRegistrationOpen } from "@/lib/registration";
+import { getRegistrationCapacityStatus } from "@/lib/registrationCapacity";
 
 const ALLOWED_EVENTS = ["cs101", "hello-world"] as const;
 
@@ -87,6 +88,16 @@ export async function POST(req: NextRequest) {
     }
 
     let house: HouseKey | undefined;
+    if (event === "cs101") {
+      const capacity = await getRegistrationCapacityStatus("cs101", cs101Config.registration);
+      if (capacity.isFull) {
+        return NextResponse.json(
+          { error: "ขออภัย — ที่นั่ง CS101 เต็มแล้ว" },
+          { status: 403 }
+        );
+      }
+    }
+
     if (event === "hello-world") {
       const { total, perHouse } = helloWorldConfig.registration.capacity;
       const currentTotal = await Registration.countDocuments({ event: "hello-world" });
@@ -113,6 +124,17 @@ export async function POST(req: NextRequest) {
       answers: cleanAnswers,
       ...(house && { house }),
     });
+
+    if (event === "cs101") {
+      const capacity = await getRegistrationCapacityStatus("cs101", cs101Config.registration);
+      if (capacity.total !== null && capacity.current > capacity.total) {
+        await Registration.findByIdAndDelete(registration._id);
+        return NextResponse.json(
+          { error: "ขออภัย — ที่นั่ง CS101 เต็มแล้ว" },
+          { status: 403 }
+        );
+      }
+    }
 
     notifyRegistration({ event: event as "cs101" | "hello-world", name: cleanName, email, answers: cleanAnswers });
 

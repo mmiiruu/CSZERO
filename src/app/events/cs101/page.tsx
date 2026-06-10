@@ -4,6 +4,7 @@ import Image from "next/image";
 import { Fredoka } from "next/font/google";
 import MarioTimeline from "./_components/MarioTimeline";
 import { cs101Config } from "@/config/events/cs101";
+import { getRegistrationCapacityStatus } from "@/lib/registrationCapacity";
 
 const fredoka = Fredoka({
   subsets: ["latin"],
@@ -13,6 +14,16 @@ const fredoka = Fredoka({
 });
 
 const { hero, features, schedule, cta } = cs101Config;
+
+async function getIsCS101Full(): Promise<boolean> {
+  try {
+    const status = await getRegistrationCapacityStatus("cs101", cs101Config.registration);
+    return status.isFull;
+  } catch (error) {
+    console.error("Failed to load CS101 capacity status:", error);
+    return false;
+  }
+}
 
 function Cloud({
   className,
@@ -63,7 +74,9 @@ function StarDecor({ className, size = 24, style }: { className?: string; size?:
   );
 }
 
-export default function CS101Page() {
+export default async function CS101Page() {
+  const isRegistrationFull = await getIsCS101Full();
+
   return (
     <div className={fredoka.variable} style={{ minHeight: "100vh" }}>
       {/* ── Mario-specific CSS ───────────────────────────────────────── */}
@@ -397,9 +410,11 @@ export default function CS101Page() {
             className="mario-hero-content-delay flex flex-col sm:flex-row gap-4 justify-center"
             style={{ marginTop: "2rem" }}
           >
-            <Link href={hero.primaryButton.href} className="mario-btn mario-btn-primary">
-              {hero.primaryButton.label}
-            </Link>
+            {!isRegistrationFull && (
+              <Link href={hero.primaryButton.href} className="mario-btn mario-btn-primary">
+                {hero.primaryButton.label}
+              </Link>
+            )}
             <a href={hero.secondaryButton.href} className="mario-btn mario-btn-secondary">
               {hero.secondaryButton.label}
             </a>
@@ -727,9 +742,31 @@ export default function CS101Page() {
             {cta.description}
           </p>
 
-          <Link href={cta.button.href} className="mario-btn mario-btn-secondary">
-            {cta.button.label}
-          </Link>
+          {isRegistrationFull ? (
+            <div
+              role="status"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontFamily: "var(--font-fredoka), var(--font-prompt), sans-serif",
+                fontWeight: 700,
+                fontSize: "1.05rem",
+                color: "#1a1000",
+                background: "linear-gradient(180deg,#FFE135 0%,#FBD000 100%)",
+                border: "3px solid #C8950A",
+                borderRadius: "0.85rem",
+                padding: "0.85rem 1.75rem",
+                boxShadow: "0 6px 0 #8B6914, 0 8px 20px rgba(200,149,10,0.4)",
+              }}
+            >
+              ที่นั่งเต็มแล้ว
+            </div>
+          ) : (
+            <Link href={cta.button.href} className="mario-btn mario-btn-secondary">
+              {cta.button.label}
+            </Link>
+          )}
         </div>
       </section>
     </div>
