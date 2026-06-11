@@ -127,14 +127,14 @@ export const cs101Config: CS101Config = {
     button: { label: "สมัคร CS101", href: "/events/cs101/register" },
   },
   registration: {
-    open: true,
-    opensAt: "2026-05-20T00:00:00+07:00",
+    open: false,
+    opensAt: null,
     capacity: {
       total: 100,
     },
     comingSoon: {
-      title: "เปิดรับสมัครเร็วๆ นี้",
-      message: "การสมัคร CS101 ยังไม่เปิด คอยติดตามได้เร็วๆ นี้!",
+      title: "ปิดรับสมัครแล้ว",
+      message: "การสมัคร CS101 ปิดรับสมัครแล้ว ขอบคุณที่ให้ความสนใจ!",
       backButton: { label: "กลับไปหน้า CS101", href: "/events/cs101" },
     },
   },
