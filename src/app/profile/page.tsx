@@ -125,11 +125,7 @@ export default function ProfilePage() {
                       }`}>
                         {reg.event === "cs101" ? "CS101" : "Hello World"}
                       </span>
-                      {reg.house && houseStyles[reg.house] && (
-                        <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${houseStyles[reg.house].bg} ${houseStyles[reg.house].text}`}>
-                          {houseStyles[reg.house].symbol} {houseStyles[reg.house].name}
-                        </span>
-                      )}
+
                     </div>
                     <h3 className="text-base font-semibold text-slate-800 dark:text-white">{reg.name}</h3>
                     <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
