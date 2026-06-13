@@ -398,6 +398,9 @@ export default async function CS101Page() {
             className="mario-hero-content-delay flex flex-col sm:flex-row gap-4 justify-center"
             style={{ marginTop: "2rem" }}
           >
+            <Link href={hero.primaryButton.href} className="mario-btn mario-btn-primary">
+              {hero.primaryButton.label}
+            </Link>
             <a href={hero.secondaryButton.href} className="mario-btn mario-btn-secondary">
               {hero.secondaryButton.label}
             </a>
@@ -725,25 +728,16 @@ export default async function CS101Page() {
             {cta.description}
           </p>
 
-          <div
-            role="status"
+          <Link
+            href={cta.button.href}
+            className="mario-btn mario-btn-primary"
             style={{
-              display: "inline-flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontFamily: "var(--font-fredoka), var(--font-prompt), sans-serif",
-              fontWeight: 700,
-              fontSize: "1.05rem",
-              color: "#1a1000",
-              background: "linear-gradient(180deg,#FFE135 0%,#FBD000 100%)",
-              border: "3px solid #C8950A",
-              borderRadius: "0.85rem",
-              padding: "0.85rem 1.75rem",
-              boxShadow: "0 6px 0 #8B6914, 0 8px 20px rgba(200,149,10,0.4)",
+              padding: "1rem 2.5rem",
+              fontSize: "1.15rem",
             }}
           >
-            ปิดรับสมัครแล้ว
-          </div>
+            {cta.button.label}
+          </Link>
         </div>
       </section>
     </div>
