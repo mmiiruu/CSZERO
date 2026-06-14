@@ -127,7 +127,7 @@ export const cs101Config: CS101Config = {
     button: { label: "สมัคร CS101", href: "/events/cs101/register" },
   },
   registration: {
-    open: false,
+    open: true,
     opensAt: null,
     capacity: {
       total: 100,
