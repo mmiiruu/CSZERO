@@ -183,7 +183,7 @@ export const helloWorldConfig: HelloWorldConfig = {
     revealAgainButton: "เปิดเผยอีกครั้ง",
     shufflingTitle: "กำลังสุ่มบ้าน...",
     shufflingSubtitle: "กำลังค้นหาบ้านการ์ตูนของคุณ",
-    revealAt: "2026-06-13T09:00:00+07:00",
+    revealAt: "2026-06-15T18:00:00+07:00",
     beforeReveal: {
       title: "รอประกาศบ้าน",
       message: "บ้านการ์ตูนของคุณจะถูกประกาศตามเวลาที่กำหนด คอยติดตามด้านล่างได้เลย!",
