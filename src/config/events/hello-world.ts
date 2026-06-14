@@ -190,15 +190,15 @@ export const helloWorldConfig: HelloWorldConfig = {
     },
   },
   registration: {
-    open: true,
-    opensAt: "2026-05-24T00:00:00+07:00",
+    open: false,
+    opensAt: null,
     capacity: {
       total: 100,
       perHouse: 20,
     },
     comingSoon: {
-      title: "เปิดรับสมัครเร็วๆ นี้",
-      message: "การสมัคร Hello World ยังไม่เปิด คอยติดตามได้เร็วๆ นี้!",
+      title: "ปิดรับสมัครแล้ว",
+      message: "การสมัคร Hello World ได้ปิดลงแล้ว ขอบคุณน้องๆ ทุกคนที่ให้ความสนใจ!",
       backButton: { label: "กลับไปหน้า Hello World", href: "/events/hello-world" },
     },
   },
