@@ -387,13 +387,13 @@ export default function HelloWorldPage() {
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
-              <Link
+              {/* <Link
                 href={hero.primaryButton.href}
                 className="px-8 py-3.5 rounded-2xl font-bold text-sm w-full sm:w-auto text-center transition-all duration-300 hover:scale-105 hover:shadow-xl"
                 style={{ background: "#D97706", color: "#FFFFFF", boxShadow: "0 6px 24px rgba(217,119,6,0.45)" }}
               >
                 {hero.primaryButton.label}
-              </Link>
+              </Link> */}
               <Link
                 href={hero.secondaryButton.href}
                 className="px-8 py-3.5 rounded-2xl font-bold text-sm w-full sm:w-auto text-center transition-all duration-300 hover:scale-105 border-2"
@@ -554,13 +554,13 @@ export default function HelloWorldPage() {
           <p className="mb-10 text-base leading-relaxed" style={{ color: TEXT_M }}>
             {cta.description}
           </p>
-          <Link
+          {/* <Link
             href={cta.button.href}
             className="group inline-flex items-center gap-2 px-10 py-4 rounded-2xl font-black text-base tracking-wide transition-all duration-300 hover:scale-105"
             style={{ background: "#D97706", color: "#FFFFFF", boxShadow: "0 8px 32px rgba(217,119,6,0.45)" }}
           >
             <span aria-hidden="true">🎉</span> {cta.button.label}
-          </Link>
+          </Link> */}
           <div aria-hidden="true" className="mt-8 flex justify-center gap-3">
             {[
               { e: "🧽", bg: "#FDE047" }, { e: "🔍", bg: "#93C5FD" }, { e: "🐼", bg: "#86EFAC" },
