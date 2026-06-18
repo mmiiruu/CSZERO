@@ -35,6 +35,7 @@ export type DepartmentKey = typeof DEPARTMENTS[number]["key"];
 export interface FallbackMember {
   _id: string;
   name: string;
+  nickname: string;
   role: string;
   image: string;
   bio: string;
@@ -48,14 +49,14 @@ export const teamConfig = {
   description: "นิสิตที่มีความมุ่งมั่นเบื้องหลัง CSKU ร่วมกันสร้างชุมชน CS ที่ยอดเยี่ยม",
   viewProfileLabel: "ดูโปรไฟล์",
   fallbackMembers: [
-    { _id: "1", name: "Alex Chen",      role: "ประธาน",                    bio: "นำพา CSKU ด้วยวิสัยทัศน์และความมุ่งมั่น",          department: "บริหาร",        isHead: false },
-    { _id: "2", name: "Sari Wongsakul", role: "รองประธาน",                 bio: "จัดกิจกรรมและสร้างชุมชนให้เข้มแข็ง",               department: "บริหาร",        isHead: false },
-    { _id: "6", name: "James Liu",      role: "เลขานุการ",                 bio: "ดูแลความเป็นระเบียบเรียบร้อยของทุกอย่าง",          department: "บริหาร",        isHead: false },
-    { _id: "4", name: "Ploy Kittirat",  role: "หัวหน้าฝ่ายกิจกรรม",       bio: "สร้างประสบการณ์ที่น่าจดจำให้กับทุกคน",             department: "กิจกรรม",       isHead: true  },
-    { _id: "9", name: "Mint Charoen",   role: "สมาชิกฝ่ายกิจกรรม",        bio: "",                                                  department: "กิจกรรม",       isHead: false },
-    { _id: "7", name: "Fern Suthep",    role: "หัวหน้าฝ่ายประชาสัมพันธ์", bio: "เผยแพร่ข่าวสารและสร้างการเชื่อมต่อ",               department: "ประชาสัมพันธ์", isHead: true  },
-    { _id: "10", name: "Pim Natthida",  role: "สมาชิกฝ่ายประชาสัมพันธ์",  bio: "",                                                  department: "ประชาสัมพันธ์", isHead: false },
-    { _id: "8", name: "Ben Torres",     role: "หัวหน้าฝ่ายวิชาการ",       bio: "ช่วยให้นิสิตประสบความสำเร็จในการเรียน",            department: "วิชาการ",       isHead: true  },
-    { _id: "11", name: "Krit Somchai",  role: "สมาชิกฝ่ายวิชาการ",        bio: "",                                                  department: "วิชาการ",       isHead: false },
+    { _id: "1",  name: "Alex Chen",      nickname: "Alex",  role: "ประธาน",                    bio: "นำพา CSKU ด้วยวิสัยทัศน์และความมุ่งมั่น",          department: "บริหาร",        isHead: false },
+    { _id: "2",  name: "Sari Wongsakul",nickname: "Sari",  role: "รองประธาน",                 bio: "จัดกิจกรรมและสร้างชุมชนให้เข้มแข็ง",               department: "บริหาร",        isHead: false },
+    { _id: "6",  name: "James Liu",      nickname: "James", role: "เลขานุการ",                 bio: "ดูแลความเป็นระเบียบเรียบร้อยของทุกอย่าง",          department: "บริหาร",        isHead: false },
+    { _id: "4",  name: "Ploy Kittirat",  nickname: "Ploy",  role: "หัวหน้าฝ่ายกิจกรรม",       bio: "สร้างประสบการณ์ที่น่าจดจำให้กับทุกคน",             department: "กิจกรรม",       isHead: true  },
+    { _id: "9",  name: "Mint Charoen",   nickname: "Mint",  role: "สมาชิกฝ่ายกิจกรรม",        bio: "",                                                  department: "กิจกรรม",       isHead: false },
+    { _id: "7",  name: "Fern Suthep",    nickname: "Fern",  role: "หัวหน้าฝ่ายประชาสัมพันธ์", bio: "เผยแพร่ข่าวสารและสร้างการเชื่อมต่อ",               department: "ประชาสัมพันธ์", isHead: true  },
+    { _id: "10", name: "Pim Natthida",   nickname: "Pim",   role: "สมาชิกฝ่ายประชาสัมพันธ์",  bio: "",                                                  department: "ประชาสัมพันธ์", isHead: false },
+    { _id: "8",  name: "Ben Torres",     nickname: "Ben",   role: "หัวหน้าฝ่ายวิชาการ",       bio: "ช่วยให้นิสิตประสบความสำเร็จในการเรียน",            department: "วิชาการ",       isHead: true  },
+    { _id: "11", name: "Krit Somchai",   nickname: "Krit",  role: "สมาชิกฝ่ายวิชาการ",        bio: "",                                                  department: "วิชาการ",       isHead: false },
   ].map(m => ({ ...m, image: "" })) satisfies FallbackMember[],
 };

@@ -23,7 +23,7 @@ export async function PATCH(
 
     const { id } = await params;
     const body = await req.json();
-    const { name, role: memberRole, bio, image, order, department, isHead } = body;
+    const { name, nickname, role: memberRole, bio, image, order, department, isHead } = body;
 
     if (!name || !memberRole) {
       return NextResponse.json({ error: "name and role are required" }, { status: 400 });
@@ -32,7 +32,7 @@ export async function PATCH(
     await dbConnect();
     const member = await TeamMember.findByIdAndUpdate(
       id,
-      { name, role: memberRole, bio: bio || "", image: image || "", order: order ?? 0, department: department || "", isHead: isHead ?? false },
+      { name, nickname: nickname || "", role: memberRole, bio: bio || "", image: image || "", order: order ?? 0, department: department || "", isHead: isHead ?? false },
       { new: true }
     );
 

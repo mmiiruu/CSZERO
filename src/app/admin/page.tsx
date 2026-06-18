@@ -4,6 +4,7 @@ import React, { useEffect, useState, useCallback, useMemo, useRef } from "react"
 import { useRouter } from "next/navigation";
 import { useTheme } from "@/components/providers/ThemeProvider";
 import { DEPARTMENTS } from "@/config/team";
+import { upload } from "@vercel/blob/client";
 import { helloWorldFormConfig } from "@/config/forms/hello-world-register";
 import { cs101FormConfig } from "@/config/forms/cs101-register";
 
@@ -1011,10 +1012,78 @@ function CandidatesTab({ callerRole }: { callerRole: Role }) {
   );
 }
 
+/* ─── Team Image Upload ──────────────────────────────────────────── */
+function TeamImageUpload({ value, onChange }: { value: string; onChange: (url: string) => void }) {
+  const [status, setStatus] = useState<"idle" | "uploading" | "error">("idle");
+  const [errMsg, setErrMsg] = useState("");
+
+  const handleFile = async (file: File) => {
+    if (file.size > 8 * 1024 * 1024) { setErrMsg("ต้องอัปโหลดน้อยกว่า 8 MB"); setStatus("error"); return; }
+    setStatus("uploading"); setErrMsg("");
+    try {
+      const result = await upload(`team/${file.name}`, file, { access: "public", handleUploadUrl: "/api/upload" });
+      onChange(result.url);
+      setStatus("idle");
+    } catch (err) {
+      const raw = err instanceof Error ? err.message : "";
+      setErrMsg(/size|too large|exceed|limit/i.test(raw) ? "ต้องอัปโหลดน้อยกว่า 8 MB" : (raw || "อัปโหลดไม่สำเร็จ"));
+      setStatus("error");
+    }
+  };
+
+  return (
+    <div className="space-y-1.5">
+      <label className="block text-xs font-medium text-slate-500 dark:text-slate-400">รูปภาพ</label>
+      {value ? (
+        <div className="relative rounded-xl overflow-hidden border border-slate-200 dark:border-slate-600">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={value} alt="preview" className="w-full h-36 object-cover" />
+          <button
+            type="button"
+            onClick={() => onChange("")}
+            className="absolute top-2 right-2 px-3 py-1 rounded-full text-xs font-semibold bg-white/90 text-red-600 shadow cursor-pointer hover:bg-white transition-colors"
+          >
+            ลบ / เปลี่ยน
+          </button>
+        </div>
+      ) : (
+        <label className={`flex flex-col items-center justify-center gap-2 rounded-xl p-5 cursor-pointer border-2 border-dashed transition-all ${status === "uploading" ? "border-blue-400 bg-blue-50 dark:bg-blue-900/20" : "border-slate-200 dark:border-slate-600 hover:border-slate-300 dark:hover:border-slate-500 bg-slate-50 dark:bg-slate-700/30"}`}>
+          {status === "uploading" ? (
+            <>
+              <svg aria-hidden="true" className="animate-spin w-5 h-5 text-blue-500" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+              <span className="text-sm text-blue-600 dark:text-blue-400 font-medium">กำลังอัปโหลด...</span>
+            </>
+          ) : (
+            <>
+              <svg aria-hidden="true" className="w-6 h-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 12V4m0 0l-4 4m4-4l4 4" />
+              </svg>
+              <span className="text-sm text-slate-500 dark:text-slate-400 font-medium">แตะเพื่อเลือกรูป</span>
+              <span className="text-xs text-slate-400 dark:text-slate-500">JPG / PNG / WebP / HEIC · สูงสุด 8 MB</span>
+            </>
+          )}
+          <input
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/heic"
+            className="hidden"
+            disabled={status === "uploading"}
+            onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); e.target.value = ""; }}
+          />
+        </label>
+      )}
+      {errMsg && <p className="text-xs text-red-600">{errMsg}</p>}
+    </div>
+  );
+}
+
 /* ─── Team Tab ───────────────────────────────────────────────────── */
 type TeamMemberAdmin = {
   _id: string;
   name: string;
+  nickname: string;
   role: string;
   bio: string;
   image: string;
@@ -1023,7 +1092,7 @@ type TeamMemberAdmin = {
   isHead: boolean;
 };
 
-const EMPTY_FORM = { name: "", role: "", bio: "", image: "", order: 0, department: "", isHead: false };
+const EMPTY_FORM = { name: "", nickname: "", role: "", bio: "", image: "", order: 0, department: "", isHead: false };
 
 function TeamTab() {
   const [members, setMembers] = useState<TeamMemberAdmin[]>([]);
@@ -1057,7 +1126,7 @@ function TeamTab() {
   };
 
   const openEdit = (m: TeamMemberAdmin) => {
-    setForm({ name: m.name, role: m.role, bio: m.bio || "", image: m.image || "", order: m.order ?? 0, department: m.department || "", isHead: m.isHead ?? false });
+    setForm({ name: m.name, nickname: m.nickname || "", role: m.role, bio: m.bio || "", image: m.image || "", order: m.order ?? 0, department: m.department || "", isHead: m.isHead ?? false });
     setModal({ mode: "edit", member: m });
   };
 
@@ -1188,12 +1257,12 @@ function TeamTab() {
             <h3 className="text-base font-semibold text-slate-800 dark:text-slate-100 mb-5">
               {modal.mode === "add" ? "เพิ่มสมาชิกใหม่" : "แก้ไขข้อมูลสมาชิก"}
             </h3>
-            <div className="space-y-4">
+            <div className="space-y-4 max-h-[65vh] overflow-y-auto pr-1">
               {[
-                { label: "ชื่อ *", key: "name", placeholder: "ชื่อ-นามสกุล" },
+                { label: "ชื่อ-นามสกุล *", key: "name", placeholder: "ชื่อ-นามสกุล" },
+                { label: "ชื่อเล่น", key: "nickname", placeholder: "ชื่อเล่น" },
                 { label: "ตำแหน่ง *", key: "role", placeholder: "เช่น ประธาน, รองประธาน" },
                 { label: "Bio", key: "bio", placeholder: "แนะนำตัวสั้นๆ" },
-                { label: "URL รูปภาพ", key: "image", placeholder: "https://..." },
               ].map(({ label, key, placeholder }) => (
                 <div key={key}>
                   <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">{label}</label>
@@ -1206,6 +1275,7 @@ function TeamTab() {
                   />
                 </div>
               ))}
+              <TeamImageUpload value={form.image} onChange={(url) => setForm((p) => ({ ...p, image: url }))} />
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">ฝ่าย</label>

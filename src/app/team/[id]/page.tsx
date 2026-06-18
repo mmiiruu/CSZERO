@@ -7,19 +7,19 @@ import { useParams } from "next/navigation";
 import { getMemberColor, DOT_PATTERN } from "@/config/team";
 
 interface TeamMember {
-  _id: string; name: string; role: string; bio: string; skills: string[];
+  _id: string; name: string; nickname: string; role: string; bio: string; skills: string[];
   image: string; socialLinks: { github?: string; linkedin?: string; twitter?: string; website?: string; };
 }
 
 const fallbackMembers: Record<string, TeamMember> = {
-  "1": { _id: "1", name: "Alex Chen",      role: "ประธาน",                    bio: "นำพา CSKU ด้วยวิสัยทัศน์และความมุ่งมั่น",                   skills: ["Python", "Machine Learning", "Leadership"],  image: "", socialLinks: { github: "#", linkedin: "#" } },
-  "2": { _id: "2", name: "Sari Wongsakul", role: "รองประธาน",                 bio: "จัดกิจกรรมและสร้างชุมชนให้เข้มแข็ง",                        skills: ["JavaScript", "React", "Event Planning"],     image: "", socialLinks: { github: "#" } },
-  "3": { _id: "3", name: "Mike Tanaka",    role: "หัวหน้าฝ่ายเทคนิค",        bio: "พัฒนาเครื่องมือและถ่ายทอดความรู้ด้านเทคโนโลยี",             skills: ["TypeScript", "Next.js", "Node.js"],          image: "", socialLinks: { github: "#" } },
-  "4": { _id: "4", name: "Ploy Kittirat",  role: "หัวหน้าฝ่ายกิจกรรม",       bio: "สร้างประสบการณ์ที่น่าจดจำให้กับทุกคน",                      skills: ["Project Management", "Communication"],       image: "", socialLinks: {} },
-  "5": { _id: "5", name: "Nina Park",      role: "หัวหน้าฝ่ายดีไซน์",        bio: "ทำให้ทุกอย่างสวยงามและน่าใช้งาน",                           skills: ["Figma", "CSS", "Design Systems"],            image: "", socialLinks: {} },
-  "6": { _id: "6", name: "James Liu",      role: "เลขานุการ",                 bio: "ดูแลความเป็นระเบียบเรียบร้อยของทุกอย่าง",                   skills: ["Documentation", "Planning"],                 image: "", socialLinks: {} },
-  "7": { _id: "7", name: "Fern Suthep",    role: "หัวหน้าฝ่ายประชาสัมพันธ์", bio: "เผยแพร่ข่าวสารและสร้างการเชื่อมต่อ",                        skills: ["Social Media", "Content Writing"],           image: "", socialLinks: {} },
-  "8": { _id: "8", name: "Ben Torres",     role: "หัวหน้าฝ่ายวิชาการ",       bio: "ช่วยให้นิสิตประสบความสำเร็จในการเรียน",                     skills: ["Algorithms", "C++", "Teaching"],             image: "", socialLinks: { github: "#" } },
+  "1": { _id: "1", name: "Alex Chen",      nickname: "Alex",  role: "ประธาน",                    bio: "นำพา CSKU ด้วยวิสัยทัศน์และความมุ่งมั่น",          skills: ["Python", "Machine Learning", "Leadership"],  image: "", socialLinks: { github: "#", linkedin: "#" } },
+  "2": { _id: "2", name: "Sari Wongsakul", nickname: "Sari",  role: "รองประธาน",                 bio: "จัดกิจกรรมและสร้างชุมชนให้เข้มแข็ง",               skills: ["JavaScript", "React", "Event Planning"],     image: "", socialLinks: { github: "#" } },
+  "3": { _id: "3", name: "Mike Tanaka",    nickname: "Mike",  role: "หัวหน้าฝ่ายเทคนิค",        bio: "พัฒนาเครื่องมือและถ่ายทอดความรู้ด้านเทคโนโลยี",   skills: ["TypeScript", "Next.js", "Node.js"],          image: "", socialLinks: { github: "#" } },
+  "4": { _id: "4", name: "Ploy Kittirat",  nickname: "Ploy",  role: "หัวหน้าฝ่ายกิจกรรม",       bio: "สร้างประสบการณ์ที่น่าจดจำให้กับทุกคน",             skills: ["Project Management", "Communication"],       image: "", socialLinks: {} },
+  "5": { _id: "5", name: "Nina Park",      nickname: "Nina",  role: "หัวหน้าฝ่ายดีไซน์",        bio: "ทำให้ทุกอย่างสวยงามและน่าใช้งาน",                 skills: ["Figma", "CSS", "Design Systems"],            image: "", socialLinks: {} },
+  "6": { _id: "6", name: "James Liu",      nickname: "James", role: "เลขานุการ",                 bio: "ดูแลความเป็นระเบียบเรียบร้อยของทุกอย่าง",          skills: ["Documentation", "Planning"],                 image: "", socialLinks: {} },
+  "7": { _id: "7", name: "Fern Suthep",    nickname: "Fern",  role: "หัวหน้าฝ่ายประชาสัมพันธ์", bio: "เผยแพร่ข่าวสารและสร้างการเชื่อมต่อ",               skills: ["Social Media", "Content Writing"],           image: "", socialLinks: {} },
+  "8": { _id: "8", name: "Ben Torres",     nickname: "Ben",   role: "หัวหน้าฝ่ายวิชาการ",       bio: "ช่วยให้นิสิตประสบความสำเร็จในการเรียน",            skills: ["Algorithms", "C++", "Teaching"],             image: "", socialLinks: { github: "#" } },
 };
 
 const SOCIAL_LABELS: Record<string, string> = {
@@ -177,8 +177,11 @@ export default function TeamMemberPage() {
                 {member.role}
               </p>
               <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-none break-words">
-                {member.name}
+                {member.nickname || member.name}
               </h1>
+              {member.nickname && (
+                <p className="mt-1 text-slate-400 text-base sm:text-lg">{member.name}</p>
+              )}
             </div>
           </div>
 

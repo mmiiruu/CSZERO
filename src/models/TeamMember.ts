@@ -2,6 +2,7 @@ import mongoose, { Schema, Document, Model } from "mongoose";
 
 export interface ITeamMember extends Document {
   name: string;
+  nickname: string;
   role: string;
   bio: string;
   skills: string[];
@@ -20,6 +21,7 @@ export interface ITeamMember extends Document {
 const TeamMemberSchema = new Schema<ITeamMember>(
   {
     name: { type: String, required: true },
+    nickname: { type: String, default: "" },
     role: { type: String, required: true },
     bio: { type: String, required: true },
     skills: [{ type: String }],

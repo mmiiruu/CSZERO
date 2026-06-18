@@ -19,17 +19,16 @@ export async function POST(req: NextRequest) {
     if (!role) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
     const body = await req.json();
-    const { name, role: memberRole, bio, image, order, skills, socialLinks } = body;
+    const { name, nickname, role: memberRole, bio, image, order, skills, socialLinks, department, isHead } = body;
 
     if (!name || !memberRole) {
       return NextResponse.json({ error: "name and role are required" }, { status: 400 });
     }
 
-    const { department, isHead } = body;
-
     await dbConnect();
     const member = await TeamMember.create({
       name,
+      nickname: nickname || "",
       role: memberRole,
       bio: bio || "",
       image: image || "",

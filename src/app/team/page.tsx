@@ -8,6 +8,7 @@ import { teamConfig, DEPARTMENTS, getMemberColor, DOT_PATTERN, type FallbackMemb
 interface TeamMember {
   _id: string;
   name: string;
+  nickname: string;
   role: string;
   image: string;
   bio: string;
@@ -85,7 +86,10 @@ function LeaderCard({ member }: { member: TeamMember | FallbackMember }) {
         <div className="flex flex-col justify-between min-h-[64px] flex-1 min-w-0">
           <div>
             <p className="text-xs font-mono text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-0.5 truncate">{member.role}</p>
-            <h3 className="text-lg font-bold text-slate-800 dark:text-white leading-tight truncate">{member.name}</h3>
+            <h3 className="text-lg font-bold text-slate-800 dark:text-white leading-tight truncate">
+              {member.nickname || member.name}
+              {member.nickname && <span className="ml-1.5 text-sm font-normal text-slate-400 dark:text-slate-500 truncate">{member.name}</span>}
+            </h3>
             {member.bio && (
               <p className="mt-1.5 text-xs text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-2">{member.bio}</p>
             )}
@@ -129,7 +133,10 @@ function DeptHeadCard({ member, deptColor }: { member: TeamMember | FallbackMemb
             </span>
           </div>
           <p className="text-xs font-mono text-slate-400 dark:text-slate-500 uppercase tracking-widest truncate">{member.role}</p>
-          <h3 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white leading-tight">{member.name}</h3>
+          <h3 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white leading-tight">
+            {member.nickname || member.name}
+            {member.nickname && <span className="ml-1.5 text-sm font-normal text-slate-400 dark:text-slate-500">{member.name}</span>}
+          </h3>
           {member.bio && (
             <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-1">{member.bio}</p>
           )}
@@ -162,7 +169,10 @@ function MemberCard({ member }: { member: TeamMember | FallbackMember }) {
             <span aria-hidden="true">{member.name.charAt(0)}</span>
           )}
         </div>
-        <h3 className="text-slate-800 dark:text-white font-semibold text-sm leading-snug">{member.name}</h3>
+        <h3 className="text-slate-800 dark:text-white font-semibold text-sm leading-snug">
+          {member.nickname || member.name}
+        </h3>
+        {member.nickname && <p className="text-slate-400 dark:text-slate-500 text-xs leading-snug">{member.name}</p>}
         <p className="text-slate-500 dark:text-slate-400 text-xs mt-0.5 line-clamp-1">{member.role}</p>
         <div aria-hidden="true" className="mt-2.5 flex items-center justify-center gap-1 text-xs text-slate-400 group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors">
           <span>{teamConfig.viewProfileLabel}</span>
