@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useTheme } from "@/components/providers/ThemeProvider";
+import { DEPARTMENTS } from "@/config/team";
 import { helloWorldFormConfig } from "@/config/forms/hello-world-register";
 import { cs101FormConfig } from "@/config/forms/cs101-register";
 
@@ -1010,8 +1011,286 @@ function CandidatesTab({ callerRole }: { callerRole: Role }) {
   );
 }
 
+/* ─── Team Tab ───────────────────────────────────────────────────── */
+type TeamMemberAdmin = {
+  _id: string;
+  name: string;
+  role: string;
+  bio: string;
+  image: string;
+  order: number;
+  department: string;
+  isHead: boolean;
+};
+
+const EMPTY_FORM = { name: "", role: "", bio: "", image: "", order: 0, department: "", isHead: false };
+
+function TeamTab() {
+  const [members, setMembers] = useState<TeamMemberAdmin[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [modal, setModal] = useState<{ mode: "add" | "edit"; member?: TeamMemberAdmin } | null>(null);
+  const [form, setForm] = useState(EMPTY_FORM);
+  const [saving, setSaving] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState<TeamMemberAdmin | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
+
+  const showToast = (msg: string, ok: boolean) => {
+    setToast({ msg, ok });
+    setTimeout(() => setToast(null), 3500);
+  };
+
+  const load = useCallback(() => {
+    setLoading(true);
+    fetch("/api/team")
+      .then((r) => r.json())
+      .then((d) => { if (Array.isArray(d)) setMembers(d); })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  const openAdd = () => {
+    setForm(EMPTY_FORM);
+    setModal({ mode: "add" });
+  };
+
+  const openEdit = (m: TeamMemberAdmin) => {
+    setForm({ name: m.name, role: m.role, bio: m.bio || "", image: m.image || "", order: m.order ?? 0, department: m.department || "", isHead: m.isHead ?? false });
+    setModal({ mode: "edit", member: m });
+  };
+
+  const handleSave = async () => {
+    if (!form.name.trim() || !form.role.trim()) return;
+    setSaving(true);
+    try {
+      const isEdit = modal?.mode === "edit";
+      const url = isEdit ? `/api/admin/team/${modal!.member!._id}` : "/api/admin/team";
+      const res = await fetch(url, {
+        method: isEdit ? "PATCH" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        showToast(isEdit ? "✓ อัปเดตแล้ว" : "✓ เพิ่มสมาชิกแล้ว", true);
+        setModal(null);
+        load();
+      } else {
+        showToast(`✗ ${data.error}`, false);
+      }
+    } catch {
+      showToast("✗ Network error", false);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!confirmDelete) return;
+    setDeleting(true);
+    try {
+      const res = await fetch(`/api/admin/team/${confirmDelete._id}`, { method: "DELETE" });
+      if (res.ok) {
+        setMembers((p) => p.filter((m) => m._id !== confirmDelete._id));
+        showToast(`✓ ลบ ${confirmDelete.name} แล้ว`, true);
+      } else {
+        const data = await res.json();
+        showToast(`✗ ${data.error}`, false);
+      }
+    } catch {
+      showToast("✗ Network error", false);
+    } finally {
+      setDeleting(false);
+      setConfirmDelete(null);
+    }
+  };
+
+  return (
+    <>
+      {toast && (
+        <div className={`fixed bottom-6 right-6 z-50 px-5 py-3 rounded-xl text-sm font-medium shadow-lg ${toast.ok ? "bg-green-600 text-white" : "bg-red-600 text-white"}`}>
+          {toast.msg}
+        </div>
+      )}
+
+      <div className="flex items-center justify-between mb-6">
+        <span className="text-sm text-slate-500 dark:text-slate-400">
+          <strong className="font-semibold text-slate-800 dark:text-slate-100">{members.length}</strong>
+          <span className="ml-1.5">สมาชิก</span>
+        </span>
+        <button
+          onClick={openAdd}
+          className="px-4 py-3 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors cursor-pointer flex items-center gap-2"
+        >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+          </svg>
+          เพิ่มสมาชิก
+        </button>
+      </div>
+
+      {loading ? (
+        <div role="status" aria-label="กำลังโหลด..." className="flex items-center justify-center py-20">
+          <div aria-hidden="true" className="w-8 h-8 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
+        </div>
+      ) : members.length === 0 ? (
+        <div className="bg-card border border-border rounded-2xl p-12 text-center">
+          <p className="text-slate-400 dark:text-slate-500">ยังไม่มีสมาชิก</p>
+        </div>
+      ) : (
+        <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-700/50">
+                  {["ลำดับ", "ชื่อ", "ตำแหน่ง", "ฝ่าย", "หัวหน้า", "Actions"].map((h) => (
+                    <th key={h} className="text-left px-6 py-4 text-slate-500 dark:text-slate-400 font-medium">{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {members.map((m) => (
+                  <tr key={m._id} className="border-b border-slate-50 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
+                    <td className="px-6 py-4 text-slate-400 dark:text-slate-500 tabular-nums">{m.order}</td>
+                    <td className="px-6 py-4 text-slate-800 dark:text-slate-200 font-medium">{m.name}</td>
+                    <td className="px-6 py-4 text-slate-600 dark:text-slate-300">{m.role}</td>
+                    <td className="px-6 py-4">
+                      <span className="text-xs text-slate-600 dark:text-slate-300">{m.department || "—"}</span>
+                    </td>
+                    <td className="px-6 py-4">
+                      {m.isHead ? (
+                        <span className="px-2 py-0.5 text-xs rounded-full bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800">หัวหน้า</span>
+                      ) : (
+                        <span className="text-slate-300 dark:text-slate-600">—</span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <button onClick={() => openEdit(m)} className="text-primary hover:text-primary-dark text-sm font-medium cursor-pointer transition-colors">แก้ไข</button>
+                        <button onClick={() => setConfirmDelete(m)} className="text-red-500 hover:text-red-700 dark:hover:text-red-400 text-sm font-medium cursor-pointer transition-colors">ลบ</button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Add/Edit Modal */}
+      {modal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+          onClick={(e) => { if (e.target === e.currentTarget && !saving) setModal(null); }}>
+          <div role="dialog" aria-modal="true" className="w-full max-w-md rounded-2xl shadow-2xl bg-card border border-border p-6">
+            <h3 className="text-base font-semibold text-slate-800 dark:text-slate-100 mb-5">
+              {modal.mode === "add" ? "เพิ่มสมาชิกใหม่" : "แก้ไขข้อมูลสมาชิก"}
+            </h3>
+            <div className="space-y-4">
+              {[
+                { label: "ชื่อ *", key: "name", placeholder: "ชื่อ-นามสกุล" },
+                { label: "ตำแหน่ง *", key: "role", placeholder: "เช่น ประธาน, รองประธาน" },
+                { label: "Bio", key: "bio", placeholder: "แนะนำตัวสั้นๆ" },
+                { label: "URL รูปภาพ", key: "image", placeholder: "https://..." },
+              ].map(({ label, key, placeholder }) => (
+                <div key={key}>
+                  <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">{label}</label>
+                  <input
+                    type="text"
+                    placeholder={placeholder}
+                    value={form[key as keyof typeof form] as string}
+                    onChange={(e) => setForm((p) => ({ ...p, [key]: e.target.value }))}
+                    className="w-full px-3 py-2.5 border border-slate-200 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500"
+                  />
+                </div>
+              ))}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">ฝ่าย</label>
+                  <select
+                    value={form.department}
+                    onChange={(e) => setForm((p) => ({ ...p, department: e.target.value }))}
+                    className="w-full px-3 py-2.5 border border-slate-200 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500"
+                  >
+                    <option value="">— ไม่ระบุ —</option>
+                    {DEPARTMENTS.map((d) => (
+                      <option key={d.key} value={d.key}>{d.label}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">ลำดับ</label>
+                  <input
+                    type="number"
+                    value={form.order}
+                    onChange={(e) => setForm((p) => ({ ...p, order: Number(e.target.value) }))}
+                    className="w-full px-3 py-2.5 border border-slate-200 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500"
+                  />
+                </div>
+              </div>
+              <label className="flex items-center gap-2.5 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={form.isHead}
+                  onChange={(e) => setForm((p) => ({ ...p, isHead: e.target.checked }))}
+                  className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                />
+                <span className="text-sm text-slate-700 dark:text-slate-200">หัวหน้าฝ่าย</span>
+              </label>
+            </div>
+            <div className="flex items-center justify-end gap-3 mt-6">
+              <button onClick={() => setModal(null)} disabled={saving} className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors cursor-pointer">
+                ยกเลิก
+              </button>
+              <button
+                onClick={handleSave}
+                disabled={saving || !form.name.trim() || !form.role.trim()}
+                className="px-4 py-2 text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60 rounded-lg transition-colors cursor-pointer"
+              >
+                {saving ? "กำลังบันทึก..." : "บันทึก"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete confirmation */}
+      {confirmDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+          onClick={(e) => { if (e.target === e.currentTarget && !deleting) setConfirmDelete(null); }}>
+          <div role="dialog" aria-modal="true" className="w-full max-w-md rounded-2xl shadow-2xl bg-card border border-border p-6">
+            <div className="flex items-start gap-4 mb-4">
+              <div className="shrink-0 w-10 h-10 rounded-full bg-red-50 dark:bg-red-900/30 flex items-center justify-center">
+                <svg className="w-5 h-5 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="font-semibold text-slate-800 dark:text-slate-100">ลบสมาชิก?</h3>
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+                  จะลบ <strong className="text-slate-700 dark:text-slate-200">{confirmDelete.name}</strong> ออกจากหน้า Team ถาวร
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center justify-end gap-3">
+              <button onClick={() => setConfirmDelete(null)} disabled={deleting} className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors cursor-pointer">
+                ยกเลิก
+              </button>
+              <button onClick={handleDelete} disabled={deleting} className="px-4 py-2 text-sm font-medium bg-red-600 text-white hover:bg-red-700 disabled:opacity-60 rounded-lg transition-colors cursor-pointer">
+                {deleting ? "กำลังลบ..." : "ลบ"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
 /* ─── PAGE ───────────────────────────────────────────────────────── */
-type Tab = "registrations" | "users" | "candidates";
+type Tab = "registrations" | "users" | "candidates" | "team";
 
 export default function AdminPage() {
   const router = useRouter();
@@ -1073,6 +1352,7 @@ export default function AdminPage() {
             { id: "registrations" as Tab, label: "Registrations", icon: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" },
             { id: "candidates" as Tab,    label: "Candidates",    icon: "M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" },
             { id: "users" as Tab,         label: "Users",         icon: "M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" },
+            { id: "team" as Tab,          label: "Team",          icon: "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" },
           ]).map(({ id, label, icon }) => (
             <button key={id} id={`tab-${id}`} onClick={() => setTab(id)}
               role="tab"
@@ -1094,6 +1374,9 @@ export default function AdminPage() {
         </div>
         <div role="tabpanel" id="panel-users" aria-labelledby="tab-users" hidden={tab !== "users"}>
           <UsersTab callerEmail={callerEmail} callerRole={(role as Role) ?? "staff"} />
+        </div>
+        <div role="tabpanel" id="panel-team" aria-labelledby="tab-team" hidden={tab !== "team"}>
+          <TeamTab />
         </div>
 
       </div>

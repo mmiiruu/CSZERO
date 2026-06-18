@@ -13,6 +13,8 @@ export interface ITeamMember extends Document {
     website?: string;
   };
   order: number;
+  department: string;
+  isHead: boolean;
 }
 
 const TeamMemberSchema = new Schema<ITeamMember>(
@@ -29,6 +31,8 @@ const TeamMemberSchema = new Schema<ITeamMember>(
       website: { type: String },
     },
     order: { type: Number, default: 0 },
+    department: { type: String, default: "" },
+    isHead: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
