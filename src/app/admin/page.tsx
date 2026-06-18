@@ -1032,49 +1032,47 @@ function TeamImageUpload({ value, onChange }: { value: string; onChange: (url: s
   };
 
   return (
-    <div className="space-y-1.5">
-      <label className="block text-xs font-medium text-secondary">รูปภาพ</label>
-      {value ? (
-        <div className="relative rounded-xl overflow-hidden border border-border">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={value} alt="preview" className="w-full h-36 object-cover" />
-          <button
-            type="button"
-            onClick={() => onChange("")}
-            className="absolute top-2 right-2 px-3 py-1 rounded-full text-xs font-semibold bg-white/90 text-red-600 shadow cursor-pointer hover:bg-white transition-colors"
-          >
-            ลบ / เปลี่ยน
-          </button>
-        </div>
-      ) : (
-        <label className={`flex flex-col items-center justify-center gap-2 rounded-xl p-5 cursor-pointer border-2 border-dashed transition-colors ${status === "uploading" ? "border-blue-400 bg-blue-50 dark:bg-blue-900/20" : "border-border hover:border-border bg-hover"}`}>
-          {status === "uploading" ? (
-            <>
+    <div className="flex flex-col items-center gap-2">
+      <div className="relative w-24 h-24">
+        {value ? (
+          <>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={value} alt="preview" className="w-24 h-24 rounded-full object-cover border-2 border-border shadow-sm" />
+            <label className="absolute inset-0 rounded-full flex items-center justify-center bg-black/40 opacity-0 hover:opacity-100 transition-opacity cursor-pointer">
+              <svg aria-hidden="true" className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              <input type="file" accept="image/jpeg,image/png,image/webp,image/heic" className="hidden" disabled={status === "uploading"} onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); e.target.value = ""; }} />
+            </label>
+            <button type="button" onClick={() => onChange("")} aria-label="ลบรูป" className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center shadow-sm hover:bg-red-600 transition-colors cursor-pointer">
+              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </>
+        ) : (
+          <label className={`w-24 h-24 rounded-full flex flex-col items-center justify-center gap-1 cursor-pointer border-2 border-dashed transition-colors ${status === "uploading" ? "border-blue-400 bg-blue-50 dark:bg-blue-900/20" : "border-border bg-hover hover:border-blue-400"}`}>
+            {status === "uploading" ? (
               <svg aria-hidden="true" className="animate-spin w-5 h-5 text-blue-500" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
               </svg>
-              <span className="text-sm text-blue-600 dark:text-blue-400 font-medium">กำลังอัปโหลด...</span>
-            </>
-          ) : (
-            <>
-              <svg aria-hidden="true" className="w-6 h-6 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 12V4m0 0l-4 4m4-4l4 4" />
-              </svg>
-              <span className="text-sm text-secondary font-medium">แตะเพื่อเลือกรูป</span>
-              <span className="text-xs text-muted">JPG / PNG / WebP / HEIC · สูงสุด 8 MB</span>
-            </>
-          )}
-          <input
-            type="file"
-            accept="image/jpeg,image/png,image/webp,image/heic"
-            className="hidden"
-            disabled={status === "uploading"}
-            onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); e.target.value = ""; }}
-          />
-        </label>
-      )}
-      {errMsg && <p className="text-xs text-red-600">{errMsg}</p>}
+            ) : (
+              <>
+                <svg aria-hidden="true" className="w-5 h-5 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <span className="text-[10px] text-muted leading-tight text-center px-1">อัปโหลด<br/>รูป</span>
+              </>
+            )}
+            <input type="file" accept="image/jpeg,image/png,image/webp,image/heic" className="hidden" disabled={status === "uploading"} onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); e.target.value = ""; }} />
+          </label>
+        )}
+      </div>
+      {errMsg && <p className="text-xs text-red-500">{errMsg}</p>}
+      {!errMsg && !value && <p className="text-xs text-muted">JPG / PNG / WebP · สูงสุด 8 MB</p>}
     </div>
   );
 }
@@ -1251,38 +1249,91 @@ function TeamTab() {
 
       {/* Add/Edit Modal */}
       {modal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
-          onClick={(e) => { if (e.target === e.currentTarget && !saving) setModal(null); }}>
-          <div role="dialog" aria-modal="true" className="w-full max-w-md rounded-2xl shadow-2xl bg-card border border-border p-6">
-            <h3 className="text-base font-semibold text-foreground mb-5">
-              {modal.mode === "add" ? "เพิ่มสมาชิกใหม่" : "แก้ไขข้อมูลสมาชิก"}
-            </h3>
-            <div className="space-y-4 max-h-[65vh] overflow-y-auto pr-1">
-              {[
-                { label: "ชื่อ-นามสกุล *", key: "name", placeholder: "ชื่อ-นามสกุล" },
-                { label: "ชื่อเล่น", key: "nickname", placeholder: "ชื่อเล่น" },
-                { label: "ตำแหน่ง *", key: "role", placeholder: "เช่น ประธาน, รองประธาน" },
-                { label: "Bio", key: "bio", placeholder: "แนะนำตัวสั้นๆ" },
-              ].map(({ label, key, placeholder }) => (
-                <div key={key}>
-                  <label className="block text-xs font-medium text-secondary mb-1">{label}</label>
-                  <input
-                    type="text"
-                    placeholder={placeholder}
-                    value={form[key as keyof typeof form] as string}
-                    onChange={(e) => setForm((p) => ({ ...p, [key]: e.target.value }))}
-                    className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-card text-secondary focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500"
-                  />
-                </div>
-              ))}
-              <TeamImageUpload value={form.image} onChange={(url) => setForm((p) => ({ ...p, image: url }))} />
+        <div
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-0 sm:p-4"
+          onClick={(e) => { if (e.target === e.currentTarget && !saving) setModal(null); }}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="member-modal-title"
+            className="w-full sm:max-w-lg max-h-[95dvh] sm:max-h-[88vh] flex flex-col rounded-t-3xl sm:rounded-2xl shadow-2xl bg-card border border-border overflow-hidden"
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-border-subtle shrink-0">
+              <div>
+                <h3 id="member-modal-title" className="text-base font-semibold text-foreground">
+                  {modal.mode === "add" ? "เพิ่มสมาชิกใหม่" : "แก้ไขข้อมูลสมาชิก"}
+                </h3>
+                <p className="text-xs text-muted mt-0.5">
+                  {modal.mode === "edit" && modal.member?.name ? modal.member.name : "กรอกข้อมูลสมาชิก"}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => { if (!saving) setModal(null); }}
+                aria-label="ปิด"
+                className="p-2 rounded-lg text-muted hover:text-secondary hover:bg-hover transition-colors cursor-pointer"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4">
+              {/* Avatar */}
+              <div className="flex justify-center py-1">
+                <TeamImageUpload value={form.image} onChange={(url) => setForm((p) => ({ ...p, image: url }))} />
+              </div>
+
+              {/* Name + Nickname */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-secondary mb-1">ฝ่าย</label>
+                  <label className="block text-sm font-medium text-foreground mb-1.5">
+                    ชื่อ-นามสกุล <span className="text-red-500" aria-hidden="true">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="ชื่อ-นามสกุล"
+                    value={form.name}
+                    onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
+                    className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-card text-foreground placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-[colors,shadow]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-1.5">ชื่อเล่น</label>
+                  <input
+                    type="text"
+                    placeholder="ชื่อเล่น"
+                    value={form.nickname}
+                    onChange={(e) => setForm((p) => ({ ...p, nickname: e.target.value }))}
+                    className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-card text-foreground placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-[colors,shadow]"
+                  />
+                </div>
+              </div>
+
+              {/* Role + Dept */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-1.5">
+                    ตำแหน่ง <span className="text-red-500" aria-hidden="true">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="เช่น ประธาน, รองประธาน"
+                    value={form.role}
+                    onChange={(e) => setForm((p) => ({ ...p, role: e.target.value }))}
+                    className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-card text-foreground placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-[colors,shadow]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-1.5">ฝ่าย</label>
                   <select
                     value={form.department}
                     onChange={(e) => setForm((p) => ({ ...p, department: e.target.value }))}
-                    className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-card text-secondary focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500"
+                    className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-[colors,shadow] appearance-none cursor-pointer"
                   >
                     <option value="">— ไม่ระบุ —</option>
                     {DEPARTMENTS.map((d) => (
@@ -1290,36 +1341,69 @@ function TeamTab() {
                     ))}
                   </select>
                 </div>
-                <div>
-                  <label className="block text-xs font-medium text-secondary mb-1">ลำดับ</label>
+              </div>
+
+              {/* Bio */}
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1.5">Bio</label>
+                <textarea
+                  placeholder="แนะนำตัวสั้นๆ"
+                  value={form.bio}
+                  onChange={(e) => setForm((p) => ({ ...p, bio: e.target.value }))}
+                  rows={2}
+                  className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-card text-foreground placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-[colors,shadow] resize-none"
+                />
+              </div>
+
+              {/* Order + isHead */}
+              <div className="flex items-end justify-between gap-4 pt-1">
+                <div className="w-24 shrink-0">
+                  <label className="block text-sm font-medium text-foreground mb-1.5">ลำดับ</label>
                   <input
                     type="number"
                     value={form.order}
                     onChange={(e) => setForm((p) => ({ ...p, order: Number(e.target.value) }))}
-                    className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-card text-secondary focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500"
+                    className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-[colors,shadow]"
                   />
                 </div>
+                <label className="flex items-center gap-3 cursor-pointer select-none pb-0.5">
+                  <span className="text-sm font-medium text-foreground">หัวหน้าฝ่าย</span>
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={form.isHead}
+                    onClick={() => setForm((p) => ({ ...p, isHead: !p.isHead }))}
+                    className={`relative w-10 h-6 rounded-full transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 shrink-0 ${form.isHead ? "bg-blue-600" : "bg-border"}`}
+                  >
+                    <span className={`absolute top-1 left-1 w-4 h-4 rounded-full bg-white shadow-sm transition-transform duration-200 ${form.isHead ? "translate-x-4" : "translate-x-0"}`} />
+                  </button>
+                </label>
               </div>
-              <label className="flex items-center gap-2.5 cursor-pointer select-none">
-                <input
-                  type="checkbox"
-                  checked={form.isHead}
-                  onChange={(e) => setForm((p) => ({ ...p, isHead: e.target.checked }))}
-                  className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                />
-                <span className="text-sm text-secondary">หัวหน้าฝ่าย</span>
-              </label>
             </div>
-            <div className="flex items-center justify-end gap-3 mt-6">
-              <button onClick={() => setModal(null)} disabled={saving} className="px-4 py-2 text-sm font-medium text-secondary hover:bg-hover rounded-lg transition-colors cursor-pointer">
+
+            {/* Footer */}
+            <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-border-subtle bg-background shrink-0">
+              <button
+                type="button"
+                onClick={() => setModal(null)}
+                disabled={saving}
+                className="px-4 py-2 text-sm font-medium text-secondary hover:bg-hover rounded-lg transition-colors cursor-pointer"
+              >
                 ยกเลิก
               </button>
               <button
+                type="button"
                 onClick={handleSave}
                 disabled={saving || !form.name.trim() || !form.role.trim()}
-                className="px-4 py-2 text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60 rounded-lg transition-colors cursor-pointer"
+                className="inline-flex items-center gap-2 px-5 py-2 text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60 rounded-lg transition-colors cursor-pointer"
               >
-                {saving ? "กำลังบันทึก..." : "บันทึก"}
+                {saving && (
+                  <svg className="animate-spin w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                )}
+                {saving ? "กำลังบันทึก..." : modal.mode === "add" ? "เพิ่มสมาชิก" : "บันทึก"}
               </button>
             </div>
           </div>
