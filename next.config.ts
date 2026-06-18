@@ -9,6 +9,14 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  images: {
+    remotePatterns: [
+      // Vercel Blob — member profile photos uploaded via admin
+      { protocol: "https", hostname: "*.public.blob.vercel-storage.com" },
+      // Google profile photos (OAuth avatars)
+      { protocol: "https", hostname: "lh3.googleusercontent.com" },
+    ],
+  },
   async headers() {
     return [{ source: "/(.*)", headers: securityHeaders }];
   },
