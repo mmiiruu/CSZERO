@@ -386,7 +386,7 @@ function RegistrationsTab({ callerRole }: { callerRole: Role }) {
                         {reg.event === "hello-world" ? (
                           <select value={reg.house || ""} onChange={(e) => handleHouseChange(reg._id, e.target.value)}
                             aria-label={`House for ${reg.name}`}
-                            className="px-3 py-1.5 border border-border rounded-lg text-sm bg-card text-secondary focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500">
+                            className="px-3 py-1.5 border border-border rounded-lg text-sm bg-card text-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/30 focus-visible:border-blue-500">
                             <option value="">Unassigned</option>
                             {houseOptions.map((h) => <option key={h} value={h}>{h.charAt(0).toUpperCase() + h.slice(1)}</option>)}
                           </select>
@@ -456,7 +456,7 @@ function RegistrationsTab({ callerRole }: { callerRole: Role }) {
                       id={`house-mobile-${reg._id}`}
                       value={reg.house || ""}
                       onChange={(e) => handleHouseChange(reg._id, e.target.value)}
-                      className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-card text-secondary focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500"
+                      className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-card text-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/30 focus-visible:border-blue-500"
                     >
                       <option value="">Unassigned</option>
                       {houseOptions.map((h) => <option key={h} value={h}>{h.charAt(0).toUpperCase() + h.slice(1)}</option>)}
@@ -659,7 +659,7 @@ function UsersTab({ callerEmail, callerRole }: { callerEmail: string; callerRole
                               disabled={updating === u._id}
                               onChange={(e) => handleRoleChange(u._id, e.target.value as Role)}
                               aria-label={`Change role for ${u.name || u.email}`}
-                              className="pl-3 pr-8 py-1.5 border border-border rounded-lg text-sm bg-card text-secondary focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 disabled:opacity-60 cursor-pointer appearance-none"
+                              className="pl-3 pr-8 py-1.5 border border-border rounded-lg text-sm bg-card text-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/30 focus-visible:border-blue-500 disabled:opacity-60 cursor-pointer appearance-none dark:[color-scheme:dark]"
                             >
                               {ROLES.map((r) => (
                                 <option key={r} value={r}>{r.charAt(0).toUpperCase() + r.slice(1)}</option>
@@ -735,7 +735,7 @@ function UsersTab({ callerEmail, callerRole }: { callerEmail: string; callerRole
                         value={u.role || "user"}
                         disabled={updating === u._id}
                         onChange={(e) => handleRoleChange(u._id, e.target.value as Role)}
-                        className="w-full pl-3 pr-9 py-2.5 border border-border rounded-lg text-sm bg-card text-secondary focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 disabled:opacity-60 cursor-pointer appearance-none"
+                        className="w-full pl-3 pr-9 py-2.5 border border-border rounded-lg text-sm bg-card text-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/30 focus-visible:border-blue-500 disabled:opacity-60 cursor-pointer appearance-none dark:[color-scheme:dark]"
                       >
                         {ROLES.map((r) => (
                           <option key={r} value={r}>{r.charAt(0).toUpperCase() + r.slice(1)}</option>
@@ -1299,7 +1299,7 @@ function TeamTab() {
                     placeholder="ชื่อ-นามสกุล"
                     value={form.name}
                     onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
-                    className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-card text-foreground placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-[colors,shadow]"
+                    className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-card text-foreground placeholder:text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/30 focus-visible:border-blue-500 transition-[colors,shadow]"
                   />
                 </div>
                 <div>
@@ -1309,7 +1309,7 @@ function TeamTab() {
                     placeholder="ชื่อเล่น"
                     value={form.nickname}
                     onChange={(e) => setForm((p) => ({ ...p, nickname: e.target.value }))}
-                    className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-card text-foreground placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-[colors,shadow]"
+                    className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-card text-foreground placeholder:text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/30 focus-visible:border-blue-500 transition-[colors,shadow]"
                   />
                 </div>
               </div>
@@ -1325,7 +1325,7 @@ function TeamTab() {
                     placeholder="เช่น ประธาน, รองประธาน"
                     value={form.role}
                     onChange={(e) => setForm((p) => ({ ...p, role: e.target.value }))}
-                    className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-card text-foreground placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-[colors,shadow]"
+                    className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-card text-foreground placeholder:text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/30 focus-visible:border-blue-500 transition-[colors,shadow]"
                   />
                 </div>
                 <div>
@@ -1333,7 +1333,7 @@ function TeamTab() {
                   <select
                     value={form.department}
                     onChange={(e) => setForm((p) => ({ ...p, department: e.target.value }))}
-                    className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-[colors,shadow] appearance-none cursor-pointer"
+                    className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-card text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/30 focus-visible:border-blue-500 transition-[colors,shadow] appearance-none cursor-pointer dark:[color-scheme:dark]"
                   >
                     <option value="">— ไม่ระบุ —</option>
                     {DEPARTMENTS.map((d) => (
@@ -1351,7 +1351,7 @@ function TeamTab() {
                   value={form.bio}
                   onChange={(e) => setForm((p) => ({ ...p, bio: e.target.value }))}
                   rows={2}
-                  className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-card text-foreground placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-[colors,shadow] resize-none"
+                  className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-card text-foreground placeholder:text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/30 focus-visible:border-blue-500 transition-[colors,shadow] resize-none"
                 />
               </div>
 
@@ -1363,7 +1363,7 @@ function TeamTab() {
                     type="number"
                     value={form.order}
                     onChange={(e) => setForm((p) => ({ ...p, order: Number(e.target.value) }))}
-                    className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-[colors,shadow]"
+                    className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-card text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/30 focus-visible:border-blue-500 transition-[colors,shadow]"
                   />
                 </div>
                 <label className="flex items-center gap-3 cursor-pointer select-none pb-0.5">
