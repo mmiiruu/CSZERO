@@ -44,9 +44,9 @@ export interface FallbackMember {
 }
 
 export const teamConfig = {
-  eyebrow: "คนเบื้องหลัง CSKU",
-  title: "รู้จักทีมงาน",
-  description: "นิสิต CS ที่ออกแบบกิจกรรม ดูแลระบบ และขับเคลื่อนชุมนุมให้เดินหน้า",
+  eyebrow: "บุคลากรผู้ทำงานให้กับภาควิชาวิทยาการคอมพิวเตอร์",
+  title: "สมาชิกชุมนุมนิสิตวิทย์คอม",
+  description: "นิสิต ComSci ที่ออกแบบกิจกรรม ดูแลระบบ และขับเคลื่อนชุมนุมให้เดินหน้า",
   viewProfileLabel: "ดูโปรไฟล์",
   fallbackMembers: [
     { _id: "1",  name: "Alex Chen",      nickname: "Alex",  role: "ประธาน",                    bio: "นำพา CSKU ด้วยวิสัยทัศน์และความมุ่งมั่น",          department: "บริหาร",        isHead: false },
