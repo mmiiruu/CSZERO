@@ -190,7 +190,7 @@ export default function RevealPage() {
         <FloatBubble emoji="🎉" style={{ bottom: "15%", left: "8%", animationDelay: "2s" }} />
         <FloatBubble emoji="✨" style={{ bottom: "20%", right: "6%", animationDelay: "1.5s" }} />
 
-        <div className="relative z-10 max-w-md w-full text-center animate-fade-in">
+        <div className="relative z-10 max-w-md w-full text-center motion-safe:animate-fade-in">
           <div
             className="rounded-3xl p-8 sm:p-10"
             style={{
@@ -266,7 +266,7 @@ export default function RevealPage() {
 
       {/* ── REVEALED ─────────────────────────────────────────────── */}
       {revealedHouse && houseData && hp && (
-        <div className="text-center animate-fade-in max-w-sm w-full">
+        <div className="text-center motion-safe:animate-fade-in max-w-sm w-full">
 
           {/* Card with character */}
           <div
@@ -313,7 +313,7 @@ export default function RevealPage() {
           </div>
 
           {/* Text */}
-          <div style={{ animationDelay: "0.4s", animationFillMode: "both" }} className="animate-fade-in">
+          <div style={{ animationDelay: "0.4s", animationFillMode: "both" }} className="motion-safe:animate-fade-in">
             <h1
               ref={revealHeadingRef}
               tabIndex={-1}
@@ -326,7 +326,7 @@ export default function RevealPage() {
 
             <button
               onClick={handleReset}
-              className="px-6 py-3 rounded-2xl text-sm font-semibold transition-all duration-200 hover:scale-105 border-2"
+              className="px-6 py-3 rounded-2xl text-sm font-semibold transition-transform duration-200 motion-safe:hover:scale-105 border-2"
               style={{ background: "white", borderColor: hp.border, color: hp.textColor }}
             >
               {reveal.revealAgainButton}
@@ -370,7 +370,7 @@ export default function RevealPage() {
             {houses.items.map((h, i) => (
               <div
                 key={h.key}
-                className="w-10 h-10 rounded-full flex items-center justify-center text-xl transition-all duration-150"
+                className="w-10 h-10 rounded-full flex items-center justify-center text-xl transition-colors duration-150"
                 style={{
                   background: (housePastel[h.key] ?? housePastel.toystory).bg,
                   border: `2px solid ${(housePastel[h.key] ?? housePastel.toystory).border}`,
@@ -386,7 +386,7 @@ export default function RevealPage() {
 
       {/* ── IDLE ─────────────────────────────────────────────────── */}
       {!isShuffling && !revealedHouse && (
-        <div className="max-w-md w-full text-center animate-fade-in">
+        <div className="max-w-md w-full text-center motion-safe:animate-fade-in">
 
           {/* 5-card fan */}
           <div className="group flex items-end justify-center -space-x-4 mb-8 select-none">
@@ -399,7 +399,7 @@ export default function RevealPage() {
             ].map((card, i) => (
               <div
                 key={i}
-                className="relative origin-bottom transition-all duration-300 ease-out transform-gpu hover:!-translate-y-6 hover:z-10"
+                className="relative origin-bottom transition-transform duration-300 ease-out transform-gpu hover:!-translate-y-6 hover:z-10"
                 style={{
                   transform: `rotate(${card.rot})`,
                   zIndex: i === 2 ? 3 : i === 1 || i === 3 ? 2 : 1,
@@ -428,7 +428,7 @@ export default function RevealPage() {
             <button
               disabled={isLoading}
               onClick={handleReveal}
-              className="w-full inline-flex items-center justify-center px-8 py-4 rounded-2xl font-black text-base transition-all duration-200 hover:scale-105 hover:shadow-xl disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
+              className="w-full inline-flex items-center justify-center px-8 py-4 rounded-2xl font-black text-base transition-[shadow,transform] duration-200 motion-safe:hover:scale-105 hover:shadow-xl disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
               style={{
                 background: "linear-gradient(135deg, #F59E0B, #FBBF24)",
                 color: "#1C1917",

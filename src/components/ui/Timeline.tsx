@@ -80,11 +80,11 @@ function DesktopTimelineItem({
                 {item.type}
               </span>
             )}
-            <span className="text-sm font-mono text-slate-500 dark:text-slate-400">{item.time}</span>
+            <span className="text-sm font-mono text-secondary">{item.time}</span>
           </div>
-          <h4 className="text-slate-800 dark:text-white font-medium">{item.title}</h4>
+          <h4 className="text-foreground font-medium">{item.title}</h4>
           {item.description && (
-            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{item.description}</p>
+            <p className="text-sm text-secondary mt-1">{item.description}</p>
           )}
         </div>
       </div>
@@ -92,7 +92,7 @@ function DesktopTimelineItem({
       {/* Center dot — pops in slightly after content */}
       <div className="flex justify-center w-6" style={dotStyle}>
         <div
-          className="w-3 h-3 rounded-full border-2 bg-white dark:bg-slate-900 z-10 shrink-0 group-hover:scale-125 transition-transform duration-200"
+          className="w-3 h-3 rounded-full border-2 bg-background z-10 shrink-0 motion-safe:group-hover:scale-125 transition-transform duration-200"
           style={{ borderColor: accentColor }}
         />
       </div>
@@ -100,16 +100,16 @@ function DesktopTimelineItem({
       {/* Right slot */}
       <div className={`pl-10 ${!isLeft ? "" : "invisible"}`} style={slideStyle("right")}>
         <div className="flex items-center gap-2 flex-wrap mb-1">
-          <span className="text-sm font-mono text-slate-500 dark:text-slate-400">{item.time}</span>
+          <span className="text-sm font-mono text-secondary">{item.time}</span>
           {item.type && (
             <span className={`text-xs px-2 py-0.5 rounded-full border ${typeColors[item.type] || ""}`}>
               {item.type}
             </span>
           )}
         </div>
-        <h4 className="text-slate-800 dark:text-white font-medium">{item.title}</h4>
+        <h4 className="text-foreground font-medium">{item.title}</h4>
         {item.description && (
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{item.description}</p>
+          <p className="text-sm text-secondary mt-1">{item.description}</p>
         )}
       </div>
     </div>
@@ -151,8 +151,8 @@ function MobileTimelineItem({
         }}
       >
         <div
-          className={`w-2.5 h-2.5 rounded-full border-2 group-hover:scale-125 transition-transform duration-200 ${
-            isFirstEver ? "" : "bg-white dark:bg-slate-900"
+          className={`w-2.5 h-2.5 rounded-full border-2 motion-safe:group-hover:scale-125 transition-transform duration-200 ${
+            isFirstEver ? "" : "bg-background"
           }`}
           style={{
             borderColor: accentColor,
@@ -162,12 +162,12 @@ function MobileTimelineItem({
       </div>
 
       <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-4">
-        <span className="text-sm text-slate-500 dark:text-slate-400 font-mono min-w-[60px] pt-0.5">
+        <span className="text-sm text-secondary font-mono min-w-[60px] pt-0.5">
           {item.time}
         </span>
         <div className="flex-1">
           <div className="flex items-center gap-2 flex-wrap">
-            <h4 className="text-slate-800 dark:text-white font-medium">{item.title}</h4>
+            <h4 className="text-foreground font-medium">{item.title}</h4>
             {item.type && (
               <span className={`text-xs px-2 py-0.5 rounded-full border ${typeColors[item.type] || ""}`}>
                 {item.type}
@@ -175,7 +175,7 @@ function MobileTimelineItem({
             )}
           </div>
           {item.description && (
-            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{item.description}</p>
+            <p className="text-sm text-secondary mt-1">{item.description}</p>
           )}
         </div>
       </div>
@@ -209,8 +209,8 @@ function DaySection({
       >
         <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: accentColor }} />
         <div>
-          <h3 className="text-xl font-bold text-slate-800 dark:text-white">{day.day}</h3>
-          <p className="text-sm text-slate-500 dark:text-slate-400">{day.date}</p>
+          <h3 className="text-xl font-bold text-foreground">{day.day}</h3>
+          <p className="text-sm text-secondary">{day.date}</p>
         </div>
       </div>
 
@@ -234,7 +234,7 @@ function DaySection({
       </div>
 
       {/* ── Mobile: left-aligned list ── */}
-      <div className="md:hidden relative ml-1.5 pl-8 border-l-2 border-slate-200 dark:border-slate-700 space-y-6">
+      <div className="md:hidden relative ml-1.5 pl-8 border-l-2 border-border space-y-6">
         {day.items.map((item, ii) => (
           <MobileTimelineItem key={ii} item={item} itemIndex={ii} dayIndex={dayIndex} accentColor={accentColor} />
         ))}

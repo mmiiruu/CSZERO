@@ -30,7 +30,7 @@ const initialForm: FormState = {
 
 function Loading() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900">
+    <div className="min-h-screen flex items-center justify-center bg-background">
       <div role="status" aria-label="กำลังโหลด...">
         <div aria-hidden="true" className="w-8 h-8 border-2 border-blue-200 dark:border-blue-900 border-t-blue-600 rounded-full animate-spin" />
       </div>
@@ -40,15 +40,15 @@ function Loading() {
 
 function ComingSoon() {
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 bg-slate-50 dark:bg-slate-900">
+    <div className="min-h-screen flex items-center justify-center px-4 bg-background">
       <div className="text-center max-w-md">
         <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 mb-5">
           <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>
-        <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-3">{cfg.comingSoon.title}</h2>
-        <p className="text-slate-500 dark:text-slate-400 mb-6 text-sm leading-relaxed">{cfg.comingSoon.message}</p>
+        <h2 className="text-2xl font-bold text-foreground mb-3">{cfg.comingSoon.title}</h2>
+        <p className="text-secondary mb-6 text-sm leading-relaxed">{cfg.comingSoon.message}</p>
         <Link
           href={cfg.comingSoon.backButton.href}
           className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors text-sm"
@@ -62,10 +62,10 @@ function ComingSoon() {
 
 function AuthGate() {
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 bg-slate-50 dark:bg-slate-900">
+    <div className="min-h-screen flex items-center justify-center px-4 bg-background">
       <div className="text-center max-w-md">
-        <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-3">ต้องเข้าสู่ระบบก่อน</h2>
-        <p className="text-slate-500 dark:text-slate-400 mb-6 text-sm">เข้าสู่ระบบเพื่อสมัครเป็นผู้สมัคร</p>
+        <h2 className="text-2xl font-bold text-foreground mb-3">ต้องเข้าสู่ระบบก่อน</h2>
+        <p className="text-secondary mb-6 text-sm">เข้าสู่ระบบเพื่อสมัครเป็นผู้สมัคร</p>
         <Link
           href="/auth/signin?callbackUrl=/candidate/register"
           className="px-6 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors text-sm"
@@ -79,15 +79,15 @@ function AuthGate() {
 
 function SuccessScreen() {
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 bg-slate-50 dark:bg-slate-900">
-      <div className="text-center max-w-md animate-fade-in">
+    <div className="min-h-screen flex items-center justify-center px-4 bg-background">
+      <div className="text-center max-w-md motion-safe:animate-fade-in">
         <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400 mb-5">
           <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
           </svg>
         </div>
-        <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-3">{cfg.successTitle}</h2>
-        <p className="text-slate-500 dark:text-slate-400 mb-6 text-sm leading-relaxed">{cfg.successMessage}</p>
+        <h2 className="text-2xl font-bold text-foreground mb-3">{cfg.successTitle}</h2>
+        <p className="text-secondary mb-6 text-sm leading-relaxed">{cfg.successMessage}</p>
         <Link
           href="/"
           className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors text-sm"
@@ -164,12 +164,12 @@ export default function CandidateRegisterPage() {
   if (submitted) return <SuccessScreen />;
 
   return (
-    <div className="min-h-screen py-20 px-4 bg-slate-50 dark:bg-slate-900">
+    <div className="min-h-screen py-20 px-4 bg-background">
       <div className="max-w-2xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-10 animate-fade-in">
-          <h1 className="text-4xl font-bold text-slate-800 dark:text-white mb-3">{cfg.pageTitle}</h1>
-          <p className="text-slate-500 dark:text-slate-400 text-sm max-w-lg mx-auto leading-relaxed">
+        <div className="text-center mb-10 motion-safe:animate-fade-in">
+          <h1 className="text-4xl font-bold text-foreground mb-3">{cfg.pageTitle}</h1>
+          <p className="text-secondary text-sm max-w-lg mx-auto leading-relaxed">
             {cfg.pageSubtitle}
           </p>
           {!cfg.open && isAdminOrStaff && (
@@ -183,15 +183,15 @@ export default function CandidateRegisterPage() {
         </div>
 
         {/* Card */}
-        <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 sm:p-8 shadow-sm space-y-5">
+        <form onSubmit={handleSubmit} className="bg-card border border-border rounded-2xl p-6 sm:p-8 shadow-sm space-y-5">
           {/* Email locked */}
           {session?.user?.email && (
-            <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-700/40 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2.5">
+            <div className="flex items-center gap-2 text-xs text-secondary bg-hover border border-border rounded-lg px-3 py-2.5">
               <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
               </svg>
               <span className="break-all">
-                {cfg.fields.email.lockedNotice}: <strong className="font-medium text-slate-700 dark:text-slate-300">{session.user.email}</strong>
+                {cfg.fields.email.lockedNotice}: <strong className="font-medium text-secondary">{session.user.email}</strong>
               </span>
             </div>
           )}

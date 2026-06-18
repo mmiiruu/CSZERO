@@ -51,7 +51,7 @@ export default function ProfilePage() {
   if (!data) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800">
-        <p className="text-slate-500 dark:text-slate-400">ไม่สามารถโหลดข้อมูลได้</p>
+        <p className="text-secondary">ไม่สามารถโหลดข้อมูลได้</p>
       </div>
     );
   }
@@ -65,13 +65,13 @@ export default function ProfilePage() {
       <div className="max-w-3xl mx-auto">
 
         {/* Profile Card */}
-        <div className="bg-card border border-border rounded-3xl p-8 shadow-sm mb-8 animate-fade-in">
+        <div className="bg-card border border-border rounded-3xl p-8 shadow-sm mb-8 motion-safe:animate-fade-in">
           <div className="flex items-center gap-5">
             {user.image ? (
               <img
                 src={user.image}
                 alt={user.name}
-                className="w-20 h-20 rounded-2xl object-cover border-2 border-slate-200 dark:border-slate-600 shadow-sm"
+                className="w-20 h-20 rounded-2xl object-cover border-2 border-border shadow-sm"
                 referrerPolicy="no-referrer"
               />
             ) : (
@@ -82,8 +82,8 @@ export default function ProfilePage() {
               </div>
             )}
             <div>
-              <h1 className="text-2xl font-bold text-slate-800 dark:text-white">{user.name}</h1>
-              <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">{user.email}</p>
+              <h1 className="text-2xl font-bold text-foreground">{user.name}</h1>
+              <p className="text-secondary text-sm mt-0.5">{user.email}</p>
               <div className="flex items-center gap-2 mt-2">
                 <span className="px-2.5 py-0.5 text-xs font-medium bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full">
                   {registrations.length} กิจกรรมที่ลงทะเบียน
@@ -96,12 +96,12 @@ export default function ProfilePage() {
 
         {/* Registered Events */}
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold text-slate-800 dark:text-white animate-fade-in">กิจกรรมที่ลงทะเบียน</h2>
+          <h2 className="text-lg font-semibold text-foreground motion-safe:animate-fade-in">กิจกรรมที่ลงทะเบียน</h2>
 
           {registrations.length === 0 ? (
-            <div className="bg-card border border-border rounded-2xl p-10 text-center animate-fade-in">
+            <div className="bg-card border border-border rounded-2xl p-10 text-center motion-safe:animate-fade-in">
               <div className="text-4xl mb-4">📋</div>
-              <p className="text-slate-500 dark:text-slate-400 mb-4">คุณยังไม่ได้ลงทะเบียนกิจกรรมใดเลย</p>
+              <p className="text-secondary mb-4">คุณยังไม่ได้ลงทะเบียนกิจกรรมใดเลย</p>
               <Link
                 href="/events/cs101"
                 className="inline-block px-5 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition-colors"
@@ -113,7 +113,7 @@ export default function ProfilePage() {
             registrations.map((reg) => (
               <div
                 key={reg._id}
-                className="bg-card border border-border rounded-2xl p-6 shadow-sm animate-slide-up"
+                className="bg-card border border-border rounded-2xl p-6 shadow-sm motion-safe:animate-slide-up"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1">
@@ -127,14 +127,14 @@ export default function ProfilePage() {
                       </span>
 
                     </div>
-                    <h3 className="text-base font-semibold text-slate-800 dark:text-white">{reg.name}</h3>
-                    <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
+                    <h3 className="text-base font-semibold text-foreground">{reg.name}</h3>
+                    <p className="text-xs text-muted mt-1">
                       ลงทะเบียนเมื่อ {new Date(reg.createdAt).toLocaleDateString("th-TH", { year: "numeric", month: "long", day: "numeric" })}
                     </p>
                   </div>
                   <Link
                     href={reg.event === "cs101" ? "/events/cs101" : "/events/hello-world"}
-                    className="px-4 py-2 text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+                    className="px-4 py-2 text-xs font-medium bg-hover text-secondary rounded-lg hover:bg-hover hover:opacity-80 transition-colors"
                   >
                     ดูกิจกรรม
                   </Link>
@@ -145,23 +145,23 @@ export default function ProfilePage() {
         </div>
 
         {/* Quick Actions */}
-        <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4 animate-fade-in">
+        <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4 motion-safe:animate-fade-in">
           {!cs101Reg && (
             <Link
               href="/events/cs101/register"
-              className="group bg-card border border-border rounded-2xl p-5 hover:border-blue-300 dark:hover:border-blue-600 transition-all"
+              className="group bg-card border border-border rounded-2xl p-5 hover:border-blue-300 dark:hover:border-blue-600 transition-colors"
             >
-              <p className="text-sm font-medium text-slate-800 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">สมัคร CS101</p>
-              <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">เรียนรู้พื้นฐานวิทยาการคอมพิวเตอร์</p>
+              <p className="text-sm font-medium text-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">สมัคร CS101</p>
+              <p className="text-xs text-muted mt-1">เรียนรู้พื้นฐานวิทยาการคอมพิวเตอร์</p>
             </Link>
           )}
           {!helloWorldReg && (
             <Link
               href="/events/hello-world/register"
-              className="group bg-card border border-border rounded-2xl p-5 hover:border-purple-300 dark:hover:border-purple-600 transition-all"
+              className="group bg-card border border-border rounded-2xl p-5 hover:border-purple-300 dark:hover:border-purple-600 transition-colors"
             >
-              <p className="text-sm font-medium text-slate-800 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">สมัคร Hello World</p>
-              <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">ค้นพบบ้านและพบเพื่อนใหม่</p>
+              <p className="text-sm font-medium text-foreground group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">สมัคร Hello World</p>
+              <p className="text-xs text-muted mt-1">ค้นพบบ้านและพบเพื่อนใหม่</p>
             </Link>
           )}
         </div>

@@ -52,7 +52,7 @@ function StepDots({ current, total, labels }: { current: number; total: number; 
         <React.Fragment key={i}>
           <div className="flex flex-col items-center gap-1.5">
             <div
-              className="w-9 h-9 rounded-full flex items-center justify-center font-black text-sm transition-all duration-300"
+              className="w-9 h-9 rounded-full flex items-center justify-center font-black text-sm transition-colors duration-300"
               style={{
                 background: i < current ? AMBER : i === current ? AMBER_LT : "rgba(255,255,255,0.55)",
                 border: `2.5px solid ${i <= current ? AMBER : "rgba(255,255,255,0.45)"}`,
@@ -74,7 +74,7 @@ function StepDots({ current, total, labels }: { current: number; total: number; 
           {i < total - 1 && (
             <div className="flex-1 mx-1.5 mt-[18px]">
               <div className="h-0.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.4)" }}>
-                <div className="h-full rounded-full transition-all duration-500"
+                <div className="h-full rounded-full transition-[width] duration-500"
                   style={{ background: AMBER, width: i < current ? "100%" : "0%" }} />
               </div>
             </div>
@@ -103,7 +103,7 @@ function ChoiceButtons({
               type="button"
               aria-pressed={active}
               onClick={() => onChange(opt.value)}
-              className={`${field.layout === "flex" ? "flex-1" : ""} p-4 rounded-2xl border-2 text-left transition-all duration-200 hover:scale-[1.02] hover:-translate-y-0.5 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-amber-400`}
+              className={`${field.layout === "flex" ? "flex-1" : ""} p-4 rounded-2xl border-2 text-left transition-transform duration-200 motion-safe:hover:scale-[1.02] motion-safe:hover:-translate-y-0.5 motion-safe:active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-amber-400`}
               style={{
                 background: active ? AMBER_LT : "#FFFFFF",
                 borderColor: active ? "#CA8A04" : "#E5E7EB",
@@ -180,7 +180,7 @@ function ImageUpload({
           <button
             type="button"
             onClick={() => onChange("")}
-            className="absolute top-2 right-2 px-3 py-1.5 rounded-full text-xs font-bold cursor-pointer transition-all hover:scale-105"
+            className="absolute top-2 right-2 px-3 py-1.5 rounded-full text-xs font-bold cursor-pointer transition-transform motion-safe:hover:scale-105"
             style={{ background: "rgba(255,255,255,0.95)", color: "#B91C1C", boxShadow: "0 2px 8px rgba(0,0,0,0.15)" }}
           >
             ลบ / เปลี่ยน
@@ -189,7 +189,7 @@ function ImageUpload({
       ) : (
         <label
           htmlFor={inputId}
-          className="flex flex-col items-center justify-center gap-2 rounded-2xl p-6 cursor-pointer border-2 border-dashed transition-all hover:scale-[1.01]"
+          className="flex flex-col items-center justify-center gap-2 rounded-2xl p-6 cursor-pointer border-2 border-dashed transition-transform motion-safe:hover:scale-[1.01]"
           style={{
             borderColor: status === "uploading" ? AMBER : "#E5E7EB",
             background:  status === "uploading" ? AMBER_LT : "#FAFAFA",
@@ -292,7 +292,7 @@ function SurveyModal({ onClose }: { onClose: () => void }) {
           target="_blank"
           rel="noopener noreferrer"
           onClick={() => setClicked(true)}
-          className="flex items-center justify-center gap-2 w-full px-5 py-3 rounded-2xl font-black text-sm mb-3 transition-all duration-200 hover:scale-[1.02] hover:shadow-xl"
+          className="flex items-center justify-center gap-2 w-full px-5 py-3 rounded-2xl font-black text-sm mb-3 transition-[shadow,transform] duration-200 motion-safe:hover:scale-[1.02] hover:shadow-xl"
           style={{
             background: AMBER,
             color: "#FFFFFF",
@@ -317,7 +317,7 @@ function SurveyModal({ onClose }: { onClose: () => void }) {
           type="button"
           onClick={onClose}
           disabled={!clicked}
-          className="w-full py-2.5 rounded-2xl text-sm font-semibold border-2 transition-all duration-200"
+          className="w-full py-2.5 rounded-2xl text-sm font-semibold border-2 transition-colors duration-200"
           style={{
             borderColor: clicked ? "#E5E7EB" : "#F3F4F6",
             color: clicked ? TEXT_M : "#D1D5DB",
@@ -401,7 +401,7 @@ function ComingSoonScreen({ countdown }: { countdown: Countdown | null }) {
         <div className="absolute bottom-0 right-1/4 w-80 h-80 rounded-full blur-[90px]" style={{ background: "rgba(186,230,253,0.5)" }} />
       </div>
 
-      <div className="relative z-10 text-center max-w-md w-full animate-fade-in">
+      <div className="relative z-10 text-center max-w-md w-full motion-safe:animate-fade-in">
         <div className="rounded-3xl p-8 sm:p-10"
           style={{ background: "#FFFFFF", border: "3px solid rgba(202,138,4,0.35)", boxShadow: "0 24px 64px rgba(202,138,4,0.18), 0 4px 16px rgba(0,0,0,0.06)" }}>
 
@@ -420,7 +420,7 @@ function ComingSoonScreen({ countdown }: { countdown: Countdown | null }) {
 
           <Link
             href={backButton.href}
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-black transition-all duration-200 hover:scale-105 hover:shadow-xl"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-black transition-[shadow,transform] duration-200 motion-safe:hover:scale-105 hover:shadow-xl"
             style={{ background: AMBER, color: "#FFFFFF", boxShadow: "0 6px 20px rgba(217,119,6,0.4)" }}
           >
             {backButton.label}
@@ -485,7 +485,7 @@ function HelloWorldRegisterForm() {
           <div className="absolute -top-20 left-1/4 w-96 h-96 rounded-full blur-[100px]" style={{ background: "rgba(254,240,138,0.6)" }} />
           <div className="absolute bottom-0 right-1/4 w-80 h-80 rounded-full blur-[90px]" style={{ background: "rgba(186,230,253,0.5)" }} />
         </div>
-        <div className="relative z-10 text-center max-w-md w-full animate-fade-in">
+        <div className="relative z-10 text-center max-w-md w-full motion-safe:animate-fade-in">
           <div className="rounded-3xl p-8 sm:p-10"
             style={{ background: "#FFFFFF", border: "3px solid rgba(202,138,4,0.35)", boxShadow: "0 24px 64px rgba(202,138,4,0.18), 0 4px 16px rgba(0,0,0,0.06)" }}>
             <div aria-hidden="true" className="text-4xl mb-4">🔒</div>
@@ -498,7 +498,7 @@ function HelloWorldRegisterForm() {
             <button
               type="button"
               onClick={() => signIn("google", { callbackUrl: "/events/hello-world/register" })}
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-black transition-all duration-200 hover:scale-105 hover:shadow-xl cursor-pointer"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-black transition-[shadow,transform] duration-200 motion-safe:hover:scale-105 hover:shadow-xl cursor-pointer"
               style={{ background: AMBER, color: "#FFFFFF", boxShadow: "0 6px 20px rgba(217,119,6,0.4)" }}
             >
               เข้าสู่ระบบด้วย Google
@@ -611,7 +611,7 @@ function HelloWorldRegisterForm() {
           <div className="absolute bottom-0 right-1/4 w-80 h-80 rounded-full blur-[90px]" style={{ background: "rgba(186,230,253,0.5)" }} />
         </div>
 
-        <div className="relative z-10 text-center max-w-md w-full animate-fade-in">
+        <div className="relative z-10 text-center max-w-md w-full motion-safe:animate-fade-in">
           {/* SpongeBob & Patrick celebrate */}
           <div className="flex justify-center mb-6">
             <Image
@@ -644,14 +644,14 @@ function HelloWorldRegisterForm() {
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link
                 href={config.success.backButton.href}
-                className="px-6 py-3 rounded-2xl text-sm font-semibold border-2 transition-all duration-200 hover:scale-105"
+                className="px-6 py-3 rounded-2xl text-sm font-semibold border-2 transition-transform duration-200 motion-safe:hover:scale-105"
                 style={{ borderColor: "#E5E7EB", color: TEXT_M, background: "#FAFAFA" }}
               >
                 {config.success.backButton.label}
               </Link>
               <Link
                 href={config.success.revealButton.href}
-                className="px-6 py-3 rounded-2xl text-sm font-black transition-all duration-200 hover:scale-105 hover:shadow-xl"
+                className="px-6 py-3 rounded-2xl text-sm font-black transition-[shadow,transform] duration-200 motion-safe:hover:scale-105 hover:shadow-xl"
                 style={{ background: AMBER, color: "#FFFFFF", boxShadow: "0 6px 20px rgba(217,119,6,0.4)" }}
               >
                 {config.success.revealButton.label} 🎬
@@ -693,9 +693,9 @@ function HelloWorldRegisterForm() {
       <div className="relative z-10 max-w-lg mx-auto">
 
         {/* Page header */}
-        <div className="text-center mb-8 animate-fade-in">
+        <div className="text-center mb-8 motion-safe:animate-fade-in">
           <Link href="/events/hello-world"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-black mb-6 transition-all duration-200 hover:scale-105 hover:-translate-y-0.5"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-black mb-6 transition-transform duration-200 motion-safe:hover:scale-105 motion-safe:hover:-translate-y-0.5"
             style={{
               background: "#FFFFFF",
               border: `2px solid ${AMBER}`,
@@ -719,7 +719,7 @@ function HelloWorldRegisterForm() {
 
         {/* Draft restored notice */}
         {draftRestored && (
-          <div className="mb-4 flex items-center justify-center gap-2 text-xs font-medium animate-fade-in"
+          <div className="mb-4 flex items-center justify-center gap-2 text-xs font-medium motion-safe:animate-fade-in"
             style={{ color: "#15803D" }}>
             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
@@ -730,7 +730,7 @@ function HelloWorldRegisterForm() {
 
         {/* Error Notice */}
         {Object.keys(errors).length > 0 && (
-          <div role="alert" className="mb-5 px-4 py-3 rounded-2xl text-sm border-2 animate-fade-in"
+          <div role="alert" className="mb-5 px-4 py-3 rounded-2xl text-sm border-2 motion-safe:animate-fade-in"
             style={{ background: "#FEF2F2", borderColor: "#FCA5A5", color: "#B91C1C" }}>
             <div className="flex items-center gap-2 font-bold mb-1">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -745,7 +745,7 @@ function HelloWorldRegisterForm() {
         {/* Form card */}
         <div
           key={step}
-          className="rounded-3xl p-6 sm:p-8 animate-fade-in"
+          className="rounded-3xl p-6 sm:p-8 motion-safe:animate-fade-in"
           style={{
             background: "#FFFFFF",
             border: "3px solid rgba(202,138,4,0.25)",
@@ -831,7 +831,7 @@ function HelloWorldRegisterForm() {
               <button
                 type="button"
                 onClick={handleBack}
-                className="flex items-center gap-1.5 text-sm font-semibold transition-all hover:opacity-70 cursor-pointer"
+                className="flex items-center gap-1.5 text-sm font-semibold transition-opacity hover:opacity-70 cursor-pointer"
                 style={{ color: TEXT_M }}
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -845,7 +845,7 @@ function HelloWorldRegisterForm() {
               type={isLast ? "submit" : "button"}
               onClick={isLast ? handleSubmit : handleNext}
               disabled={isSubmitting}
-              className="inline-flex items-center gap-2 px-7 py-3 rounded-2xl font-black text-sm transition-all duration-200 hover:scale-105 hover:shadow-xl disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-2"
+              className="inline-flex items-center gap-2 px-7 py-3 rounded-2xl font-black text-sm transition-[shadow,transform] duration-200 motion-safe:hover:scale-105 hover:shadow-xl disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-2"
               style={{
                 background: AMBER,
                 color: "#FFFFFF",

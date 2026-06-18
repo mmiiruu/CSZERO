@@ -36,7 +36,7 @@ export default function Input(props: Props) {
   const reactId = React.useId();
 
   const baseStyles =
-    "w-full bg-card border rounded-xl px-4 py-3 text-foreground placeholder:text-muted transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary";
+    "w-full bg-card border rounded-xl px-4 py-3 text-foreground placeholder:text-muted transition-[colors,shadow] duration-200 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary";
   const errorStyles = error
     ? "border-red-300 dark:border-red-700 focus:ring-red-500/30 focus:border-red-500"
     : "border-border hover:border-slate-300 dark:hover:border-slate-500";
@@ -108,7 +108,7 @@ export default function Input(props: Props) {
       />
       {error && <p className="text-sm text-red-500 dark:text-red-400">{error}</p>}
       {helperText && !error && (
-        <p className="text-sm text-slate-400 dark:text-slate-500">{helperText}</p>
+        <p className="text-sm text-muted">{helperText}</p>
       )}
     </div>
   );

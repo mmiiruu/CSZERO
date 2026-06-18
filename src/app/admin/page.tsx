@@ -38,14 +38,14 @@ const houseOptions = ["spongebob", "conan", "kungfupanda", "zootopia", "toystory
 const roleBadge: Record<Role, string> = {
   admin: "bg-pink-50 dark:bg-pink-900/30 text-pink-600 dark:text-pink-400 border border-pink-200 dark:border-pink-800",
   staff: "bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800",
-  user:  "bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-600",
+  user:  "bg-hover text-secondary border border-border",
 };
 
 /* ─── Answer value renderer ──────────────────────────────────────── */
 function AnswerValue({ value }: { value: string }) {
   const text = String(value ?? "").trim();
   if (!text) {
-    return <p className="text-sm text-slate-400 dark:text-slate-500">—</p>;
+    return <p className="text-sm text-muted">—</p>;
   }
   const isUrl     = /^https?:\/\/\S+$/i.test(text);
   const isImage   = isUrl && /\.(jpe?g|png|webp|heic|gif|avif)(\?|$)/i.test(text);
@@ -59,7 +59,7 @@ function AnswerValue({ value }: { value: string }) {
           <img
             src={text}
             alt="answer attachment"
-            className="rounded-lg max-h-64 w-auto object-contain border border-slate-200 dark:border-slate-600 bg-white"
+            className="rounded-lg max-h-64 w-auto object-contain border border-border bg-card"
           />
         </a>
         <a
@@ -88,7 +88,7 @@ function AnswerValue({ value }: { value: string }) {
   }
 
   return (
-    <p className="text-sm text-slate-700 dark:text-slate-200 whitespace-pre-wrap break-words">
+    <p className="text-sm text-secondary whitespace-pre-wrap break-words">
       {text}
     </p>
   );
@@ -138,19 +138,19 @@ function ResponseModal({ reg, onClose }: { reg: Registration; onClose: () => voi
         aria-labelledby="modal-title"
         className="relative w-full max-w-lg max-h-[80vh] flex flex-col rounded-2xl shadow-2xl bg-card border border-border"
       >
-        <div className="flex items-start justify-between gap-4 px-6 py-5 border-b border-slate-100 dark:border-slate-700">
+        <div className="flex items-start justify-between gap-4 px-6 py-5 border-b border-border-subtle">
           <div>
-            <h3 id="modal-title" className="text-base font-semibold text-slate-800 dark:text-slate-100">{reg.name}</h3>
-            <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">{reg.email}</p>
+            <h3 id="modal-title" className="text-base font-semibold text-foreground">{reg.name}</h3>
+            <p className="text-xs text-muted mt-0.5">{reg.email}</p>
           </div>
-          <button ref={closeRef} onClick={onClose} className="p-3 -mr-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors cursor-pointer" aria-label="Close">
+          <button ref={closeRef} onClick={onClose} className="p-3 -mr-1 text-muted hover:text-secondary transition-colors cursor-pointer" aria-label="Close">
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
         <div className="overflow-y-auto flex-1 px-6 py-5">
-          <h4 className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-4">Form Responses</h4>
+          <h4 className="text-xs font-semibold text-secondary uppercase tracking-wider mb-4">Form Responses</h4>
           {(() => {
             // Merge expected keys for the event (from the current form config)
             // with whatever the registration actually has, so newly-added fields
@@ -164,13 +164,13 @@ function ResponseModal({ reg, onClose }: { reg: Registration; onClose: () => voi
               return true;
             });
             if (orderedKeys.length === 0) {
-              return <p className="text-slate-400 dark:text-slate-500 text-sm">No answers recorded.</p>;
+              return <p className="text-muted text-sm">No answers recorded.</p>;
             }
             return (
               <div className="space-y-4">
                 {orderedKeys.map((key) => (
-                  <div key={key} className="rounded-xl bg-slate-50 dark:bg-slate-700/50 px-4 py-3">
-                    <p className="text-xs font-medium text-slate-400 dark:text-slate-500 mb-1">{key}</p>
+                  <div key={key} className="rounded-xl bg-hover px-4 py-3">
+                    <p className="text-xs font-medium text-muted mb-1">{key}</p>
                     <AnswerValue value={reg.answers?.[key] ?? ""} />
                   </div>
                 ))}
@@ -313,7 +313,7 @@ function RegistrationsTab({ callerRole }: { callerRole: Role }) {
         {["all", "cs101", "hello-world"].map((f) => (
           <button key={f} onClick={() => setFilter(f)}
             aria-pressed={filter === f}
-            className={`px-4 py-3 rounded-lg text-sm font-medium transition-colors cursor-pointer ${filter === f ? "bg-blue-600 text-white shadow-sm" : "bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700"}`}>
+            className={`px-4 py-3 rounded-lg text-sm font-medium transition-colors cursor-pointer ${filter === f ? "bg-blue-600 text-white shadow-sm" : "bg-card text-secondary border border-border hover:bg-hover"}`}>
             {f === "all" ? "All" : f === "cs101" ? "CS101" : "Hello World"}
           </button>
         ))}
@@ -337,18 +337,18 @@ function RegistrationsTab({ callerRole }: { callerRole: Role }) {
       {/* Summary strip */}
       <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mb-6 text-sm">
         <span>
-          <strong className="font-semibold text-slate-800 dark:text-slate-100">{regStats.total}</strong>
-          <span className="ml-1.5 text-slate-400 dark:text-slate-500">registrations</span>
+          <strong className="font-semibold text-foreground">{regStats.total}</strong>
+          <span className="ml-1.5 text-muted">registrations</span>
         </span>
-        <span aria-hidden="true" className="hidden sm:block w-px h-4 bg-slate-200 dark:bg-slate-700" />
+        <span aria-hidden="true" className="hidden sm:block w-px h-4 bg-border" />
         <span>
           <strong className="font-semibold text-blue-600 dark:text-blue-400">{regStats.cs101}</strong>
-          <span className="ml-1.5 text-slate-400 dark:text-slate-500">CS101</span>
+          <span className="ml-1.5 text-muted">CS101</span>
         </span>
-        <span aria-hidden="true" className="hidden sm:block w-px h-4 bg-slate-200 dark:bg-slate-700" />
+        <span aria-hidden="true" className="hidden sm:block w-px h-4 bg-border" />
         <span>
           <strong className="font-semibold text-amber-600 dark:text-amber-400">{regStats.helloWorld}</strong>
-          <span className="ml-1.5 text-slate-400 dark:text-slate-500">Hello World</span>
+          <span className="ml-1.5 text-muted">Hello World</span>
         </span>
       </div>
 
@@ -357,7 +357,7 @@ function RegistrationsTab({ callerRole }: { callerRole: Role }) {
         <div role="status" aria-label="กำลังโหลด..." className="flex items-center justify-center py-20"><div aria-hidden="true" className="w-8 h-8 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin" /></div>
       ) : filtered.length === 0 ? (
         <div className="bg-card border border-border rounded-2xl p-12 text-center">
-          <p className="text-slate-400 dark:text-slate-500">No registrations found.</p>
+          <p className="text-muted">No registrations found.</p>
         </div>
       ) : (
         <>
@@ -366,17 +366,17 @@ function RegistrationsTab({ callerRole }: { callerRole: Role }) {
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-700/50">
+                  <tr className="border-b border-border-subtle bg-hover">
                     {["Name","Email","Event","House","Date","Actions"].map((h) => (
-                      <th key={h} className="text-left px-6 py-4 text-slate-500 dark:text-slate-400 font-medium">{h}</th>
+                      <th key={h} className="text-left px-6 py-4 text-secondary font-medium">{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {filtered.map((reg) => (
-                    <tr key={reg._id} className="border-b border-slate-50 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
-                      <td className="px-6 py-4 text-slate-800 dark:text-slate-200 font-medium">{reg.name}</td>
-                      <td className="px-6 py-4 text-slate-500 dark:text-slate-400">{reg.email}</td>
+                    <tr key={reg._id} className="border-b border-border-subtle hover:bg-hover transition-colors">
+                      <td className="px-6 py-4 text-foreground font-medium">{reg.name}</td>
+                      <td className="px-6 py-4 text-secondary">{reg.email}</td>
                       <td className="px-6 py-4">
                         <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${reg.event === "cs101" ? "bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400" : "bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400"}`}>
                           {reg.event === "cs101" ? "CS101" : "Hello World"}
@@ -386,13 +386,13 @@ function RegistrationsTab({ callerRole }: { callerRole: Role }) {
                         {reg.event === "hello-world" ? (
                           <select value={reg.house || ""} onChange={(e) => handleHouseChange(reg._id, e.target.value)}
                             aria-label={`House for ${reg.name}`}
-                            className="px-3 py-1.5 border border-slate-200 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500">
+                            className="px-3 py-1.5 border border-border rounded-lg text-sm bg-card text-secondary focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500">
                             <option value="">Unassigned</option>
                             {houseOptions.map((h) => <option key={h} value={h}>{h.charAt(0).toUpperCase() + h.slice(1)}</option>)}
                           </select>
-                        ) : <span className="text-slate-300 dark:text-slate-600">—</span>}
+                        ) : <span className="text-muted">—</span>}
                       </td>
-                      <td className="px-6 py-4 text-slate-400 dark:text-slate-500 text-xs">{new Date(reg.createdAt).toLocaleDateString()}</td>
+                      <td className="px-6 py-4 text-muted text-xs">{new Date(reg.createdAt).toLocaleDateString()}</td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <button onClick={() => setModalReg(reg)} aria-label={`View responses for ${reg.name}`} className="text-primary hover:text-primary-dark text-sm font-medium cursor-pointer transition-colors">View</button>
@@ -418,7 +418,7 @@ function RegistrationsTab({ callerRole }: { callerRole: Role }) {
                     <span className={`px-2.5 py-1 rounded-full text-xs font-medium shrink-0 ${reg.event === "cs101" ? "bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400" : "bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400"}`}>
                       {reg.event === "cs101" ? "CS101" : "Hello World"}
                     </span>
-                    <span className="text-xs text-slate-400 dark:text-slate-500 tabular-nums">{new Date(reg.createdAt).toLocaleDateString()}</span>
+                    <span className="text-xs text-muted tabular-nums">{new Date(reg.createdAt).toLocaleDateString()}</span>
                   </div>
                   <div className="shrink-0 flex items-center gap-1">
                     <button
@@ -442,21 +442,21 @@ function RegistrationsTab({ callerRole }: { callerRole: Role }) {
 
                 {/* Identity */}
                 <div className="min-w-0">
-                  <p className="text-slate-800 dark:text-slate-200 font-medium truncate">{reg.name}</p>
-                  <p className="text-slate-500 dark:text-slate-400 text-sm break-all">{reg.email}</p>
+                  <p className="text-foreground font-medium truncate">{reg.name}</p>
+                  <p className="text-secondary text-sm break-all">{reg.email}</p>
                 </div>
 
                 {/* House selector — hello-world only */}
                 {reg.event === "hello-world" && (
                   <div>
-                    <label htmlFor={`house-mobile-${reg._id}`} className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">
+                    <label htmlFor={`house-mobile-${reg._id}`} className="block text-xs font-medium text-secondary mb-1">
                       House
                     </label>
                     <select
                       id={`house-mobile-${reg._id}`}
                       value={reg.house || ""}
                       onChange={(e) => handleHouseChange(reg._id, e.target.value)}
-                      className="w-full px-3 py-2.5 border border-slate-200 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500"
+                      className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-card text-secondary focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500"
                     >
                       <option value="">Unassigned</option>
                       {houseOptions.map((h) => <option key={h} value={h}>{h.charAt(0).toUpperCase() + h.slice(1)}</option>)}
@@ -483,14 +483,14 @@ function RegistrationsTab({ callerRole }: { callerRole: Role }) {
                 </svg>
               </div>
               <div>
-                <h3 className="font-semibold text-slate-800 dark:text-slate-100">Delete registration?</h3>
-                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-                  This will permanently delete <strong className="text-slate-700 dark:text-slate-200">{confirmDelete.name}</strong> ({confirmDelete.email}) from <strong className="text-slate-700 dark:text-slate-200">{confirmDelete.event === "cs101" ? "CS101" : "Hello World"}</strong>. This cannot be undone.
+                <h3 className="font-semibold text-foreground">Delete registration?</h3>
+                <p className="mt-1 text-sm text-secondary leading-relaxed">
+                  This will permanently delete <strong className="text-secondary">{confirmDelete.name}</strong> ({confirmDelete.email}) from <strong className="text-secondary">{confirmDelete.event === "cs101" ? "CS101" : "Hello World"}</strong>. This cannot be undone.
                 </p>
               </div>
             </div>
             <div className="flex items-center justify-end gap-3">
-              <button onClick={() => setConfirmDelete(null)} disabled={deleting} className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors cursor-pointer">
+              <button onClick={() => setConfirmDelete(null)} disabled={deleting} className="px-4 py-2 text-sm font-medium text-secondary hover:bg-hover rounded-lg transition-colors cursor-pointer">
                 Cancel
               </button>
               <button onClick={handleDelete} disabled={deleting} className="px-4 py-2 text-sm font-medium bg-red-600 text-white hover:bg-red-700 disabled:opacity-60 rounded-lg transition-colors cursor-pointer">
@@ -565,7 +565,7 @@ function UsersTab({ callerEmail, callerRole }: { callerEmail: string; callerRole
     <>
       {/* Toast */}
       {toast && (
-        <div className={`fixed bottom-6 right-6 z-50 px-5 py-3 rounded-xl text-sm font-medium shadow-lg transition-colors animate-slide-up ${toast.ok ? "bg-green-600 text-white" : "bg-red-600 text-white"}`}>
+        <div className={`fixed bottom-6 right-6 z-50 px-5 py-3 rounded-xl text-sm font-medium shadow-lg transition-colors motion-safe:animate-slide-up ${toast.ok ? "bg-green-600 text-white" : "bg-red-600 text-white"}`}>
           {toast.msg}
         </div>
       )}
@@ -573,18 +573,18 @@ function UsersTab({ callerEmail, callerRole }: { callerEmail: string; callerRole
       {/* Summary strip */}
       <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mb-6 text-sm">
         <span>
-          <strong className="font-semibold text-slate-800 dark:text-slate-100">{userStats.total}</strong>
-          <span className="ml-1.5 text-slate-400 dark:text-slate-500">users</span>
+          <strong className="font-semibold text-foreground">{userStats.total}</strong>
+          <span className="ml-1.5 text-muted">users</span>
         </span>
-        <span aria-hidden="true" className="hidden sm:block w-px h-4 bg-slate-200 dark:bg-slate-700" />
+        <span aria-hidden="true" className="hidden sm:block w-px h-4 bg-border" />
         <span>
           <strong className="font-semibold text-amber-600 dark:text-amber-400">{userStats.staff}</strong>
-          <span className="ml-1.5 text-slate-400 dark:text-slate-500">staff</span>
+          <span className="ml-1.5 text-muted">staff</span>
         </span>
-        <span aria-hidden="true" className="hidden sm:block w-px h-4 bg-slate-200 dark:bg-slate-700" />
+        <span aria-hidden="true" className="hidden sm:block w-px h-4 bg-border" />
         <span>
           <strong className="font-semibold text-pink-600 dark:text-pink-400">{userStats.admins}</strong>
-          <span className="ml-1.5 text-slate-400 dark:text-slate-500">admins</span>
+          <span className="ml-1.5 text-muted">admins</span>
         </span>
       </div>
 
@@ -597,35 +597,35 @@ function UsersTab({ callerEmail, callerRole }: { callerEmail: string; callerRole
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-700/50">
+                  <tr className="border-b border-border-subtle bg-hover">
                     {["User","Email","Role","Joined", callerRole === "admin" ? "Change Role" : "Access"].map((h) => (
-                      <th key={h} className="text-left px-6 py-4 text-slate-500 dark:text-slate-400 font-medium">{h}</th>
+                      <th key={h} className="text-left px-6 py-4 text-secondary font-medium">{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {users.map((u) => (
-                    <tr key={u._id} className={`border-b border-slate-50 dark:border-slate-700/50 transition-colors ${isSelf(u) ? "bg-blue-50/30 dark:bg-blue-900/10" : "hover:bg-slate-50 dark:hover:bg-slate-700/30"}`}>
+                    <tr key={u._id} className={`border-b border-border-subtle transition-colors ${isSelf(u) ? "bg-blue-50/30 dark:bg-blue-900/10" : "hover:bg-hover"}`}>
                       {/* Avatar + name */}
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           {u.image ? (
                             <img src={u.image} alt={u.name || u.email} referrerPolicy="no-referrer"
-                              className="w-8 h-8 rounded-full object-cover border border-slate-200 dark:border-slate-600 shrink-0" />
+                              className="w-8 h-8 rounded-full object-cover border border-border shrink-0" />
                           ) : (
                             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shrink-0">
                               <span className="text-white text-xs font-bold">{(u.name || u.email).charAt(0).toUpperCase()}</span>
                             </div>
                           )}
                           <div className="min-w-0">
-                            <p className="text-slate-800 dark:text-slate-200 font-medium truncate max-w-[140px]">{u.name || "—"}</p>
+                            <p className="text-foreground font-medium truncate max-w-[140px]">{u.name || "—"}</p>
                             {isSelf(u) && <p className="text-xs text-primary">(you)</p>}
                           </div>
                         </div>
                       </td>
 
                       {/* Email */}
-                      <td className="px-6 py-4 text-slate-500 dark:text-slate-400 max-w-[180px]">
+                      <td className="px-6 py-4 text-secondary max-w-[180px]">
                         <span className="truncate block">{u.email}</span>
                       </td>
 
@@ -637,21 +637,21 @@ function UsersTab({ callerEmail, callerRole }: { callerEmail: string; callerRole
                       </td>
 
                       {/* Joined date */}
-                      <td className="px-6 py-4 text-slate-400 dark:text-slate-500 text-xs">
+                      <td className="px-6 py-4 text-muted text-xs">
                         {new Date(u.createdAt).toLocaleDateString()}
                       </td>
 
                       {/* Role dropdown — admin only; staff sees read-only lock */}
                       <td className="px-6 py-4">
                         {callerRole !== "admin" ? (
-                          <span className="inline-flex items-center gap-1.5 text-xs text-slate-400 dark:text-slate-500">
+                          <span className="inline-flex items-center gap-1.5 text-xs text-muted">
                             <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                               <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                             </svg>
                             Read-only
                           </span>
                         ) : isSelf(u) ? (
-                          <span className="text-xs text-slate-400 dark:text-slate-500 italic">Cannot edit own role</span>
+                          <span className="text-xs text-muted italic">Cannot edit own role</span>
                         ) : (
                           <div className="relative inline-flex items-center gap-2">
                             <select
@@ -659,13 +659,13 @@ function UsersTab({ callerEmail, callerRole }: { callerEmail: string; callerRole
                               disabled={updating === u._id}
                               onChange={(e) => handleRoleChange(u._id, e.target.value as Role)}
                               aria-label={`Change role for ${u.name || u.email}`}
-                              className="pl-3 pr-8 py-1.5 border border-slate-200 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 disabled:opacity-60 cursor-pointer appearance-none"
+                              className="pl-3 pr-8 py-1.5 border border-border rounded-lg text-sm bg-card text-secondary focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 disabled:opacity-60 cursor-pointer appearance-none"
                             >
                               {ROLES.map((r) => (
                                 <option key={r} value={r}>{r.charAt(0).toUpperCase() + r.slice(1)}</option>
                               ))}
                             </select>
-                            <svg className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <svg className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                               <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                             </svg>
                             {updating === u._id && (
@@ -691,7 +691,7 @@ function UsersTab({ callerEmail, callerRole }: { callerEmail: string; callerRole
                 <div className="flex items-start gap-3">
                   {u.image ? (
                     <img src={u.image} alt={u.name || u.email} referrerPolicy="no-referrer"
-                      className="w-10 h-10 rounded-full object-cover border border-slate-200 dark:border-slate-600 shrink-0" />
+                      className="w-10 h-10 rounded-full object-cover border border-border shrink-0" />
                   ) : (
                     <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shrink-0">
                       <span className="text-white text-sm font-bold">{(u.name || u.email).charAt(0).toUpperCase()}</span>
@@ -699,10 +699,10 @@ function UsersTab({ callerEmail, callerRole }: { callerEmail: string; callerRole
                   )}
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <p className="text-slate-800 dark:text-slate-200 font-medium truncate">{u.name || "—"}</p>
+                      <p className="text-foreground font-medium truncate">{u.name || "—"}</p>
                       {isSelf(u) && <span className="text-xs text-primary shrink-0">(you)</span>}
                     </div>
-                    <p className="text-slate-500 dark:text-slate-400 text-sm break-all">{u.email}</p>
+                    <p className="text-secondary text-sm break-all">{u.email}</p>
                   </div>
                   <span className={`shrink-0 px-2.5 py-1 rounded-full text-xs font-semibold ${roleBadge[u.role || "user"]}`}>
                     {(u.role || "user").charAt(0).toUpperCase() + (u.role || "user").slice(1)}
@@ -710,23 +710,23 @@ function UsersTab({ callerEmail, callerRole }: { callerEmail: string; callerRole
                 </div>
 
                 {/* Joined date */}
-                <p className="text-xs text-slate-400 dark:text-slate-500">
+                <p className="text-xs text-muted">
                   Joined {new Date(u.createdAt).toLocaleDateString()}
                 </p>
 
                 {/* Role action */}
                 {callerRole !== "admin" ? (
-                  <span className="inline-flex items-center gap-1.5 text-xs text-slate-400 dark:text-slate-500">
+                  <span className="inline-flex items-center gap-1.5 text-xs text-muted">
                     <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                     </svg>
                     Read-only
                   </span>
                 ) : isSelf(u) ? (
-                  <span className="text-xs text-slate-400 dark:text-slate-500 italic">Cannot edit own role</span>
+                  <span className="text-xs text-muted italic">Cannot edit own role</span>
                 ) : (
                   <div>
-                    <label htmlFor={`role-mobile-${u._id}`} className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">
+                    <label htmlFor={`role-mobile-${u._id}`} className="block text-xs font-medium text-secondary mb-1">
                       Change Role
                     </label>
                     <div className="relative">
@@ -735,13 +735,13 @@ function UsersTab({ callerEmail, callerRole }: { callerEmail: string; callerRole
                         value={u.role || "user"}
                         disabled={updating === u._id}
                         onChange={(e) => handleRoleChange(u._id, e.target.value as Role)}
-                        className="w-full pl-3 pr-9 py-2.5 border border-slate-200 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 disabled:opacity-60 cursor-pointer appearance-none"
+                        className="w-full pl-3 pr-9 py-2.5 border border-border rounded-lg text-sm bg-card text-secondary focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 disabled:opacity-60 cursor-pointer appearance-none"
                       >
                         {ROLES.map((r) => (
                           <option key={r} value={r}>{r.charAt(0).toUpperCase() + r.slice(1)}</option>
                         ))}
                       </select>
-                      <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                       </svg>
                       {updating === u._id && (
@@ -857,18 +857,18 @@ function CandidatesTab({ callerRole }: { callerRole: Role }) {
       <div className="flex flex-wrap items-center justify-between gap-3 mb-6 text-sm">
         <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
           <span>
-            <strong className="font-semibold text-slate-800 dark:text-slate-100">{stats.total}</strong>
-            <span className="ml-1.5 text-slate-400 dark:text-slate-500">applications</span>
+            <strong className="font-semibold text-foreground">{stats.total}</strong>
+            <span className="ml-1.5 text-muted">applications</span>
           </span>
-          <span aria-hidden="true" className="hidden sm:block w-px h-4 bg-slate-200 dark:bg-slate-700" />
+          <span aria-hidden="true" className="hidden sm:block w-px h-4 bg-border" />
           <span>
             <strong className="font-semibold text-amber-600 dark:text-amber-400">{stats.pending}</strong>
-            <span className="ml-1.5 text-slate-400 dark:text-slate-500">pending</span>
+            <span className="ml-1.5 text-muted">pending</span>
           </span>
-          <span aria-hidden="true" className="hidden sm:block w-px h-4 bg-slate-200 dark:bg-slate-700" />
+          <span aria-hidden="true" className="hidden sm:block w-px h-4 bg-border" />
           <span>
             <strong className="font-semibold text-green-600 dark:text-green-400">{stats.promoted}</strong>
-            <span className="ml-1.5 text-slate-400 dark:text-slate-500">promoted</span>
+            <span className="ml-1.5 text-muted">promoted</span>
           </span>
         </div>
         {callerRole === "admin" && (
@@ -887,26 +887,26 @@ function CandidatesTab({ callerRole }: { callerRole: Role }) {
         </div>
       ) : apps.length === 0 ? (
         <div className="bg-card border border-border rounded-2xl p-12 text-center">
-          <p className="text-slate-400 dark:text-slate-500">No applications yet.</p>
+          <p className="text-muted">No applications yet.</p>
         </div>
       ) : (
         <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-700/50">
+                <tr className="border-b border-border-subtle bg-hover">
                   {["Name","Email","Role","Year","Status","Actions"].map((h) => (
-                    <th key={h} className="text-left px-6 py-4 text-slate-500 dark:text-slate-400 font-medium">{h}</th>
+                    <th key={h} className="text-left px-6 py-4 text-secondary font-medium">{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {apps.map((a) => (
-                  <tr key={a._id} className="border-b border-slate-50 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
-                    <td className="px-6 py-4 text-slate-800 dark:text-slate-200 font-medium">{a.name}</td>
-                    <td className="px-6 py-4 text-slate-500 dark:text-slate-400">{a.email}</td>
-                    <td className="px-6 py-4 text-slate-700 dark:text-slate-300">{a.role}</td>
-                    <td className="px-6 py-4 text-slate-500 dark:text-slate-400">{a.year}</td>
+                  <tr key={a._id} className="border-b border-border-subtle hover:bg-hover transition-colors">
+                    <td className="px-6 py-4 text-foreground font-medium">{a.name}</td>
+                    <td className="px-6 py-4 text-secondary">{a.email}</td>
+                    <td className="px-6 py-4 text-secondary">{a.role}</td>
+                    <td className="px-6 py-4 text-secondary">{a.year}</td>
                     <td className="px-6 py-4">
                       {a.promoted ? (
                         <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800">
@@ -948,12 +948,12 @@ function CandidatesTab({ callerRole }: { callerRole: Role }) {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
           onClick={(e) => { if (e.target === e.currentTarget) setDetail(null); }}>
           <div role="dialog" aria-modal="true" className="relative w-full max-w-lg max-h-[80vh] flex flex-col rounded-2xl shadow-2xl bg-card border border-border">
-            <div className="flex items-start justify-between gap-4 px-6 py-5 border-b border-slate-100 dark:border-slate-700">
+            <div className="flex items-start justify-between gap-4 px-6 py-5 border-b border-border-subtle">
               <div>
-                <h3 className="text-base font-semibold text-slate-800 dark:text-slate-100">{detail.name}</h3>
-                <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">{detail.email}</p>
+                <h3 className="text-base font-semibold text-foreground">{detail.name}</h3>
+                <p className="text-xs text-muted mt-0.5">{detail.email}</p>
               </div>
-              <button onClick={() => setDetail(null)} className="p-3 -mr-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors cursor-pointer" aria-label="Close">
+              <button onClick={() => setDetail(null)} className="p-3 -mr-1 text-muted hover:text-secondary transition-colors cursor-pointer" aria-label="Close">
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -969,9 +969,9 @@ function CandidatesTab({ callerRole }: { callerRole: Role }) {
                 ["Image URL", detail.image || "—"],
                 ["Submitted", new Date(detail.createdAt).toLocaleString()],
               ].map(([k, v]) => (
-                <div key={k} className="rounded-xl bg-slate-50 dark:bg-slate-700/50 px-4 py-3">
-                  <p className="text-xs font-medium text-slate-400 dark:text-slate-500 mb-1">{k}</p>
-                  <p className="text-sm text-slate-700 dark:text-slate-200 whitespace-pre-wrap break-words">{v}</p>
+                <div key={k} className="rounded-xl bg-hover px-4 py-3">
+                  <p className="text-xs font-medium text-muted mb-1">{k}</p>
+                  <p className="text-sm text-secondary whitespace-pre-wrap break-words">{v}</p>
                 </div>
               ))}
             </div>
@@ -991,14 +991,14 @@ function CandidatesTab({ callerRole }: { callerRole: Role }) {
                 </svg>
               </div>
               <div>
-                <h3 className="font-semibold text-slate-800 dark:text-slate-100">Clear all candidates & votes?</h3>
-                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+                <h3 className="font-semibold text-foreground">Clear all candidates & votes?</h3>
+                <p className="mt-1 text-sm text-secondary leading-relaxed">
                   This deletes every Candidate and Vote document, resets user vote flags, and unmarks promoted applications so they can be re-promoted. This cannot be undone.
                 </p>
               </div>
             </div>
             <div className="flex items-center justify-end gap-3">
-              <button onClick={() => setConfirmClear(false)} disabled={clearing} className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors cursor-pointer">
+              <button onClick={() => setConfirmClear(false)} disabled={clearing} className="px-4 py-2 text-sm font-medium text-secondary hover:bg-hover rounded-lg transition-colors cursor-pointer">
                 Cancel
               </button>
               <button onClick={handleClearVotes} disabled={clearing} className="px-4 py-2 text-sm font-medium bg-red-600 text-white hover:bg-red-700 disabled:opacity-60 rounded-lg transition-colors cursor-pointer">
@@ -1033,9 +1033,9 @@ function TeamImageUpload({ value, onChange }: { value: string; onChange: (url: s
 
   return (
     <div className="space-y-1.5">
-      <label className="block text-xs font-medium text-slate-500 dark:text-slate-400">รูปภาพ</label>
+      <label className="block text-xs font-medium text-secondary">รูปภาพ</label>
       {value ? (
-        <div className="relative rounded-xl overflow-hidden border border-slate-200 dark:border-slate-600">
+        <div className="relative rounded-xl overflow-hidden border border-border">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={value} alt="preview" className="w-full h-36 object-cover" />
           <button
@@ -1047,7 +1047,7 @@ function TeamImageUpload({ value, onChange }: { value: string; onChange: (url: s
           </button>
         </div>
       ) : (
-        <label className={`flex flex-col items-center justify-center gap-2 rounded-xl p-5 cursor-pointer border-2 border-dashed transition-all ${status === "uploading" ? "border-blue-400 bg-blue-50 dark:bg-blue-900/20" : "border-slate-200 dark:border-slate-600 hover:border-slate-300 dark:hover:border-slate-500 bg-slate-50 dark:bg-slate-700/30"}`}>
+        <label className={`flex flex-col items-center justify-center gap-2 rounded-xl p-5 cursor-pointer border-2 border-dashed transition-colors ${status === "uploading" ? "border-blue-400 bg-blue-50 dark:bg-blue-900/20" : "border-border hover:border-border bg-hover"}`}>
           {status === "uploading" ? (
             <>
               <svg aria-hidden="true" className="animate-spin w-5 h-5 text-blue-500" fill="none" viewBox="0 0 24 24">
@@ -1058,11 +1058,11 @@ function TeamImageUpload({ value, onChange }: { value: string; onChange: (url: s
             </>
           ) : (
             <>
-              <svg aria-hidden="true" className="w-6 h-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+              <svg aria-hidden="true" className="w-6 h-6 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 12V4m0 0l-4 4m4-4l4 4" />
               </svg>
-              <span className="text-sm text-slate-500 dark:text-slate-400 font-medium">แตะเพื่อเลือกรูป</span>
-              <span className="text-xs text-slate-400 dark:text-slate-500">JPG / PNG / WebP / HEIC · สูงสุด 8 MB</span>
+              <span className="text-sm text-secondary font-medium">แตะเพื่อเลือกรูป</span>
+              <span className="text-xs text-muted">JPG / PNG / WebP / HEIC · สูงสุด 8 MB</span>
             </>
           )}
           <input
@@ -1185,8 +1185,8 @@ function TeamTab() {
       )}
 
       <div className="flex items-center justify-between mb-6">
-        <span className="text-sm text-slate-500 dark:text-slate-400">
-          <strong className="font-semibold text-slate-800 dark:text-slate-100">{members.length}</strong>
+        <span className="text-sm text-secondary">
+          <strong className="font-semibold text-foreground">{members.length}</strong>
           <span className="ml-1.5">สมาชิก</span>
         </span>
         <button
@@ -1206,33 +1206,33 @@ function TeamTab() {
         </div>
       ) : members.length === 0 ? (
         <div className="bg-card border border-border rounded-2xl p-12 text-center">
-          <p className="text-slate-400 dark:text-slate-500">ยังไม่มีสมาชิก</p>
+          <p className="text-muted">ยังไม่มีสมาชิก</p>
         </div>
       ) : (
         <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-700/50">
+                <tr className="border-b border-border-subtle bg-hover">
                   {["ลำดับ", "ชื่อ", "ตำแหน่ง", "ฝ่าย", "หัวหน้า", "Actions"].map((h) => (
-                    <th key={h} className="text-left px-6 py-4 text-slate-500 dark:text-slate-400 font-medium">{h}</th>
+                    <th key={h} className="text-left px-6 py-4 text-secondary font-medium">{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {members.map((m) => (
-                  <tr key={m._id} className="border-b border-slate-50 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
-                    <td className="px-6 py-4 text-slate-400 dark:text-slate-500 tabular-nums">{m.order}</td>
-                    <td className="px-6 py-4 text-slate-800 dark:text-slate-200 font-medium">{m.name}</td>
-                    <td className="px-6 py-4 text-slate-600 dark:text-slate-300">{m.role}</td>
+                  <tr key={m._id} className="border-b border-border-subtle hover:bg-hover transition-colors">
+                    <td className="px-6 py-4 text-muted tabular-nums">{m.order}</td>
+                    <td className="px-6 py-4 text-foreground font-medium">{m.name}</td>
+                    <td className="px-6 py-4 text-secondary">{m.role}</td>
                     <td className="px-6 py-4">
-                      <span className="text-xs text-slate-600 dark:text-slate-300">{m.department || "—"}</span>
+                      <span className="text-xs text-secondary">{m.department || "—"}</span>
                     </td>
                     <td className="px-6 py-4">
                       {m.isHead ? (
                         <span className="px-2 py-0.5 text-xs rounded-full bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800">หัวหน้า</span>
                       ) : (
-                        <span className="text-slate-300 dark:text-slate-600">—</span>
+                        <span className="text-muted">—</span>
                       )}
                     </td>
                     <td className="px-6 py-4">
@@ -1254,7 +1254,7 @@ function TeamTab() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
           onClick={(e) => { if (e.target === e.currentTarget && !saving) setModal(null); }}>
           <div role="dialog" aria-modal="true" className="w-full max-w-md rounded-2xl shadow-2xl bg-card border border-border p-6">
-            <h3 className="text-base font-semibold text-slate-800 dark:text-slate-100 mb-5">
+            <h3 className="text-base font-semibold text-foreground mb-5">
               {modal.mode === "add" ? "เพิ่มสมาชิกใหม่" : "แก้ไขข้อมูลสมาชิก"}
             </h3>
             <div className="space-y-4 max-h-[65vh] overflow-y-auto pr-1">
@@ -1265,24 +1265,24 @@ function TeamTab() {
                 { label: "Bio", key: "bio", placeholder: "แนะนำตัวสั้นๆ" },
               ].map(({ label, key, placeholder }) => (
                 <div key={key}>
-                  <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">{label}</label>
+                  <label className="block text-xs font-medium text-secondary mb-1">{label}</label>
                   <input
                     type="text"
                     placeholder={placeholder}
                     value={form[key as keyof typeof form] as string}
                     onChange={(e) => setForm((p) => ({ ...p, [key]: e.target.value }))}
-                    className="w-full px-3 py-2.5 border border-slate-200 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500"
+                    className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-card text-secondary focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500"
                   />
                 </div>
               ))}
               <TeamImageUpload value={form.image} onChange={(url) => setForm((p) => ({ ...p, image: url }))} />
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">ฝ่าย</label>
+                  <label className="block text-xs font-medium text-secondary mb-1">ฝ่าย</label>
                   <select
                     value={form.department}
                     onChange={(e) => setForm((p) => ({ ...p, department: e.target.value }))}
-                    className="w-full px-3 py-2.5 border border-slate-200 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500"
+                    className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-card text-secondary focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500"
                   >
                     <option value="">— ไม่ระบุ —</option>
                     {DEPARTMENTS.map((d) => (
@@ -1291,12 +1291,12 @@ function TeamTab() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">ลำดับ</label>
+                  <label className="block text-xs font-medium text-secondary mb-1">ลำดับ</label>
                   <input
                     type="number"
                     value={form.order}
                     onChange={(e) => setForm((p) => ({ ...p, order: Number(e.target.value) }))}
-                    className="w-full px-3 py-2.5 border border-slate-200 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500"
+                    className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-card text-secondary focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500"
                   />
                 </div>
               </div>
@@ -1307,11 +1307,11 @@ function TeamTab() {
                   onChange={(e) => setForm((p) => ({ ...p, isHead: e.target.checked }))}
                   className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                 />
-                <span className="text-sm text-slate-700 dark:text-slate-200">หัวหน้าฝ่าย</span>
+                <span className="text-sm text-secondary">หัวหน้าฝ่าย</span>
               </label>
             </div>
             <div className="flex items-center justify-end gap-3 mt-6">
-              <button onClick={() => setModal(null)} disabled={saving} className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors cursor-pointer">
+              <button onClick={() => setModal(null)} disabled={saving} className="px-4 py-2 text-sm font-medium text-secondary hover:bg-hover rounded-lg transition-colors cursor-pointer">
                 ยกเลิก
               </button>
               <button
@@ -1338,14 +1338,14 @@ function TeamTab() {
                 </svg>
               </div>
               <div>
-                <h3 className="font-semibold text-slate-800 dark:text-slate-100">ลบสมาชิก?</h3>
-                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-                  จะลบ <strong className="text-slate-700 dark:text-slate-200">{confirmDelete.name}</strong> ออกจากหน้า Team ถาวร
+                <h3 className="font-semibold text-foreground">ลบสมาชิก?</h3>
+                <p className="mt-1 text-sm text-secondary leading-relaxed">
+                  จะลบ <strong className="text-secondary">{confirmDelete.name}</strong> ออกจากหน้า Team ถาวร
                 </p>
               </div>
             </div>
             <div className="flex items-center justify-end gap-3">
-              <button onClick={() => setConfirmDelete(null)} disabled={deleting} className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors cursor-pointer">
+              <button onClick={() => setConfirmDelete(null)} disabled={deleting} className="px-4 py-2 text-sm font-medium text-secondary hover:bg-hover rounded-lg transition-colors cursor-pointer">
                 ยกเลิก
               </button>
               <button onClick={handleDelete} disabled={deleting} className="px-4 py-2 text-sm font-medium bg-red-600 text-white hover:bg-red-700 disabled:opacity-60 rounded-lg transition-colors cursor-pointer">
@@ -1398,8 +1398,8 @@ export default function AdminPage() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-slate-800 dark:text-slate-100">Admin Dashboard</h1>
-            <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
+            <h1 className="text-3xl font-bold text-foreground">Admin Dashboard</h1>
+            <p className="text-secondary text-sm mt-1">
               {role === "admin" ? "Manage registrations, houses, and user roles" : "View registrations and user list (read-only)"}
             </p>
           </div>
@@ -1407,7 +1407,7 @@ export default function AdminPage() {
           <button onClick={toggleTheme}
             aria-label="Toggle dark mode"
             aria-pressed={dark}
-            className="p-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors cursor-pointer self-end sm:self-auto">
+            className="p-2 rounded-lg border border-border bg-card text-secondary hover:bg-hover transition-colors cursor-pointer self-end sm:self-auto">
             {dark ? (
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
             ) : (
@@ -1428,7 +1428,7 @@ export default function AdminPage() {
               role="tab"
               aria-selected={tab === id}
               aria-controls={`panel-${id}`}
-              className={`flex items-center gap-2 px-4 py-3 rounded-lg text-sm font-medium transition-colors cursor-pointer ${tab === id ? "bg-blue-600 text-white shadow-sm" : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"}`}>
+              className={`flex items-center gap-2 px-4 py-3 rounded-lg text-sm font-medium transition-colors cursor-pointer ${tab === id ? "bg-blue-600 text-white shadow-sm" : "text-secondary hover:text-foreground"}`}>
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d={icon} /></svg>
               {label}
             </button>

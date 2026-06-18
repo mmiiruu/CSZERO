@@ -83,10 +83,10 @@ export default async function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-full flex flex-col bg-slate-50 dark:bg-slate-900">
+      <body className="min-h-full flex flex-col bg-background">
         <a
           href="#main-content"
-          className="sr-only focus-visible:not-sr-only focus-visible:fixed focus-visible:top-4 focus-visible:left-4 focus-visible:z-[100] focus-visible:px-4 focus-visible:py-2 focus-visible:bg-white focus-visible:text-blue-700 focus-visible:rounded-lg focus-visible:shadow-lg focus-visible:text-sm focus-visible:font-medium focus-visible:border focus-visible:border-blue-200"
+          className="sr-only focus-visible:not-sr-only focus-visible:fixed focus-visible:top-4 focus-visible:left-4 focus-visible:z-[100] focus-visible:px-4 focus-visible:py-2 focus-visible:bg-card focus-visible:text-primary focus-visible:rounded-lg focus-visible:shadow-lg focus-visible:text-sm focus-visible:font-medium focus-visible:border focus-visible:border-border"
         >
           ข้ามไปยังเนื้อหาหลัก
         </a>

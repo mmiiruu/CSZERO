@@ -120,7 +120,7 @@ const EntryCard = React.memo(function EntryCard({
   return (
     <div
       ref={ref}
-      className="rounded-2xl p-4 border-2 bg-white transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5"
+      className="rounded-2xl p-4 border-2 bg-white transition-[shadow,transform] duration-300 hover:shadow-lg hover:-translate-y-0.5"
       style={{
         borderColor: `${cfg.nodeColor}40`,
         boxShadow: "0 2px 10px rgba(0,0,0,0.06)",
@@ -133,7 +133,7 @@ const EntryCard = React.memo(function EntryCard({
         <span className="text-xs font-mono tabular-nums font-bold" style={{ color: cfg.nodeColor }}>{item.time}</span>
         {item.type && (
           <span
-            className={`text-xs px-2 py-0.5 rounded-full border font-semibold ${cfg.badge} transition-transform duration-200 hover:scale-105`}
+            className={`text-xs px-2 py-0.5 rounded-full border font-semibold ${cfg.badge} transition-transform duration-200 motion-safe:hover:scale-105`}
           >
             {item.type}
           </span>
@@ -346,7 +346,7 @@ export default function HelloWorldPage() {
         <div className="relative z-10 max-w-6xl mx-auto w-full flex flex-col lg:flex-row items-center gap-6 py-24">
 
           {/* ── Text side ── */}
-          <div className="flex-1 text-center lg:text-left animate-fade-in">
+          <div className="flex-1 text-center lg:text-left motion-safe:animate-fade-in">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-semibold mb-8"
               style={{ background: "rgba(255,255,255,0.85)", border: "2px solid #CA8A04", color: "#713F12" }}>
               <span aria-hidden="true">🎬</span> {hero.badge}
@@ -375,7 +375,7 @@ export default function HelloWorldPage() {
                 { e: "🚀", bg: "#C4B5FD" },
               ].map(({ e, bg }) => (
                 <span key={e}
-                  className="w-10 h-10 rounded-full flex items-center justify-center text-xl hover:scale-125 transition-transform duration-200 cursor-default"
+                  className="w-10 h-10 rounded-full flex items-center justify-center text-xl motion-safe:hover:scale-125 transition-transform duration-200 cursor-default"
                   style={{ background: bg, boxShadow: `0 4px 12px ${bg}90` }}>
                   {e}
                 </span>
@@ -389,14 +389,14 @@ export default function HelloWorldPage() {
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
               {/* <Link
                 href={hero.primaryButton.href}
-                className="px-8 py-3.5 rounded-2xl font-bold text-sm w-full sm:w-auto text-center transition-all duration-300 hover:scale-105 hover:shadow-xl"
+                className="px-8 py-3.5 rounded-2xl font-bold text-sm w-full sm:w-auto text-center transition-[shadow,transform] duration-300 hover:scale-105 hover:shadow-xl"
                 style={{ background: "#D97706", color: "#FFFFFF", boxShadow: "0 6px 24px rgba(217,119,6,0.45)" }}
               >
                 {hero.primaryButton.label}
               </Link> */}
               <Link
                 href={hero.secondaryButton.href}
-                className="px-8 py-3.5 rounded-2xl font-bold text-sm w-full sm:w-auto text-center transition-all duration-300 hover:scale-105 border-2"
+                className="px-8 py-3.5 rounded-2xl font-bold text-sm w-full sm:w-auto text-center transition-transform duration-300 motion-safe:hover:scale-105 border-2"
                 style={{ background: "rgba(255,255,255,0.85)", borderColor: "#0284C7", color: "#075985" }}
               >
                 {hero.secondaryButton.label}
@@ -451,7 +451,7 @@ export default function HelloWorldPage() {
                   key={house.key}
                   href="/events/hello-world/reveal"
                   aria-label={`บ้าน${house.name} — กดเพื่อเปิดเผยบ้านของคุณ`}
-                  className="group relative overflow-hidden rounded-3xl border-[3px] transition-all duration-300 hover:scale-[1.05] hover:-translate-y-2 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-offset-2"
+                  className="group relative overflow-hidden rounded-3xl border-[3px] transition-transform duration-300 motion-safe:hover:scale-[1.05] motion-safe:hover:-translate-y-2 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-offset-2"
                   style={{ background: hc.bg, borderColor: hc.border, boxShadow: `0 6px 24px ${hc.shadow}`, "--tw-ring-color": hc.border } as React.CSSProperties}
                   onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.boxShadow = `0 18px 44px ${hc.shadow}, 0 4px 12px rgba(0,0,0,0.08)`; }}
                   onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.boxShadow = `0 6px 24px ${hc.shadow}`; }}
@@ -466,7 +466,7 @@ export default function HelloWorldPage() {
                       height={hc.imgH}
                       loading="lazy"
                       sizes="200px"
-                      className="transition-transform duration-500 group-hover:scale-110 group-hover:-translate-y-2"
+                      className="transition-transform duration-500 motion-safe:group-hover:scale-110 motion-safe:group-hover:-translate-y-2"
                       style={{ height: 175, width: "auto", objectFit: "contain", mixBlendMode: "multiply", filter: "drop-shadow(0 4px 12px rgba(0,0,0,0.18))" }}
                     />
                   </div>
@@ -556,7 +556,7 @@ export default function HelloWorldPage() {
           </p>
           {/* <Link
             href={cta.button.href}
-            className="group inline-flex items-center gap-2 px-10 py-4 rounded-2xl font-black text-base tracking-wide transition-all duration-300 hover:scale-105"
+            className="group inline-flex items-center gap-2 px-10 py-4 rounded-2xl font-black text-base tracking-wide transition-transform duration-300 hover:scale-105"
             style={{ background: "#D97706", color: "#FFFFFF", boxShadow: "0 8px 32px rgba(217,119,6,0.45)" }}
           >
             <span aria-hidden="true">🎉</span> {cta.button.label}

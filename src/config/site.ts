@@ -50,22 +50,22 @@ export const footer = {
 
 export const homePage = {
   hero: {
-    badge: "เปิดรับสมัครแล้วตอนนี้",
+    badge: "ชุมนุมนิสิต CS · มหาวิทยาลัยเกษตรศาสตร์",
     title: "CSKU",
     tagline:
       "ชุมนุมนิสิตวิทยาการคอมพิวเตอร์ มหาวิทยาลัยเกษตรศาสตร์\nสร้างชุมชน แบ่งปันความรู้ สร้างโอกาส",
-    primaryButton: { label: "CS101", href: "/events/cs101" },
-    secondaryButton: { label: "Hello World", href: "/events/hello-world" },
+    primaryButton: { label: "ดู CS101", href: "/events/cs101" },
+    secondaryButton: { label: "ดู Hello World", href: "/events/hello-world" },
   },
   eventsSection: {
-    eyebrow: "กิจกรรมที่กำลังจะมาถึง",
-    title: "กิจกรรม",
-    learnMoreLabel: "ดูเพิ่มเติม",
+    eyebrow: "สิ่งที่เราสร้างขึ้น",
+    title: "กิจกรรมหลัก",
+    learnMoreLabel: "ดูรายละเอียด",
   },
   teamSection: {
-    eyebrow: "คณะทำงานของเรา",
-    title: "คณะทำงาน",
-    description: "นิสิตที่มีความมุ่งมั่นในการสร้างชุมชน CS ที่ KU",
+    eyebrow: "คนเบื้องหลัง CSKU",
+    title: "ทีมงาน CSKU",
+    description: "นิสิต CS ที่ออกแบบกิจกรรม ดูแลชุมชน และขับเคลื่อน CSKU ให้เดินหน้าต่อ",
     viewAllLabel: "ดูสมาชิกทั้งหมด",
     preview: [
       { name: "Alex Chen", role: "ประธาน" },
@@ -75,9 +75,9 @@ export const homePage = {
     ],
   },
   cta: {
-    title: "พร้อมเข้าร่วมแล้วหรือยัง?",
+    title: "เริ่มต้น CS ที่ KU กับเรา",
     description:
-      "ไม่ว่าจะเป็นมือใหม่หรือมีประสบการณ์ ชุมชนของเรามีที่สำหรับทุกคน",
+      "CS101 และ Hello World คือกิจกรรมที่ออกแบบโดยนิสิต CS เพื่อให้น้องปี 1 ได้เริ่มต้นอย่างถูกต้อง",
     primaryButton: { label: "สมัคร CS101", href: "/events/cs101/register" },
     secondaryButton: { label: "เข้าร่วม Hello World", href: "/events/hello-world/register" },
   },

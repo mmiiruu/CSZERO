@@ -41,21 +41,21 @@ function SignInContent() {
             <div className="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-blue-500/20">
               <span className="text-white font-bold text-xl">CS</span>
             </div>
-            <h1 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">เปิดใน Browser ก่อนนะ</h1>
-            <p className="text-slate-500 dark:text-slate-400 text-sm">Google ไม่อนุญาตให้ล็อกอินใน LINE Browser กรุณาเปิดลิงก์นี้ใน Safari หรือ Chrome</p>
+            <h1 className="text-2xl font-bold text-foreground mb-2">เปิดใน Browser ก่อนนะ</h1>
+            <p className="text-secondary text-sm">Google ไม่อนุญาตให้ล็อกอินใน LINE Browser กรุณาเปิดลิงก์นี้ใน Safari หรือ Chrome</p>
           </div>
 
-          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 sm:p-8 shadow-sm space-y-3">
-            <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-700 rounded-xl px-4 py-3 text-xs text-slate-500 dark:text-slate-400 break-all">
+          <div className="bg-card border border-border rounded-2xl p-6 sm:p-8 shadow-sm space-y-3">
+            <div className="flex items-center gap-2 bg-hover rounded-xl px-4 py-3 text-xs text-secondary break-all">
               {window.location.href}
             </div>
             <button
               onClick={handleCopyLink}
-              className="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-medium transition-all duration-200"
+              className="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-medium transition-colors duration-200"
             >
               {copied ? "คัดลอกแล้ว ✓" : "คัดลอกลิงก์"}
             </button>
-            <p className="text-center text-slate-400 dark:text-slate-500 text-xs">
+            <p className="text-center text-muted text-xs">
               แล้วเปิด Safari / Chrome วางลิงก์ในแถบที่อยู่
             </p>
           </div>
@@ -66,20 +66,20 @@ function SignInContent() {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-blue-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800">
-      <div className="max-w-md w-full animate-fade-in">
+      <div className="max-w-md w-full motion-safe:animate-fade-in">
         <div className="text-center mb-8">
           <div className="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-blue-500/20">
             <span className="text-white font-bold text-xl">CS</span>
           </div>
-          <h1 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">Sign in to CSKU</h1>
-          <p className="text-slate-500 dark:text-slate-400 text-sm">Use your Google account to continue</p>
+          <h1 className="text-2xl font-bold text-foreground mb-2">เข้าสู่ระบบ CSKU</h1>
+          <p className="text-secondary text-sm">ใช้บัญชี Google เพื่อดำเนินการต่อ</p>
         </div>
 
-        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 sm:p-8 shadow-sm">
+        <div className="bg-card border border-border rounded-2xl p-6 sm:p-8 shadow-sm">
           <button
             onClick={handleGoogleSignIn}
             disabled={loading}
-            className="w-full flex items-center justify-center gap-3 px-6 py-3.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-600 hover:border-slate-300 dark:hover:border-slate-500 hover:shadow-sm transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
+            className="w-full flex items-center justify-center gap-3 px-6 py-3.5 bg-card border border-border rounded-xl text-sm font-medium text-secondary hover:bg-hover hover:border-border-subtle hover:shadow-sm transition-[colors,shadow] duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {loading ? (
               <div className="w-5 h-5 border-2 border-slate-300 border-t-slate-600 rounded-full animate-spin" />
@@ -91,12 +91,12 @@ function SignInContent() {
                 <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
               </svg>
             )}
-            {loading ? "Signing in..." : "Continue with Google"}
+            {loading ? "กำลังเข้าสู่ระบบ..." : "เข้าสู่ระบบด้วย Google"}
           </button>
         </div>
 
-        <p className="text-center text-slate-400 dark:text-slate-500 text-xs mt-6">
-          By signing in you agree to our terms of service.
+        <p className="text-center text-muted text-xs mt-6">
+          การเข้าสู่ระบบถือว่าคุณยอมรับ<a href="/terms" className="underline underline-offset-2 hover:text-secondary transition-colors">เงื่อนไขการใช้งาน</a>ของเรา
         </p>
       </div>
     </div>

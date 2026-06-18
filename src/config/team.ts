@@ -4,14 +4,14 @@ export const DOT_PATTERN = {
 } as const;
 
 const memberColorPalette = [
-  "#0f766e",
-  "#b45309",
-  "#9f1239",
-  "#4338ca",
-  "#065f46",
-  "#6d28d9",
-  "#9a3412",
-  "#0e7490",
+  "oklch(0.511 0.096 186)",  // teal-700
+  "oklch(0.555 0.163 49)",   // amber-700
+  "oklch(0.455 0.188 14)",   // rose-800
+  "oklch(0.511 0.262 277)",  // indigo-600
+  "oklch(0.432 0.095 166)",  // emerald-800
+  "oklch(0.491 0.270 293)",  // violet-700
+  "oklch(0.470 0.156 37)",   // orange-800
+  "oklch(0.520 0.105 221)",  // cyan-700
 ];
 
 export function getMemberColor(id: string): string {
@@ -24,10 +24,10 @@ export function getMemberColor(id: string): string {
 }
 
 export const DEPARTMENTS = [
-  { key: "บริหาร",        label: "คณะกรรมการบริหาร", color: "#2563eb", mono: "blue-500"  },
-  { key: "กิจกรรม",       label: "ฝ่ายกิจกรรม",       color: "#d97706", mono: "amber-500" },
-  { key: "ประชาสัมพันธ์", label: "ฝ่ายประชาสัมพันธ์", color: "#e11d48", mono: "rose-500"  },
-  { key: "วิชาการ",       label: "ฝ่ายวิชาการ",       color: "#059669", mono: "emerald-500" },
+  { key: "บริหาร",        label: "คณะกรรมการบริหาร", color: "oklch(0.546 0.245 263)", mono: "blue-500"    },
+  { key: "กิจกรรม",       label: "ฝ่ายกิจกรรม",       color: "oklch(0.666 0.179 58)",  mono: "amber-500"   },
+  { key: "ประชาสัมพันธ์", label: "ฝ่ายประชาสัมพันธ์", color: "oklch(0.586 0.253 18)",  mono: "rose-500"    },
+  { key: "วิชาการ",       label: "ฝ่ายวิชาการ",       color: "oklch(0.596 0.145 163)", mono: "emerald-500" },
 ] as const;
 
 export type DepartmentKey = typeof DEPARTMENTS[number]["key"];
@@ -44,9 +44,9 @@ export interface FallbackMember {
 }
 
 export const teamConfig = {
-  eyebrow: "ชุมนุมนิสิตของเรา",
-  title: "พบกับชุมนุมนิสิต",
-  description: "นิสิตที่มีความมุ่งมั่นเบื้องหลัง CSKU ร่วมกันสร้างชุมชน CS ที่ยอดเยี่ยม",
+  eyebrow: "คนเบื้องหลัง CSKU",
+  title: "รู้จักทีมงาน",
+  description: "นิสิต CS ที่ออกแบบกิจกรรม ดูแลระบบ และขับเคลื่อนชุมนุมให้เดินหน้า",
   viewProfileLabel: "ดูโปรไฟล์",
   fallbackMembers: [
     { _id: "1",  name: "Alex Chen",      nickname: "Alex",  role: "ประธาน",                    bio: "นำพา CSKU ด้วยวิสัยทัศน์และความมุ่งมั่น",          department: "บริหาร",        isHead: false },

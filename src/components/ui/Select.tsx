@@ -44,19 +44,19 @@ export default function Select({
         onClick={() => setOpen((o) => !o)}
         aria-haspopup="listbox"
         aria-expanded={open}
-        className={`w-full flex items-center justify-between bg-white dark:bg-slate-800/60 border rounded-xl px-4 py-3 text-left text-sm transition-all duration-200 focus:outline-none focus:ring-2 ${
+        className={`w-full flex items-center justify-between bg-card border rounded-xl px-4 py-3 text-left text-sm transition-[colors,shadow] duration-200 focus-visible:outline-none focus-visible:ring-2 ${
           error
-            ? "border-red-300 dark:border-red-700 focus:ring-red-500/30 focus:border-red-500"
+            ? "border-red-300 dark:border-red-700 focus-visible:ring-red-500/30 focus-visible:border-red-500"
             : open
             ? "border-blue-500 ring-2 ring-blue-500/30"
-            : "border-slate-200 dark:border-slate-600 hover:border-slate-300 dark:hover:border-slate-500"
+            : "border-border hover:border-border-subtle"
         }`}
       >
-        <span className={selected ? "text-slate-800 dark:text-white" : "text-slate-400 dark:text-slate-500"}>
+        <span className={selected ? "text-foreground" : "text-muted"}>
           {selected ? selected.label : placeholder}
         </span>
         <svg
-          className={`w-4 h-4 text-slate-400 dark:text-slate-500 transition-transform duration-200 shrink-0 ${open ? "rotate-180" : ""}`}
+          className={`w-4 h-4 text-muted transition-transform duration-200 shrink-0 ${open ? "rotate-180" : ""}`}
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -66,7 +66,7 @@ export default function Select({
       </button>
 
       {open && (
-        <div className="absolute z-50 w-full mt-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg shadow-slate-900/5 dark:shadow-slate-900/40 overflow-hidden animate-fade-in">
+        <div className="absolute z-50 w-full mt-1.5 bg-card border border-border rounded-xl shadow-lg overflow-hidden motion-safe:animate-fade-in">
           {options.map((opt) => (
             <button
               key={opt.value}
@@ -77,14 +77,14 @@ export default function Select({
               }}
               className={`w-full flex items-center justify-between px-4 py-2.5 text-sm text-left transition-colors ${
                 opt.value === value
-                  ? "bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white font-medium"
-                  : "text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-800 dark:hover:text-white"
+                  ? "bg-hover text-foreground font-medium"
+                  : "text-secondary hover:bg-hover hover:text-foreground"
               }`}
             >
               {opt.label}
               {opt.value === value && (
                 <svg
-                  className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 shrink-0"
+                  className="w-3.5 h-3.5 text-muted shrink-0"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"

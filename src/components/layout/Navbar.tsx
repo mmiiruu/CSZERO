@@ -25,7 +25,7 @@ export default function Navbar({ session }: { session: any }) {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
-            <span className="relative inline-block w-8 h-8 group-hover:scale-110 transition-transform duration-200">
+            <span className="relative inline-block w-8 h-8 motion-safe:group-hover:scale-110 transition-transform duration-200">
               <Image
                 src="/logo.png"
                 alt={`${site.name} logo`}
@@ -54,7 +54,7 @@ export default function Navbar({ session }: { session: any }) {
               <Link
                 key={link.href}
                 href={link.href}
-                className="px-4 py-2.5 text-sm text-secondary hover:text-primary rounded-lg hover:bg-primary-subtle transition-all duration-200 min-h-[44px] inline-flex items-center"
+                className="px-4 py-2.5 text-sm text-secondary hover:text-primary rounded-lg hover:bg-primary-subtle transition-colors duration-200 min-h-[44px] inline-flex items-center"
               >
                 {link.label}
               </Link>
@@ -63,7 +63,7 @@ export default function Navbar({ session }: { session: any }) {
             <button
               onClick={toggleTheme}
               aria-label="Toggle theme"
-              className="p-2 rounded-lg text-secondary hover:text-primary hover:bg-primary-subtle transition-all duration-200 cursor-pointer min-h-[44px] min-w-[44px] inline-flex items-center justify-center"
+              className="p-2 rounded-lg text-secondary hover:text-primary hover:bg-primary-subtle transition-colors duration-200 cursor-pointer min-h-[44px] min-w-[44px] inline-flex items-center justify-center"
             >
               {!mounted ? (
                 <div className="w-5 h-5" />
@@ -98,7 +98,7 @@ export default function Navbar({ session }: { session: any }) {
                   )}
                   <button
                     onClick={() => signOut({ callbackUrl: "/" })}
-                    className="px-4 py-2 text-sm bg-hover text-foreground hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-all duration-200 font-medium cursor-pointer"
+                    className="px-4 py-2 text-sm bg-hover text-foreground hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors duration-200 font-medium cursor-pointer"
                   >
                     {navbar.signOut}
                   </button>
@@ -107,7 +107,7 @@ export default function Navbar({ session }: { session: any }) {
                 /* Filled accent — kept literal; see globals.css note */
                 <Link
                   href={navbar.signIn.href}
-                  className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 font-medium shadow-sm shadow-blue-500/20"
+                  className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium shadow-sm shadow-blue-500/20"
                 >
                   {navbar.signIn.label}
                 </Link>
@@ -160,7 +160,7 @@ export default function Navbar({ session }: { session: any }) {
 
         {/* Mobile menu */}
         {isOpen && (
-          <div id="mobile-menu" className="md:hidden py-4 border-t border-border-subtle animate-fade-in">
+          <div id="mobile-menu" className="md:hidden py-4 border-t border-border-subtle motion-safe:animate-fade-in">
             <div className="flex flex-col gap-1">
               {visibleLinks.map((link) => (
                 <Link

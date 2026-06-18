@@ -35,7 +35,7 @@ const SOCIAL_LABELS: Record<string, string> = {
 
 function MemberPageSkeleton() {
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
+    <div className="min-h-screen bg-background">
 
       {/* Dark hero zone — skeleton-dark elements on bg-slate-900 */}
       <div className="bg-slate-900 pt-20 pb-14 px-4 sm:px-6">
@@ -115,12 +115,12 @@ export default function TeamMemberPage() {
   if (loading) return <MemberPageSkeleton />;
 
   if (error || !member) return (
-    <div className="min-h-screen flex items-center justify-center px-4 bg-slate-50 dark:bg-slate-900">
+    <div className="min-h-screen flex items-center justify-center px-4 bg-background">
       <div className="text-center">
-        <h1 className="text-2xl font-bold text-slate-800 dark:text-white mb-4">Member not found</h1>
+        <h1 className="text-2xl font-bold text-foreground mb-4">Member not found</h1>
         <Link
           href="/team"
-          className="inline-flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
+          className="inline-flex items-center gap-2 text-sm text-secondary hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -136,8 +136,7 @@ export default function TeamMemberPage() {
   const hasSocialLinks = member.socialLinks && Object.values(member.socialLinks).some(Boolean);
 
   return (
-    // animate-fade-in: content fades in after replacing skeleton
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 animate-fade-in">
+    <div className="min-h-screen bg-background motion-safe:animate-fade-in">
 
       {/* ── Dark editorial hero ──────────────────────────────────────────── */}
       <div className="bg-slate-900 pt-20 pb-14 px-4 sm:px-6">
@@ -200,14 +199,14 @@ export default function TeamMemberPage() {
           {hasSkills && (
             <section>
               <p className="flex items-center gap-1.5 text-xs font-mono uppercase tracking-widest mb-4">
-                <span className="text-slate-400 dark:text-slate-600">//</span>
+                <span className="text-muted">//</span>
                 <span className="text-blue-500 dark:text-blue-400">skills</span>
               </p>
               <div className="flex flex-wrap gap-2">
                 {member.skills.map((s) => (
                   <code
                     key={s}
-                    className="px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-sm font-mono text-slate-700 dark:text-slate-300"
+                    className="px-3 py-1.5 bg-card border border-border rounded text-sm font-mono text-secondary"
                   >
                     {s}
                   </code>
@@ -219,7 +218,7 @@ export default function TeamMemberPage() {
           {hasSocialLinks && (
             <section>
               <p className="flex items-center gap-1.5 text-xs font-mono uppercase tracking-widest mb-4">
-                <span className="text-slate-400 dark:text-slate-600">//</span>
+                <span className="text-muted">//</span>
                 <span className="text-blue-500 dark:text-blue-400">connect</span>
               </p>
               <div className="flex flex-wrap gap-2">
@@ -230,9 +229,9 @@ export default function TeamMemberPage() {
                       href={url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 hover:border-blue-200 dark:hover:border-blue-700 transition-all"
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-card border border-border rounded-lg text-sm text-secondary hover:text-blue-600 dark:hover:text-blue-400 hover:border-blue-300 dark:hover:border-blue-700 transition-colors duration-200"
                     >
-                      <span className="font-mono text-slate-400 dark:text-slate-600 text-xs" aria-hidden="true">→</span>
+                      <span className="font-mono text-muted text-xs" aria-hidden="true">→</span>
                       {SOCIAL_LABELS[k] ?? k.charAt(0).toUpperCase() + k.slice(1)}
                     </a>
                   ) : null
