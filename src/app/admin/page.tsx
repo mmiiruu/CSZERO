@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useCallback, useMemo, useRef } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTheme } from "@/components/providers/ThemeProvider";
 import { DEPARTMENTS } from "@/config/team";
@@ -184,10 +185,10 @@ function ResponseModal({ reg, onClose }: { reg: Registration; onClose: () => voi
 }
 
 /* ─── Registrations Tab ──────────────────────────────────────────── */
-function RegistrationsTab({ callerRole }: { callerRole: Role }) {
+function RegistrationsTab({ callerRole, fixedEvent }: { callerRole: Role; fixedEvent?: string }) {
   const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<string>("all");
+  const [filter, setFilter] = useState<string>(fixedEvent ?? "all");
   const [modalReg, setModalReg] = useState<Registration | null>(null);
   const [seeding, setSeeding] = useState(false);
   const [seedMsg, setSeedMsg] = useState("");
@@ -310,7 +311,7 @@ function RegistrationsTab({ callerRole }: { callerRole: Role }) {
     <>
       {/* Controls */}
       <div className="flex flex-wrap gap-2 items-center mb-6">
-        {["all", "cs101", "hello-world"].map((f) => (
+        {!fixedEvent && ["all", "cs101", "hello-world"].map((f) => (
           <button key={f} onClick={() => setFilter(f)}
             aria-pressed={filter === f}
             className={`px-4 py-3 rounded-lg text-sm font-medium transition-colors cursor-pointer ${filter === f ? "bg-blue-600 text-white shadow-sm" : "bg-card text-secondary border border-border hover:bg-hover"}`}>
@@ -322,10 +323,12 @@ function RegistrationsTab({ callerRole }: { callerRole: Role }) {
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
           Export Excel
         </button>
-        <button onClick={handleSeedCandidates} disabled={seeding}
-          className="px-4 py-3 rounded-lg text-sm font-medium bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-60 transition-colors cursor-pointer">
-          {seeding ? "Seeding…" : "Seed Candidates"}
-        </button>
+        {!fixedEvent && (
+          <button onClick={handleSeedCandidates} disabled={seeding}
+            className="px-4 py-3 rounded-lg text-sm font-medium bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-60 transition-colors cursor-pointer">
+            {seeding ? "Seeding…" : "Seed Candidates"}
+          </button>
+        )}
       </div>
 
       {seedMsg && (
@@ -334,23 +337,33 @@ function RegistrationsTab({ callerRole }: { callerRole: Role }) {
         </div>
       )}
 
-      {/* Summary strip */}
-      <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mb-6 text-sm">
-        <span>
-          <strong className="font-semibold text-foreground">{regStats.total}</strong>
-          <span className="ml-1.5 text-muted">registrations</span>
-        </span>
-        <span aria-hidden="true" className="hidden sm:block w-px h-4 bg-border" />
-        <span>
-          <strong className="font-semibold text-blue-600 dark:text-blue-400">{regStats.cs101}</strong>
-          <span className="ml-1.5 text-muted">CS101</span>
-        </span>
-        <span aria-hidden="true" className="hidden sm:block w-px h-4 bg-border" />
-        <span>
-          <strong className="font-semibold text-amber-600 dark:text-amber-400">{regStats.helloWorld}</strong>
-          <span className="ml-1.5 text-muted">Hello World</span>
-        </span>
-      </div>
+      {/* Summary strip — shown only in "all" view */}
+      {!fixedEvent && (
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mb-6 text-sm">
+          <span>
+            <strong className="font-semibold text-foreground">{regStats.total}</strong>
+            <span className="ml-1.5 text-muted">registrations</span>
+          </span>
+          <span aria-hidden="true" className="hidden sm:block w-px h-4 bg-border" />
+          <span>
+            <strong className="font-semibold text-blue-600 dark:text-blue-400">{regStats.cs101}</strong>
+            <span className="ml-1.5 text-muted">CS101</span>
+          </span>
+          <span aria-hidden="true" className="hidden sm:block w-px h-4 bg-border" />
+          <span>
+            <strong className="font-semibold text-amber-600 dark:text-amber-400">{regStats.helloWorld}</strong>
+            <span className="ml-1.5 text-muted">Hello World</span>
+          </span>
+        </div>
+      )}
+      {fixedEvent && (
+        <div className="flex items-center gap-x-4 mb-6 text-sm">
+          <span>
+            <strong className="font-semibold text-foreground">{filtered.length}</strong>
+            <span className="ml-1.5 text-muted">ผู้ลงทะเบียน</span>
+          </span>
+        </div>
+      )}
 
       {/* Table */}
       {loading ? (
@@ -1443,14 +1456,96 @@ function TeamTab() {
   );
 }
 
+/* ─── Projects Tab ───────────────────────────────────────────────── */
+const PROJECTS = [
+  {
+    key: "cs101",
+    label: "CS101",
+    description: "ข้อมูลการลงทะเบียนและผู้เข้าร่วม",
+    href: "/events/cs101",
+    cardClasses: "hover:border-blue-400 dark:hover:border-blue-600",
+    iconClasses: "bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400",
+    eyebrowClasses: "text-blue-600 dark:text-blue-400",
+  },
+  {
+    key: "hello-world",
+    label: "Hello World",
+    description: "ข้อมูลการลงทะเบียนและบ้านที่ได้รับมอบหมาย",
+    href: "/events/hello-world",
+    cardClasses: "hover:border-amber-400 dark:hover:border-amber-600",
+    iconClasses: "bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400",
+    eyebrowClasses: "text-amber-600 dark:text-amber-400",
+  },
+] as const;
+
+type ProjectKey = typeof PROJECTS[number]["key"];
+
+function ProjectsTab({ callerRole }: { callerRole: Role }) {
+  const [selected, setSelected] = useState<ProjectKey | null>(null);
+
+  if (selected) {
+    const project = PROJECTS.find((p) => p.key === selected)!;
+    return (
+      <div>
+        <div className="flex items-center gap-3 mb-6">
+          <button
+            onClick={() => setSelected(null)}
+            className="flex items-center gap-1.5 text-sm text-secondary hover:text-foreground transition-colors cursor-pointer"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+            โครงการ
+          </button>
+          <span className="text-muted text-sm">/</span>
+          <span className="text-sm font-medium text-foreground">{project.label}</span>
+          <div className="flex-1" />
+          <Link
+            href={project.href}
+            target="_blank"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-card border border-border rounded-lg hover:bg-hover transition-colors"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+            </svg>
+            ไปหน้า event
+          </Link>
+        </div>
+        <RegistrationsTab callerRole={callerRole} fixedEvent={project.key} />
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid sm:grid-cols-2 gap-4 max-w-2xl">
+      {PROJECTS.map((project) => (
+        <button
+          key={project.key}
+          onClick={() => setSelected(project.key as ProjectKey)}
+          className={`text-left p-6 rounded-2xl bg-card border border-border transition-colors cursor-pointer ${project.cardClasses}`}
+        >
+          <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 ${project.iconClasses}`}>
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+          </div>
+          <p className={`text-xs font-mono font-semibold uppercase tracking-widest mb-1 ${project.eyebrowClasses}`}>โครงการ</p>
+          <h3 className="text-lg font-bold text-foreground mb-1">{project.label}</h3>
+          <p className="text-sm text-secondary">{project.description}</p>
+        </button>
+      ))}
+    </div>
+  );
+}
+
 /* ─── PAGE ───────────────────────────────────────────────────────── */
-type Tab = "registrations" | "users" | "candidates" | "team";
+type Tab = "projects" | "candidates" | "team" | "users";
 
 export default function AdminPage() {
   const router = useRouter();
   const { theme, toggleTheme } = useTheme();
   const dark = theme === "dark";
-  const [tab, setTab] = useState<Tab>("registrations");
+  const [tab, setTab] = useState<Tab>("projects");
   const [role, setRole] = useState<string | null>(null);
   const [callerEmail, setCallerEmail] = useState("");
 
@@ -1501,12 +1596,12 @@ export default function AdminPage() {
         </div>
 
         {/* Tabs */}
-        <div role="tablist" aria-label="Dashboard sections" className="flex gap-1 mb-8 bg-card border border-border rounded-xl p-1 w-fit">
+        <div role="tablist" aria-label="Dashboard sections" className="flex flex-wrap gap-1 mb-8 bg-card border border-border rounded-xl p-1 w-fit">
           {([
-            { id: "registrations" as Tab, label: "Registrations", icon: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" },
-            { id: "candidates" as Tab,    label: "Candidates",    icon: "M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" },
-            { id: "users" as Tab,         label: "Users",         icon: "M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" },
-            { id: "team" as Tab,          label: "Team",          icon: "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" },
+            { id: "projects" as Tab,   label: "โครงการ",       icon: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" },
+            { id: "candidates" as Tab, label: "สมัครประธาน",   icon: "M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" },
+            { id: "team" as Tab,       label: "ชุมนุมนิสิต",   icon: "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" },
+            { id: "users" as Tab,      label: "Users",          icon: "M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" },
           ]).map(({ id, label, icon }) => (
             <button key={id} id={`tab-${id}`} onClick={() => setTab(id)}
               role="tab"
@@ -1520,17 +1615,17 @@ export default function AdminPage() {
         </div>
 
         {/* Tab content */}
-        <div role="tabpanel" id="panel-registrations" aria-labelledby="tab-registrations" hidden={tab !== "registrations"}>
-          <RegistrationsTab callerRole={(role as Role) ?? "staff"} />
+        <div role="tabpanel" id="panel-projects" aria-labelledby="tab-projects" hidden={tab !== "projects"}>
+          <ProjectsTab callerRole={(role as Role) ?? "staff"} />
         </div>
         <div role="tabpanel" id="panel-candidates" aria-labelledby="tab-candidates" hidden={tab !== "candidates"}>
           <CandidatesTab callerRole={(role as Role) ?? "staff"} />
         </div>
-        <div role="tabpanel" id="panel-users" aria-labelledby="tab-users" hidden={tab !== "users"}>
-          <UsersTab callerEmail={callerEmail} callerRole={(role as Role) ?? "staff"} />
-        </div>
         <div role="tabpanel" id="panel-team" aria-labelledby="tab-team" hidden={tab !== "team"}>
           <TeamTab />
+        </div>
+        <div role="tabpanel" id="panel-users" aria-labelledby="tab-users" hidden={tab !== "users"}>
+          <UsersTab callerEmail={callerEmail} callerRole={(role as Role) ?? "staff"} />
         </div>
 
       </div>
