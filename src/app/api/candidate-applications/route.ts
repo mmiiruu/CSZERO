@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
     const strengthWeaknessAnswer = clean(body?.strengthWeaknessAnswer, MAX_TEXT);
     const conflictAnswer = clean(body?.conflictAnswer, MAX_TEXT);
 
-    if (!name || !nickname || !section || !motto || !videoUrl || !dutyAnswer || !visionAnswer || !strengthWeaknessAnswer || !conflictAnswer) {
+    if (!name || !nickname || !section || !motto || !dutyAnswer || !visionAnswer || !strengthWeaknessAnswer || !conflictAnswer) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 

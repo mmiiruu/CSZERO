@@ -215,8 +215,7 @@ export default function CandidateRegisterPage() {
       if (!form.section) e.section = "กรุณาเลือกภาค";
       if (!form.motto.trim()) e.motto = "กรุณากรอกคติประจำใจ";
     } else if (s === 1) {
-      if (!form.videoUrl.trim()) e.videoUrl = "กรุณากรอกลิงก์วิดีโอ";
-      else if (!/youtu(be\.com|\.be)\//i.test(form.videoUrl)) e.videoUrl = "กรุณากรอกลิงก์ YouTube ที่ถูกต้อง";
+      if (form.videoUrl.trim() && !/youtu(be\.com|\.be)\//i.test(form.videoUrl)) e.videoUrl = "กรุณากรอกลิงก์ YouTube ที่ถูกต้อง";
     } else if (s === 2) {
       if (!form.dutyAnswer.trim()) e.dutyAnswer = "กรุณาตอบคำถามนี้";
       if (!form.visionAnswer.trim()) e.visionAnswer = "กรุณาตอบคำถามนี้";
