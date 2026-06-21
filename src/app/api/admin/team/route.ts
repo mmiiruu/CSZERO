@@ -4,18 +4,18 @@ import clientPromise from "@/lib/mongodb-client";
 import dbConnect from "@/lib/mongodb";
 import TeamMember from "@/models/TeamMember";
 
-async function requireAdmin() {
+async function requireAdminOrStaff() {
   const session = await auth();
   if (!session?.user?.email) return null;
   const db = (await clientPromise).db();
   const dbUser = await db.collection("users").findOne({ email: session.user.email });
   const role: string = dbUser?.role || "user";
-  return role === "admin" ? role : null;
+  return role === "admin" || role === "staff" ? role : null;
 }
 
 export async function POST(req: NextRequest) {
   try {
-    const role = await requireAdmin();
+    const role = await requireAdminOrStaff();
     if (!role) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
     const body = await req.json();

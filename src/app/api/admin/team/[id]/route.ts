@@ -13,12 +13,21 @@ async function requireAdmin() {
   return role === "admin" ? role : null;
 }
 
+async function requireAdminOrStaff() {
+  const session = await auth();
+  if (!session?.user?.email) return null;
+  const db = (await clientPromise).db();
+  const dbUser = await db.collection("users").findOne({ email: session.user.email });
+  const role: string = dbUser?.role || "user";
+  return role === "admin" || role === "staff" ? role : null;
+}
+
 export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const role = await requireAdmin();
+    const role = await requireAdminOrStaff();
     if (!role) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
     const { id } = await params;
