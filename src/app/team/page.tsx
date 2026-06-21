@@ -275,9 +275,12 @@ export default function TeamPage() {
           <p className="text-xs font-mono text-primary uppercase tracking-widest mb-3">
             {teamConfig.eyebrow}
           </p>
-          <h1 className="font-display text-5xl sm:text-6xl font-extrabold text-foreground mb-4 tracking-tight">
+          <h1 className="font-display text-5xl sm:text-6xl font-extrabold text-foreground mb-3 tracking-tight">
             {teamConfig.title}
           </h1>
+          <p className="text-xs font-mono text-primary uppercase tracking-widest mb-4">
+            {teamConfig.subtitle}
+          </p>
           <p className="text-secondary max-w-md leading-relaxed">
             {teamConfig.description}
           </p>

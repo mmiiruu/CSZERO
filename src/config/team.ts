@@ -45,7 +45,8 @@ export interface FallbackMember {
 
 export const teamConfig = {
   eyebrow: "บุคลากรผู้ทำงานให้กับภาควิชาวิทยาการคอมพิวเตอร์",
-  title: "สมาชิกชุมนุมนิสิตวิทย์คอม",
+  title: "สมาชิกชุมนุมนิสิต",
+  subtitle: "ภาควิทยาการคอมพิวเตอร์",
   description: "นิสิต ComSci ที่ออกแบบกิจกรรม ดูแลระบบ และขับเคลื่อนชุมนุมให้เดินหน้า",
   viewProfileLabel: "ดูโปรไฟล์",
   fallbackMembers: [
