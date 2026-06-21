@@ -4,6 +4,7 @@ import clientPromise from "@/lib/mongodb-client";
 import dbConnect from "@/lib/mongodb";
 import CandidateApplication from "@/models/CandidateApplication";
 import { candidateRegistrationConfig } from "@/config/candidate";
+import { isRegistrationOpen } from "@/lib/registration";
 
 const MAX_STR = 200;
 const MAX_TEXT = 3000;
@@ -28,7 +29,7 @@ export async function POST(req: NextRequest) {
     const callerRole = await getCallerRole(session.user.email);
     const isAdminOrStaff = callerRole === "admin" || callerRole === "staff";
 
-    if (!candidateRegistrationConfig.open && !isAdminOrStaff) {
+    if (!isRegistrationOpen(candidateRegistrationConfig) && !isAdminOrStaff) {
       return NextResponse.json(
         { error: "Candidate registration is not open" },
         { status: 403 }

@@ -7,6 +7,7 @@ import { signOut } from "next-auth/react";
 import { useTheme } from "@/components/providers/ThemeProvider";
 import { site, navLinks, navbar } from "@/config/site";
 import { candidateRegistrationConfig } from "@/config/candidate";
+import { isRegistrationOpen } from "@/lib/registration";
 
 export default function Navbar({ session }: { session: any }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -15,7 +16,7 @@ export default function Navbar({ session }: { session: any }) {
   const canAccessAdmin = isAdmin || session?.user?.role === "staff";
   const visibleLinks = navLinks.filter((link) => {
     if (link.adminOnly && !canAccessAdmin) return false;
-    if (link.candidateRegistration && !candidateRegistrationConfig.open && !canAccessAdmin) return false;
+    if (link.candidateRegistration && !isRegistrationOpen(candidateRegistrationConfig) && !canAccessAdmin) return false;
     return true;
   });
 
