@@ -85,7 +85,7 @@ function LeaderCard({ member }: { member: TeamMember | FallbackMember }) {
       className="group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-xl"
       aria-label={label}
     >
-      <div className="bg-slate-900 dark:bg-slate-800 border border-slate-700 rounded-xl p-5 sm:p-6 flex gap-5 items-start hover:bg-slate-800 dark:hover:bg-slate-700/80 transition-colors duration-200 h-full">
+      <div className="bg-slate-100 dark:bg-slate-800 border border-border rounded-xl p-5 sm:p-6 flex gap-5 items-start hover:bg-slate-200 dark:hover:bg-slate-700/80 transition-colors duration-200 h-full">
         <div
           className="w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-lg flex items-center justify-center text-xl font-black text-white motion-safe:group-hover:scale-105 transition-transform duration-200 overflow-hidden"
           style={{ backgroundColor: accentColor, ...DOT_PATTERN }}
@@ -98,20 +98,20 @@ function LeaderCard({ member }: { member: TeamMember | FallbackMember }) {
         </div>
         <div className="flex flex-col justify-between min-h-[64px] flex-1 min-w-0">
           <div>
-            <p className="text-xs font-mono text-blue-400 uppercase tracking-widest mb-0.5 truncate">{member.role}</p>
-            <h3 className="text-lg font-bold text-white leading-tight">
+            <p className="text-xs font-mono text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-0.5 truncate">{member.role}</p>
+            <h3 className="text-lg font-bold text-foreground leading-tight">
               {displayName(member)}
               {member.nickname && (
-                <span className="ml-1.5 text-sm font-normal text-slate-500"> {member.name}</span>
+                <span className="ml-1.5 text-sm font-normal text-muted"> {member.name}</span>
               )}
             </h3>
             {member.bio && (
-              <p className="mt-1.5 text-xs text-slate-400 leading-relaxed line-clamp-2">{member.bio}</p>
+              <p className="mt-1.5 text-xs text-secondary leading-relaxed line-clamp-2">{member.bio}</p>
             )}
           </div>
           <div
             aria-hidden="true"
-            className="mt-3 flex items-center gap-1 text-xs text-slate-500 group-hover:text-blue-400 transition-colors duration-200"
+            className="mt-3 flex items-center gap-1 text-xs text-muted group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors duration-200"
           >
             <span>{teamConfig.viewProfileLabel}</span>
             <svg className="w-3 h-3 motion-safe:group-hover:translate-x-0.5 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
