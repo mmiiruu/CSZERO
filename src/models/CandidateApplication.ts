@@ -4,6 +4,7 @@ export interface ICandidateApplication extends Document {
   name: string;
   email: string;
   nickname?: string;
+  section?: string;
   image?: string;
   motto?: string;
   videoUrl?: string;
@@ -27,6 +28,7 @@ const CandidateApplicationSchema = new Schema<ICandidateApplication>(
     name: { type: String, required: true },
     email: { type: String, required: true },
     nickname: { type: String },
+    section: { type: String },
     image: { type: String },
     motto: { type: String },
     videoUrl: { type: String },

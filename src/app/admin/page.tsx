@@ -790,6 +790,7 @@ type CandidateApplication = {
   name: string;
   email: string;
   nickname?: string;
+  section?: string;
   image?: string;
   motto?: string;
   videoUrl?: string;
@@ -991,6 +992,7 @@ function CandidatesTab({ callerRole }: { callerRole: Role }) {
             <div className="overflow-y-auto flex-1 px-6 py-5 space-y-4">
               {([
                 ["ชื่อเล่น", detail.nickname || detail.role || "—"],
+                ["ภาค", detail.section ? `ภาค${detail.section}` : "—"],
                 ["คติประจำใจ", detail.motto || "—"],
                 ["ลิงก์วิดีโอ", detail.videoUrl || "—"],
                 ["หน้าที่ของประธานรุ่น", detail.dutyAnswer || "—"],

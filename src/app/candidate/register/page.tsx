@@ -82,6 +82,7 @@ function ImageUpload({ value, onChange }: { value: string; onChange: (url: strin
 type FormState = {
   name: string;
   nickname: string;
+  section: "ปกติ" | "พิเศษ" | "";
   image: string;
   motto: string;
   videoUrl: string;
@@ -91,7 +92,7 @@ type FormState = {
 };
 
 const INITIAL_FORM: FormState = {
-  name: "", nickname: "", image: "", motto: "",
+  name: "", nickname: "", section: "", image: "", motto: "",
   videoUrl: "", dutyAnswer: "", visionAnswer: "", strengthWeaknessAnswer: "",
 };
 
@@ -216,6 +217,7 @@ export default function CandidateRegisterPage() {
     if (s === 0) {
       if (!form.name.trim()) e.name = "กรุณากรอกชื่อจริง–นามสกุล";
       if (!form.nickname.trim()) e.nickname = "กรุณากรอกชื่อเล่น";
+      if (!form.section) e.section = "กรุณาเลือกภาค";
       if (!form.motto.trim()) e.motto = "กรุณากรอกคติประจำใจ";
     } else if (s === 1) {
       if (!form.videoUrl.trim()) e.videoUrl = "กรุณากรอกลิงก์วิดีโอ";
@@ -324,6 +326,22 @@ export default function CandidateRegisterPage() {
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => update("nickname", e.target.value)}
                   error={errors.nickname}
                 />
+                <div>
+                  <p className="block text-sm font-medium text-foreground mb-2">ภาค</p>
+                  <div className="flex gap-2">
+                    {(["ปกติ", "พิเศษ"] as const).map((s) => (
+                      <button
+                        key={s}
+                        type="button"
+                        onClick={() => update("section", s)}
+                        className={`px-5 py-2.5 rounded-xl text-sm font-medium transition-colors cursor-pointer ${form.section === s ? "bg-blue-600 text-white shadow-sm" : "bg-card border border-border text-secondary hover:bg-hover"}`}
+                      >
+                        ภาค{s}
+                      </button>
+                    ))}
+                  </div>
+                  {errors.section && <p className="mt-1.5 text-xs text-red-500">{errors.section}</p>}
+                </div>
                 <ImageUpload value={form.image} onChange={(url) => update("image", url)} />
                 <Input
                   label={cfg.fields.motto.label}

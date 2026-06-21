@@ -38,6 +38,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const name = clean(body?.name);
     const nickname = clean(body?.nickname);
+    const section = clean(body?.section, 20);
     const image = clean(body?.image, 500);
     const motto = clean(body?.motto, MAX_TEXT);
     const videoUrl = clean(body?.videoUrl, 500);
@@ -45,7 +46,7 @@ export async function POST(req: NextRequest) {
     const visionAnswer = clean(body?.visionAnswer, MAX_TEXT);
     const strengthWeaknessAnswer = clean(body?.strengthWeaknessAnswer, MAX_TEXT);
 
-    if (!name || !nickname || !motto || !videoUrl || !dutyAnswer || !visionAnswer || !strengthWeaknessAnswer) {
+    if (!name || !nickname || !section || !motto || !videoUrl || !dutyAnswer || !visionAnswer || !strengthWeaknessAnswer) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
@@ -61,7 +62,7 @@ export async function POST(req: NextRequest) {
     }
 
     const app = await CandidateApplication.create({
-      name, email, nickname, motto, videoUrl,
+      name, email, nickname, section, motto, videoUrl,
       dutyAnswer, visionAnswer, strengthWeaknessAnswer,
       image: image || undefined,
     });
