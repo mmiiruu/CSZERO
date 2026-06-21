@@ -71,6 +71,7 @@ export async function POST(req: NextRequest) {
     // Fire-and-forget — don't let webhook failure affect the response
     const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
     if (webhookUrl) {
+      const trunc = (s: string, n = 1024) => s.slice(0, n) || "—";
       fetch(webhookUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -79,11 +80,15 @@ export async function POST(req: NextRequest) {
             title: "📋 ใบสมัครประธานรุ่นใหม่",
             color: 0x3b82f6,
             fields: [
-              { name: "ชื่อ", value: name, inline: true },
-              { name: "ชื่อเล่น", value: nickname, inline: true },
-              { name: "ภาค", value: `ภาค${section}`, inline: true },
-              { name: "อีเมล", value: email, inline: false },
-              { name: "คติประจำใจ", value: motto.slice(0, 200) || "—", inline: false },
+              { name: "ชื่อ",         value: name,              inline: true  },
+              { name: "ชื่อเล่น",     value: nickname,          inline: true  },
+              { name: "ภาค",          value: `ภาค${section}`,   inline: true  },
+              { name: "อีเมล",        value: email,             inline: false },
+              { name: "คติประจำใจ",   value: trunc(motto),      inline: false },
+              { name: "🎬 ลิงก์วิดีโอแนะนำตัว", value: videoUrl || "—", inline: false },
+              { name: "❓ หน้าที่ของประธานรุ่นคืออะไร",                     value: trunc(dutyAnswer),             inline: false },
+              { name: "❓ แนวคิดหรือกิจกรรมที่อยากผลักดัน",                value: trunc(visionAnswer),           inline: false },
+              { name: "❓ จุดแข็งและจุดอ่อนของตัวเอง",                      value: trunc(strengthWeaknessAnswer), inline: false },
             ],
             timestamp: new Date().toISOString(),
             footer: { text: "CSKU · สมัครประธานรุ่น" },
