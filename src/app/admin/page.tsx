@@ -1194,7 +1194,7 @@ type TeamMemberAdmin = {
 
 const EMPTY_FORM = { name: "", nickname: "", role: "", bio: "", image: "", order: 0, department: "", isHead: false };
 
-function TeamTab() {
+function TeamTab({ callerRole }: { callerRole: Role }) {
   const [members, setMembers] = useState<TeamMemberAdmin[]>([]);
   const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState<{ mode: "add" | "edit"; member?: TeamMemberAdmin } | null>(null);
@@ -1338,7 +1338,9 @@ function TeamTab() {
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <button onClick={() => openEdit(m)} className="text-primary hover:text-primary-dark text-sm font-medium cursor-pointer transition-colors">แก้ไข</button>
-                        <button onClick={() => setConfirmDelete(m)} className="text-red-500 hover:text-red-700 dark:hover:text-red-400 text-sm font-medium cursor-pointer transition-colors">ลบ</button>
+                        {callerRole === "admin" && (
+                          <button onClick={() => setConfirmDelete(m)} className="text-red-500 hover:text-red-700 dark:hover:text-red-400 text-sm font-medium cursor-pointer transition-colors">ลบ</button>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -1711,7 +1713,7 @@ export default function AdminPage() {
           <CandidatesTab callerRole={(role as Role) ?? "staff"} />
         </div>
         <div role="tabpanel" id="panel-team" aria-labelledby="tab-team" hidden={tab !== "team"}>
-          <TeamTab />
+          <TeamTab callerRole={(role as Role) ?? "staff"} />
         </div>
         <div role="tabpanel" id="panel-users" aria-labelledby="tab-users" hidden={tab !== "users"}>
           <UsersTab callerEmail={callerEmail} callerRole={(role as Role) ?? "staff"} />
