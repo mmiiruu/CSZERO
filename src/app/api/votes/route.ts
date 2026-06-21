@@ -38,7 +38,10 @@ export async function GET(_req: NextRequest) {
       image: a.image || "",
       motto: a.motto || "",
       section: a.section || "",
-      voteCount: a.voteCount ?? 0,
+      videoUrl: a.videoUrl || "",
+      dutyAnswer: a.dutyAnswer || "",
+      visionAnswer: a.visionAnswer || "",
+      strengthWeaknessAnswer: a.strengthWeaknessAnswer || "",
     }));
 
     return NextResponse.json({ votingOpen: true, candidates, hasVoted });

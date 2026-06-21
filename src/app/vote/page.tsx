@@ -14,9 +14,216 @@ interface Candidate {
   image: string;
   motto: string;
   section: string;
-  voteCount: number;
+  videoUrl: string;
+  dutyAnswer: string;
+  visionAnswer: string;
+  strengthWeaknessAnswer: string;
 }
 
+const WRITTEN_QA = [
+  { key: "dutyAnswer" as const,               q: "คิดว่าหน้าที่ของประธานรุ่นคืออะไร" },
+  { key: "visionAnswer" as const,             q: "มีแนวคิดหรือกิจกรรมอะไรที่อยากผลักดัน" },
+  { key: "strengthWeaknessAnswer" as const,   q: "จุดแข็งและจุดอ่อนของตัวเอง" },
+];
+
+/* ─── Candidate detail modal ────────────────────────────────────── */
+function CandidateModal({
+  candidate,
+  hasVoted,
+  voting,
+  onVote,
+  onClose,
+}: {
+  candidate: Candidate;
+  hasVoted: boolean;
+  voting: string | null;
+  onVote: (id: string) => void;
+  onClose: () => void;
+}) {
+  useEffect(() => {
+    const h = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", h);
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", h);
+      document.body.style.overflow = "";
+    };
+  }, [onClose]);
+
+  const c = candidate;
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-0 sm:p-4"
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        className="relative w-full sm:max-w-lg max-h-[92dvh] sm:max-h-[85vh] flex flex-col rounded-t-3xl sm:rounded-2xl bg-card border border-border shadow-2xl overflow-hidden"
+      >
+        {/* Header */}
+        <div className="shrink-0 px-6 pt-6 pb-5 border-b border-border">
+          <div className="flex items-start gap-4">
+            <div
+              className="w-16 h-16 rounded-full shrink-0 overflow-hidden flex items-center justify-center text-xl font-bold text-white"
+              style={{ backgroundColor: getMemberColor(c.name) }}
+            >
+              {c.image
+                ? <img src={c.image} alt={c.name} className="w-full h-full object-cover" />
+                : (c.nickname || c.name).charAt(0)
+              }
+            </div>
+            <div className="flex-1 min-w-0 pt-0.5">
+              <div className="flex items-center gap-2 flex-wrap mb-0.5">
+                <h2 className="text-lg font-bold text-foreground leading-tight">{c.name}</h2>
+                {c.nickname && <span className="text-sm text-muted">({c.nickname})</span>}
+              </div>
+              {c.section && (
+                <span className="inline-block px-2 py-0.5 text-xs font-medium rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800">
+                  ภาค{c.section}
+                </span>
+              )}
+            </div>
+            <button
+              onClick={onClose}
+              aria-label="ปิด"
+              className="shrink-0 p-2 -mr-1 -mt-1 text-muted hover:text-secondary rounded-lg transition-colors cursor-pointer"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          {c.motto && (
+            <p className="mt-4 text-sm text-secondary italic leading-relaxed">
+              &ldquo;{c.motto}&rdquo;
+            </p>
+          )}
+        </div>
+
+        {/* Scrollable body */}
+        <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5">
+
+          {/* Video link */}
+          {c.videoUrl && (
+            <a
+              href={c.videoUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 w-full px-4 py-3.5 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors group"
+            >
+              {/* YouTube icon */}
+              <span className="shrink-0 w-8 h-8 rounded-lg bg-red-600 flex items-center justify-center">
+                <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                </svg>
+              </span>
+              <span className="flex-1 text-sm font-medium text-red-700 dark:text-red-400 group-hover:text-red-800 dark:group-hover:text-red-300">
+                ดูวิดีโอแนะนำตัว
+              </span>
+              <svg className="w-4 h-4 text-red-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+            </a>
+          )}
+
+          {/* Written answers */}
+          {WRITTEN_QA.map(({ key, q }) => {
+            const answer = c[key];
+            if (!answer) return null;
+            return (
+              <div key={key}>
+                <p className="text-xs font-semibold text-muted uppercase tracking-wide mb-2">{q}</p>
+                <p className="text-sm text-secondary leading-relaxed whitespace-pre-wrap">{answer}</p>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Footer — vote button */}
+        <div className="shrink-0 px-6 py-4 border-t border-border bg-card">
+          <Button
+            variant={hasVoted ? "ghost" : "primary"}
+            size="md"
+            className="w-full"
+            disabled={hasVoted}
+            loading={voting === c._id}
+            onClick={() => onVote(c._id)}
+          >
+            {hasVoted ? voteConfig.labels.voted : voteConfig.labels.vote}
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Candidate card ────────────────────────────────────────────── */
+function CandidateCard({
+  candidate,
+  hasVoted,
+  onClick,
+}: {
+  candidate: Candidate;
+  hasVoted: boolean;
+  onClick: () => void;
+}) {
+  const c = candidate;
+  return (
+    <button
+      onClick={onClick}
+      className="w-full text-left bg-card border border-border rounded-2xl overflow-hidden hover:shadow-lg hover:border-blue-200 dark:hover:border-blue-700 transition-[box-shadow,border-color] duration-300 cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
+    >
+      {/* Photo banner */}
+      <div
+        className="h-36 flex items-center justify-center text-4xl font-bold text-white relative overflow-hidden"
+        style={{ backgroundColor: getMemberColor(c.name) }}
+      >
+        {c.image
+          ? <img src={c.image} alt={c.name} className="w-full h-full object-cover" />
+          : <span>{(c.nickname || c.name).charAt(0)}</span>
+        }
+        {/* Overlay on hover */}
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 flex items-center justify-center">
+          <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-white text-sm font-medium bg-black/40 px-3 py-1.5 rounded-full">
+            ดูโปรไฟล์
+          </span>
+        </div>
+      </div>
+
+      {/* Info */}
+      <div className="px-4 py-4">
+        <div className="flex items-start justify-between gap-2 mb-1">
+          <div className="min-w-0">
+            <p className="font-semibold text-foreground truncate">{c.name}</p>
+            {c.nickname && <p className="text-sm text-muted">({c.nickname})</p>}
+          </div>
+          {hasVoted && (
+            <span className="shrink-0 mt-0.5 text-xs text-green-600 dark:text-green-400 font-medium">โหวตแล้ว</span>
+          )}
+        </div>
+        {c.motto && (
+          <p className="text-xs text-secondary mt-2 line-clamp-2 leading-relaxed italic">&ldquo;{c.motto}&rdquo;</p>
+        )}
+        <div className="mt-3 flex items-center gap-1.5 text-xs text-muted">
+          {c.videoUrl && (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800">
+              <svg className="w-2.5 h-2.5" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+              </svg>
+              วิดีโอ
+            </span>
+          )}
+          <span className="text-muted">แตะเพื่อดูข้อมูล →</span>
+        </div>
+      </div>
+    </button>
+  );
+}
+
+/* ─── Page ──────────────────────────────────────────────────────── */
 export default function VotePage() {
   const { data: session, status } = useSession();
   const [candidates, setCandidates] = useState<Candidate[]>([]);
@@ -27,6 +234,7 @@ export default function VotePage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [selectedSection, setSelectedSection] = useState<"ปกติ" | "พิเศษ" | null>(null);
+  const [activeCandidate, setActiveCandidate] = useState<Candidate | null>(null);
 
   useEffect(() => {
     fetch("/api/votes")
@@ -54,7 +262,7 @@ export default function VotePage() {
       if (!res.ok) throw new Error(data.error || voteConfig.messages.failedToVote);
       setHasVoted(true);
       setSuccess(voteConfig.messages.voteSuccess);
-      setCandidates((prev) => prev.map((c) => c._id === candidateId ? { ...c, voteCount: c.voteCount + 1 } : c));
+      setActiveCandidate(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : voteConfig.messages.somethingWentWrong);
     } finally {
@@ -62,6 +270,7 @@ export default function VotePage() {
     }
   };
 
+  /* ── Loading ── */
   if (loading || status === "loading") return (
     <div className="min-h-screen flex items-center justify-center">
       <div role="status" aria-label="กำลังโหลด...">
@@ -70,6 +279,7 @@ export default function VotePage() {
     </div>
   );
 
+  /* ── Auth gate ── */
   if (status === "unauthenticated") return (
     <div className="min-h-screen flex items-center justify-center px-4 bg-background">
       <div className="text-center">
@@ -82,6 +292,7 @@ export default function VotePage() {
     </div>
   );
 
+  /* ── Voting closed ── */
   if (!votingOpen) return (
     <div className="min-h-screen flex items-center justify-center px-4 bg-background">
       <div className="text-center max-w-md">
@@ -96,108 +307,99 @@ export default function VotePage() {
     </div>
   );
 
-  const visibleCandidates = selectedSection
-    ? candidates.filter((c) => c.section === selectedSection)
-    : [];
-
-  // Section picker screen
-  if (!selectedSection) {
-    return (
-      <div className="min-h-screen flex items-center justify-center px-4 bg-background">
-        <div className="text-center max-w-sm w-full">
-          <p className="text-sm font-mono text-blue-500 dark:text-blue-400 uppercase tracking-widest mb-3">{voteConfig.eyebrow}</p>
-          <h1 className="text-3xl font-bold text-foreground mb-2">{voteConfig.title}</h1>
-          <p className="text-secondary text-sm mb-10">คุณเรียนอยู่ภาคอะไร?</p>
-          <div className="flex flex-col gap-4">
-            {(["ปกติ", "พิเศษ"] as const).map((sec) => (
-              <button
-                key={sec}
-                onClick={() => setSelectedSection(sec)}
-                className="w-full py-5 rounded-2xl border-2 border-border bg-card hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-[colors,border-color] duration-200 cursor-pointer group"
-              >
-                <p className="text-xl font-semibold text-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                  ภาค{sec}
-                </p>
-              </button>
-            ))}
-          </div>
+  /* ── Section picker ── */
+  if (!selectedSection) return (
+    <div className="min-h-screen flex items-center justify-center px-4 bg-background">
+      <div className="text-center max-w-sm w-full">
+        <p className="text-sm font-mono text-blue-500 dark:text-blue-400 uppercase tracking-widest mb-3">{voteConfig.eyebrow}</p>
+        <h1 className="text-3xl font-bold text-foreground mb-2">{voteConfig.title}</h1>
+        <p className="text-secondary text-sm mb-10">คุณเรียนอยู่ภาคอะไร?</p>
+        <div className="flex flex-col gap-4">
+          {(["ปกติ", "พิเศษ"] as const).map((sec) => (
+            <button
+              key={sec}
+              onClick={() => setSelectedSection(sec)}
+              className="w-full py-5 rounded-2xl border-2 border-border bg-card hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-[colors,border-color] duration-200 cursor-pointer group"
+            >
+              <p className="text-xl font-semibold text-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                ภาค{sec}
+              </p>
+            </button>
+          ))}
         </div>
       </div>
-    );
-  }
+    </div>
+  );
+
+  /* ── Candidate list ── */
+  const visibleCandidates = candidates.filter((c) => c.section === selectedSection);
 
   return (
     <div className="min-h-screen py-20 px-4 bg-background">
-      <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-12 motion-safe:animate-fade-in">
-          <p className="text-sm font-mono text-blue-500 dark:text-blue-400 uppercase tracking-widest mb-3">{voteConfig.eyebrow}</p>
-          <h1 className="text-5xl font-bold text-foreground mb-4">{voteConfig.title}</h1>
-          <p className="text-secondary max-w-lg mx-auto">{voteConfig.description}</p>
+      <div className="max-w-3xl mx-auto">
+
+        {/* Header */}
+        <div className="mb-10">
           <button
             onClick={() => setSelectedSection(null)}
-            className="mt-5 inline-flex items-center gap-1.5 text-sm text-muted hover:text-secondary transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-secondary transition-colors cursor-pointer mb-6"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
             </svg>
-            เปลี่ยนภาค (ภาค{selectedSection})
+            เปลี่ยนภาค
           </button>
+          <p className="text-sm font-mono text-blue-500 dark:text-blue-400 uppercase tracking-widest mb-2">{voteConfig.eyebrow} · ภาค{selectedSection}</p>
+          <h1 className="text-4xl font-bold text-foreground mb-2">{voteConfig.title}</h1>
+          <p className="text-secondary text-sm">{voteConfig.description}</p>
         </div>
 
+        {/* Alerts */}
         {error && (
-          <div role="alert" className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl text-red-600 dark:text-red-400 text-sm text-center max-w-md mx-auto">
+          <div role="alert" className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl text-red-600 dark:text-red-400 text-sm">
             {error}
           </div>
         )}
         {success && (
-          <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl text-green-600 dark:text-green-400 text-sm text-center max-w-md mx-auto motion-safe:animate-scale-in">
+          <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl text-green-600 dark:text-green-400 text-sm">
             ✓ {success}
           </div>
         )}
-
-        {visibleCandidates.length === 0 ? (
-          <p className="text-center text-secondary">{voteConfig.messages.noCandidates}</p>
-        ) : (
-          <div className="grid md:grid-cols-3 gap-6">
-            {visibleCandidates.map((c) => (
-              <div key={c._id} className="bg-card border border-border rounded-2xl p-6 hover:shadow-md hover:border-blue-200 dark:hover:border-blue-700 transition-[colors,shadow] duration-300 flex flex-col">
-                <div className="w-20 h-20 rounded-full mx-auto mb-4 flex items-center justify-center text-2xl font-bold text-white overflow-hidden shrink-0"
-                  style={{ backgroundColor: getMemberColor(c.name) }}>
-                  {c.image
-                    ? <img src={c.image} alt={c.name} className="w-full h-full object-cover" />
-                    : (c.nickname || c.name).charAt(0)
-                  }
-                </div>
-                <div className="text-center flex-1">
-                  <h3 className="text-foreground font-semibold text-lg">{c.name}</h3>
-                  {c.nickname && <p className="text-muted text-sm">({c.nickname})</p>}
-                  {c.motto && <p className="text-secondary text-sm mt-3 leading-relaxed italic">&ldquo;{c.motto}&rdquo;</p>}
-                </div>
-                <div className="mt-6 space-y-3">
-                  <div className="text-center">
-                    <span className="text-2xl font-bold text-foreground">{c.voteCount}</span>
-                    <span className="text-muted text-sm ml-1">{voteConfig.labels.votes}</span>
-                  </div>
-                  <Button
-                    variant={hasVoted ? "ghost" : "primary"}
-                    size="md"
-                    className="w-full"
-                    disabled={hasVoted}
-                    loading={voting === c._id}
-                    onClick={() => handleVote(c._id)}
-                  >
-                    {hasVoted ? voteConfig.labels.voted : voteConfig.labels.vote}
-                  </Button>
-                </div>
-              </div>
-            ))}
+        {hasVoted && !success && (
+          <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl text-blue-600 dark:text-blue-400 text-sm">
+            {voteConfig.messages.thankYou}
           </div>
         )}
 
-        {hasVoted && (
-          <p className="text-center text-muted text-sm mt-8">{voteConfig.messages.thankYou}</p>
+        {/* Grid */}
+        {visibleCandidates.length === 0 ? (
+          <div className="bg-card border border-border rounded-2xl p-16 text-center">
+            <p className="text-muted">{voteConfig.messages.noCandidates}</p>
+          </div>
+        ) : (
+          <div className="grid sm:grid-cols-2 gap-5">
+            {visibleCandidates.map((c) => (
+              <CandidateCard
+                key={c._id}
+                candidate={c}
+                hasVoted={hasVoted}
+                onClick={() => setActiveCandidate(c)}
+              />
+            ))}
+          </div>
         )}
       </div>
+
+      {/* Detail modal */}
+      {activeCandidate && (
+        <CandidateModal
+          candidate={activeCandidate}
+          hasVoted={hasVoted}
+          voting={voting}
+          onVote={handleVote}
+          onClose={() => setActiveCandidate(null)}
+        />
+      )}
     </div>
   );
 }
