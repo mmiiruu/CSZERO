@@ -816,6 +816,8 @@ function CandidatesTab({ callerRole }: { callerRole: Role }) {
   const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
   const [confirmClear, setConfirmClear] = useState(false);
   const [clearing, setClearing] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState<CandidateApplication | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const showToast = (msg: string, ok: boolean) => {
     setToast({ msg, ok });
@@ -848,6 +850,30 @@ function CandidatesTab({ callerRole }: { callerRole: Role }) {
       showToast("✗ Network error", false);
     } finally {
       setWorking(null);
+    }
+  };
+
+  const handleDeleteApp = async () => {
+    if (!confirmDelete) return;
+    setDeleting(true);
+    try {
+      const res = await fetch("/api/candidate-applications", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: confirmDelete._id }),
+      });
+      if (res.ok) {
+        setApps((p) => p.filter((a) => a._id !== confirmDelete._id));
+        showToast(`✓ ลบ ${confirmDelete.name} แล้ว`, true);
+      } else {
+        const data = await res.json();
+        showToast(`✗ ${data.error}`, false);
+      }
+    } catch {
+      showToast("✗ Network error", false);
+    } finally {
+      setDeleting(false);
+      setConfirmDelete(null);
     }
   };
 
@@ -963,6 +989,14 @@ function CandidatesTab({ callerRole }: { callerRole: Role }) {
                             {working === a._id ? "..." : "Add to Vote"}
                           </button>
                         )}
+                        {callerRole === "admin" && (
+                          <button
+                            onClick={() => setConfirmDelete(a)}
+                            className="text-sm font-medium text-red-500 hover:text-red-700 dark:hover:text-red-400 cursor-pointer transition-colors"
+                          >
+                            ลบ
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -1016,6 +1050,33 @@ function CandidatesTab({ callerRole }: { callerRole: Role }) {
       )}
 
       {/* Clear confirmation modal */}
+      {confirmDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+          onClick={(e) => { if (e.target === e.currentTarget && !deleting) setConfirmDelete(null); }}>
+          <div role="dialog" aria-modal="true" className="w-full max-w-md rounded-2xl shadow-2xl bg-card border border-border p-6">
+            <div className="flex items-start gap-4 mb-4">
+              <div className="shrink-0 w-10 h-10 rounded-full bg-red-50 dark:bg-red-900/30 flex items-center justify-center">
+                <svg className="w-5 h-5 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="font-semibold text-foreground">ลบใบสมัครของ {confirmDelete.name}?</h3>
+                <p className="mt-1 text-sm text-secondary">การกระทำนี้ไม่สามารถย้อนกลับได้</p>
+              </div>
+            </div>
+            <div className="flex items-center justify-end gap-3">
+              <button onClick={() => setConfirmDelete(null)} disabled={deleting} className="px-4 py-2 text-sm font-medium text-secondary hover:bg-hover rounded-lg transition-colors cursor-pointer">
+                ยกเลิก
+              </button>
+              <button onClick={handleDeleteApp} disabled={deleting} className="px-4 py-2 text-sm font-medium bg-red-600 text-white hover:bg-red-700 disabled:opacity-60 rounded-lg transition-colors cursor-pointer">
+                {deleting ? "กำลังลบ..." : "ลบ"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {confirmClear && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
           onClick={(e) => { if (e.target === e.currentTarget && !clearing) setConfirmClear(false); }}>

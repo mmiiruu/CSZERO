@@ -74,6 +74,31 @@ export async function POST(req: NextRequest) {
   }
 }
 
+export async function DELETE(req: NextRequest) {
+  try {
+    const session = await auth();
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    const callerRole = await getCallerRole(session.user.email);
+    if (callerRole !== "admin") {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    const { id } = await req.json();
+    if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
+
+    await dbConnect();
+    const deleted = await CandidateApplication.findByIdAndDelete(id);
+    if (!deleted) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
+    return NextResponse.json({ message: "Deleted" });
+  } catch (error) {
+    console.error("Delete candidate application error:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
+}
+
 export async function GET() {
   try {
     const session = await auth();
