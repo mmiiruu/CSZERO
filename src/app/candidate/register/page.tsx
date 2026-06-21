@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
@@ -201,11 +201,13 @@ export default function CandidateRegisterPage() {
 
   const showComingSoon = status === "authenticated" && !cfg.open && !isAdminOrStaff;
 
+  const seeded = useRef(false);
   useEffect(() => {
-    if (session?.user?.name && !form.name) {
+    if (!seeded.current && session?.user?.name) {
+      seeded.current = true;
       setForm((f) => ({ ...f, name: session.user!.name! }));
     }
-  }, [session, form.name]);
+  }, [session]);
 
   const update = <K extends keyof FormState>(key: K, value: FormState[K]) => {
     setForm((f) => ({ ...f, [key]: value }));
