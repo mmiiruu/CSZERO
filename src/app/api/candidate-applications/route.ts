@@ -37,6 +37,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
+    const title = clean(body?.title, 20);
     const name = clean(body?.name);
     const nickname = clean(body?.nickname);
     const section = clean(body?.section, 20);
@@ -47,7 +48,7 @@ export async function POST(req: NextRequest) {
     const visionAnswer = clean(body?.visionAnswer, MAX_TEXT);
     const strengthWeaknessAnswer = clean(body?.strengthWeaknessAnswer, MAX_TEXT);
 
-    if (!name || !nickname || !section || !motto || !videoUrl || !dutyAnswer || !visionAnswer || !strengthWeaknessAnswer) {
+    if (!title || !name || !nickname || !section || !motto || !videoUrl || !dutyAnswer || !visionAnswer || !strengthWeaknessAnswer) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
@@ -63,7 +64,7 @@ export async function POST(req: NextRequest) {
     }
 
     const app = await CandidateApplication.create({
-      name, email, nickname, section, motto, videoUrl,
+      title, name, email, nickname, section, motto, videoUrl,
       dutyAnswer, visionAnswer, strengthWeaknessAnswer,
       image: image || undefined,
     });
@@ -80,6 +81,7 @@ export async function POST(req: NextRequest) {
             title: "📋 ใบสมัครประธานรุ่นใหม่",
             color: 0x3b82f6,
             fields: [
+              { name: "คำนำหน้า",      value: title,             inline: true  },
               { name: "ชื่อ",         value: name,              inline: true  },
               { name: "ชื่อเล่น",     value: nickname,          inline: true  },
               { name: "ภาค",          value: `ภาค${section}`,   inline: true  },

@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document, Model, Types } from "mongoose";
 
 export interface ICandidateApplication extends Document {
+  title?: string;
   name: string;
   email: string;
   nickname?: string;
@@ -26,6 +27,7 @@ export interface ICandidateApplication extends Document {
 
 const CandidateApplicationSchema = new Schema<ICandidateApplication>(
   {
+    title: { type: String },
     name: { type: String, required: true },
     email: { type: String, required: true },
     nickname: { type: String },

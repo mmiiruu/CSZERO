@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
@@ -79,7 +79,11 @@ function ImageUpload({ value, onChange }: { value: string; onChange: (url: strin
   );
 }
 
+const TITLES = ["นาย", "นาง", "นางสาว"] as const;
+type Title = (typeof TITLES)[number] | "";
+
 type FormState = {
+  title: Title;
   name: string;
   nickname: string;
   section: "ปกติ" | "พิเศษ" | "";
@@ -92,7 +96,7 @@ type FormState = {
 };
 
 const INITIAL_FORM: FormState = {
-  name: "", nickname: "", section: "", image: "", motto: "",
+  title: "", name: "", nickname: "", section: "", image: "", motto: "",
   videoUrl: "", dutyAnswer: "", visionAnswer: "", strengthWeaknessAnswer: "",
 };
 
@@ -201,14 +205,6 @@ export default function CandidateRegisterPage() {
 
   const showComingSoon = status === "authenticated" && !cfg.open && !isAdminOrStaff;
 
-  const seeded = useRef(false);
-  useEffect(() => {
-    if (!seeded.current && session?.user?.name) {
-      seeded.current = true;
-      setForm((f) => ({ ...f, name: session.user!.name! }));
-    }
-  }, [session]);
-
   const update = <K extends keyof FormState>(key: K, value: FormState[K]) => {
     setForm((f) => ({ ...f, [key]: value }));
     if (errors[key]) setErrors((e) => { const n = { ...e }; delete n[key]; return n; });
@@ -217,6 +213,7 @@ export default function CandidateRegisterPage() {
   const validateStep = (s: number): boolean => {
     const e: Partial<Record<keyof FormState, string>> = {};
     if (s === 0) {
+      if (!form.title) e.title = "กรุณาเลือกคำนำหน้า";
       if (!form.name.trim()) e.name = "กรุณากรอกชื่อจริง–นามสกุล";
       if (!form.nickname.trim()) e.nickname = "กรุณากรอกชื่อเล่น";
       if (!form.section) e.section = "กรุณาเลือกภาค";
@@ -314,12 +311,29 @@ export default function CandidateRegisterPage() {
                     </span>
                   </div>
                 )}
+                <div>
+                  <p className="block text-sm font-medium text-foreground mb-2">คำนำหน้า</p>
+                  <div className="flex gap-2">
+                    {TITLES.map((t) => (
+                      <button
+                        key={t}
+                        type="button"
+                        onClick={() => update("title", t)}
+                        className={`px-5 py-2.5 rounded-xl text-sm font-medium transition-colors cursor-pointer ${form.title === t ? "bg-blue-600 text-white shadow-sm" : "bg-card border border-border text-secondary hover:bg-hover"}`}
+                      >
+                        {t}
+                      </button>
+                    ))}
+                  </div>
+                  {errors.title && <p className="mt-1.5 text-xs text-red-500">{errors.title}</p>}
+                </div>
                 <Input
                   label={cfg.fields.name.label}
                   placeholder={cfg.fields.name.placeholder}
                   value={form.name}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => update("name", e.target.value)}
                   error={errors.name}
+                  autoComplete="off"
                 />
                 <Input
                   label={cfg.fields.nickname.label}
