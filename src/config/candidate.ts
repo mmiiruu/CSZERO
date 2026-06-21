@@ -43,7 +43,7 @@ export const candidateRegistrationConfig: CandidateRegistrationConfig = {
     { title: "คำถามเขียน", subtitle: "ตอบคำถามเกี่ยวกับตำแหน่งประธานรุ่น" },
   ],
   fields: {
-    name: { label: "คำนำหน้า ชื่อจริง นามสกุล ภาษาไทย", placeholder: "เช่น นาย สมชาย ใจดี" },
+    name: { label: "ชื่อจริง-นามสกุล (ใส่คำนำหน้า)", placeholder: "เช่น นาย สมชาย ใจดี" },
     nickname: { label: "ชื่อเล่น", placeholder: "ชื่อเล่น" },
     image: {
       label: "รูปตนเอง",
