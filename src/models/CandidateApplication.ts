@@ -3,12 +3,19 @@ import mongoose, { Schema, Document, Model, Types } from "mongoose";
 export interface ICandidateApplication extends Document {
   name: string;
   email: string;
-  studentId: string;
-  year: string;
-  role: string;
-  bio: string;
-  motivation: string;
+  nickname?: string;
   image?: string;
+  motto?: string;
+  videoUrl?: string;
+  dutyAnswer?: string;
+  visionAnswer?: string;
+  strengthWeaknessAnswer?: string;
+  // Legacy fields (pre-redesign)
+  studentId?: string;
+  year?: string;
+  role?: string;
+  bio?: string;
+  motivation?: string;
   promoted: boolean;
   promotedCandidateId?: Types.ObjectId;
   createdAt: Date;
@@ -19,19 +26,25 @@ const CandidateApplicationSchema = new Schema<ICandidateApplication>(
   {
     name: { type: String, required: true },
     email: { type: String, required: true },
-    studentId: { type: String, required: true },
-    year: { type: String, required: true },
-    role: { type: String, required: true },
-    bio: { type: String, required: true },
-    motivation: { type: String, required: true },
+    nickname: { type: String },
     image: { type: String },
+    motto: { type: String },
+    videoUrl: { type: String },
+    dutyAnswer: { type: String },
+    visionAnswer: { type: String },
+    strengthWeaknessAnswer: { type: String },
+    // Legacy
+    studentId: { type: String },
+    year: { type: String },
+    role: { type: String },
+    bio: { type: String },
+    motivation: { type: String },
     promoted: { type: Boolean, default: false },
     promotedCandidateId: { type: Schema.Types.ObjectId, ref: "Candidate" },
   },
   { timestamps: true }
 );
 
-// One application per email — re-submission would just edit (out of scope here)
 CandidateApplicationSchema.index({ email: 1 }, { unique: true });
 CandidateApplicationSchema.index({ createdAt: -1 });
 

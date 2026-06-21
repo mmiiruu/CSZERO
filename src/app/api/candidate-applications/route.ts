@@ -6,7 +6,7 @@ import CandidateApplication from "@/models/CandidateApplication";
 import { candidateRegistrationConfig } from "@/config/candidate";
 
 const MAX_STR = 200;
-const MAX_TEXT = 2000;
+const MAX_TEXT = 3000;
 
 function clean(v: unknown, max = MAX_STR): string {
   return typeof v === "string" ? v.trim().slice(0, max) : "";
@@ -25,8 +25,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const role = await getCallerRole(session.user.email);
-    const isAdminOrStaff = role === "admin" || role === "staff";
+    const callerRole = await getCallerRole(session.user.email);
+    const isAdminOrStaff = callerRole === "admin" || callerRole === "staff";
 
     if (!candidateRegistrationConfig.open && !isAdminOrStaff) {
       return NextResponse.json(
@@ -37,14 +37,15 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json();
     const name = clean(body?.name);
-    const studentId = clean(body?.studentId, 50);
-    const year = clean(body?.year, 20);
-    const role_ = clean(body?.role);
-    const bio = clean(body?.bio, MAX_TEXT);
-    const motivation = clean(body?.motivation, MAX_TEXT);
+    const nickname = clean(body?.nickname);
     const image = clean(body?.image, 500);
+    const motto = clean(body?.motto, MAX_TEXT);
+    const videoUrl = clean(body?.videoUrl, 500);
+    const dutyAnswer = clean(body?.dutyAnswer, MAX_TEXT);
+    const visionAnswer = clean(body?.visionAnswer, MAX_TEXT);
+    const strengthWeaknessAnswer = clean(body?.strengthWeaknessAnswer, MAX_TEXT);
 
-    if (!name || !studentId || !year || !role_ || !bio || !motivation) {
+    if (!name || !nickname || !motto || !videoUrl || !dutyAnswer || !visionAnswer || !strengthWeaknessAnswer) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
@@ -54,13 +55,15 @@ export async function POST(req: NextRequest) {
     const existing = await CandidateApplication.findOne({ email });
     if (existing) {
       return NextResponse.json(
-        { error: "You have already submitted an application" },
+        { error: "คุณส่งใบสมัครไปแล้ว" },
         { status: 409 }
       );
     }
 
     const app = await CandidateApplication.create({
-      name, email, studentId, year, role: role_, bio, motivation, image: image || undefined,
+      name, email, nickname, motto, videoUrl,
+      dutyAnswer, visionAnswer, strengthWeaknessAnswer,
+      image: image || undefined,
     });
 
     return NextResponse.json({ message: "Application submitted", id: app._id }, { status: 201 });
@@ -76,8 +79,8 @@ export async function GET() {
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    const role = await getCallerRole(session.user.email);
-    if (role !== "admin" && role !== "staff") {
+    const callerRole = await getCallerRole(session.user.email);
+    if (callerRole !== "admin" && callerRole !== "staff") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 

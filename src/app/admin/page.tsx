@@ -789,12 +789,19 @@ type CandidateApplication = {
   _id: string;
   name: string;
   email: string;
-  studentId: string;
-  year: string;
-  role: string;
-  bio: string;
-  motivation: string;
+  nickname?: string;
   image?: string;
+  motto?: string;
+  videoUrl?: string;
+  dutyAnswer?: string;
+  visionAnswer?: string;
+  strengthWeaknessAnswer?: string;
+  // Legacy
+  studentId?: string;
+  year?: string;
+  role?: string;
+  bio?: string;
+  motivation?: string;
   promoted: boolean;
   promotedCandidateId?: string;
   createdAt: string;
@@ -918,7 +925,7 @@ function CandidatesTab({ callerRole }: { callerRole: Role }) {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border-subtle bg-hover">
-                  {["Name","Email","Role","Year","Status","Actions"].map((h) => (
+                  {["ชื่อ","อีเมล","ชื่อเล่น","สถานะ","Actions"].map((h) => (
                     <th key={h} className="text-left px-6 py-4 text-secondary font-medium">{h}</th>
                   ))}
                 </tr>
@@ -928,8 +935,7 @@ function CandidatesTab({ callerRole }: { callerRole: Role }) {
                   <tr key={a._id} className="border-b border-border-subtle hover:bg-hover transition-colors">
                     <td className="px-6 py-4 text-foreground font-medium">{a.name}</td>
                     <td className="px-6 py-4 text-secondary">{a.email}</td>
-                    <td className="px-6 py-4 text-secondary">{a.role}</td>
-                    <td className="px-6 py-4 text-secondary">{a.year}</td>
+                    <td className="px-6 py-4 text-secondary">{a.nickname || a.role || "—"}</td>
                     <td className="px-6 py-4">
                       {a.promoted ? (
                         <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800">
@@ -983,18 +989,23 @@ function CandidatesTab({ callerRole }: { callerRole: Role }) {
               </button>
             </div>
             <div className="overflow-y-auto flex-1 px-6 py-5 space-y-4">
-              {[
-                ["Student ID", detail.studentId],
-                ["Year", detail.year],
-                ["Position", detail.role],
-                ["Bio", detail.bio],
-                ["Motivation", detail.motivation],
-                ["Image URL", detail.image || "—"],
-                ["Submitted", new Date(detail.createdAt).toLocaleString()],
-              ].map(([k, v]) => (
+              {([
+                ["ชื่อเล่น", detail.nickname || detail.role || "—"],
+                ["คติประจำใจ", detail.motto || "—"],
+                ["ลิงก์วิดีโอ", detail.videoUrl || "—"],
+                ["หน้าที่ของประธานรุ่น", detail.dutyAnswer || "—"],
+                ["แนวคิด/กิจกรรม", detail.visionAnswer || "—"],
+                ["จุดแข็งและจุดอ่อน", detail.strengthWeaknessAnswer || "—"],
+                ["รูปภาพ (URL)", detail.image || "—"],
+                ["วันที่สมัคร", new Date(detail.createdAt).toLocaleString("th-TH")],
+              ] as [string, string][]).map(([k, v]) => (
                 <div key={k} className="rounded-xl bg-hover px-4 py-3">
                   <p className="text-xs font-medium text-muted mb-1">{k}</p>
-                  <p className="text-sm text-secondary whitespace-pre-wrap break-words">{v}</p>
+                  {k === "ลิงก์วิดีโอ" && v !== "—" ? (
+                    <a href={v} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 dark:text-blue-400 hover:underline break-all">{v}</a>
+                  ) : (
+                    <p className="text-sm text-secondary whitespace-pre-wrap break-words">{v}</p>
+                  )}
                 </div>
               ))}
             </div>

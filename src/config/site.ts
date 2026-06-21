@@ -21,7 +21,7 @@ export const navLinks: Array<{
 }> = [
   { href: "/team", label: "ชุมนุมนิสิต", adminOnly: true },
   { href: "/vote", label: "โหวต", adminOnly: true },
-  { href: "/candidate/register", label: "สมัครผู้สมัคร", candidateRegistration: true },
+  { href: "/candidate/register", label: "สมัครประธาน", candidateRegistration: true },
 ];
 
 export const navbar = {
