@@ -568,6 +568,16 @@ function UsersTab({ callerEmail, callerRole }: { callerEmail: string; callerRole
 
   const isSelf = (u: ManagedUser) => u.email === callerEmail;
 
+  const roleOrder: Record<Role, number> = { admin: 0, staff: 1, user: 2 };
+
+  const sortedUsers = useMemo(() =>
+    [...users].sort((a, b) => {
+      const roleDiff = roleOrder[a.role] - roleOrder[b.role];
+      if (roleDiff !== 0) return roleDiff;
+      return (a.name ?? a.email).localeCompare(b.name ?? b.email, "th");
+    }),
+  [users]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const userStats = useMemo(() => ({
     total: users.length,
     staff: users.filter((u) => u.role === "staff").length,
@@ -617,7 +627,7 @@ function UsersTab({ callerEmail, callerRole }: { callerEmail: string; callerRole
                   </tr>
                 </thead>
                 <tbody>
-                  {users.map((u) => (
+                  {sortedUsers.map((u) => (
                     <tr key={u._id} className={`border-b border-border-subtle transition-colors ${isSelf(u) ? "bg-blue-50/30 dark:bg-blue-900/10" : "hover:bg-hover"}`}>
                       {/* Avatar + name */}
                       <td className="px-6 py-4">
@@ -698,7 +708,7 @@ function UsersTab({ callerEmail, callerRole }: { callerEmail: string; callerRole
 
           {/* Mobile < md — card list. Avatar + identity on top, role action at bottom. */}
           <ul className="md:hidden bg-card border border-border rounded-2xl shadow-sm divide-y divide-border overflow-hidden">
-            {users.map((u) => (
+            {sortedUsers.map((u) => (
               <li key={u._id} className={`p-4 space-y-3 ${isSelf(u) ? "bg-blue-50/30 dark:bg-blue-900/10" : ""}`}>
                 {/* Top row: avatar + name/email + role badge */}
                 <div className="flex items-start gap-3">
