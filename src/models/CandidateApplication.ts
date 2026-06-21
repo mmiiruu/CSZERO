@@ -17,6 +17,7 @@ export interface ICandidateApplication extends Document {
   role?: string;
   bio?: string;
   motivation?: string;
+  voteCount: number;
   promoted: boolean;
   promotedCandidateId?: Types.ObjectId;
   createdAt: Date;
@@ -41,6 +42,7 @@ const CandidateApplicationSchema = new Schema<ICandidateApplication>(
     role: { type: String },
     bio: { type: String },
     motivation: { type: String },
+    voteCount: { type: Number, default: 0 },
     promoted: { type: Boolean, default: false },
     promotedCandidateId: { type: Schema.Types.ObjectId, ref: "Candidate" },
   },

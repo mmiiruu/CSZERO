@@ -5,14 +5,22 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import Button from "@/components/ui/Button";
 import { voteConfig } from "@/config/vote";
+import { getMemberColor } from "@/config/team";
 
 interface Candidate {
-  _id: string; name: string; role: string; image: string; bio: string; voteCount: number;
+  _id: string;
+  name: string;
+  nickname: string;
+  image: string;
+  motto: string;
+  section: string;
+  voteCount: number;
 }
 
 export default function VotePage() {
   const { data: session, status } = useSession();
   const [candidates, setCandidates] = useState<Candidate[]>([]);
+  const [votingOpen, setVotingOpen] = useState(false);
   const [hasVoted, setHasVoted] = useState(false);
   const [loading, setLoading] = useState(true);
   const [voting, setVoting] = useState<string | null>(null);
@@ -23,6 +31,7 @@ export default function VotePage() {
     fetch("/api/votes")
       .then((r) => r.json())
       .then((data) => {
+        setVotingOpen(data.votingOpen ?? false);
         if (Array.isArray(data.candidates)) setCandidates(data.candidates);
         setHasVoted(data.hasVoted || false);
       })
@@ -31,10 +40,7 @@ export default function VotePage() {
   }, []);
 
   const handleVote = async (candidateId: string) => {
-    if (!session?.user) {
-      setError(voteConfig.messages.mustBeSignedIn);
-      return;
-    }
+    if (!session?.user) { setError(voteConfig.messages.mustBeSignedIn); return; }
     setVoting(candidateId);
     setError("");
     try {
@@ -47,11 +53,7 @@ export default function VotePage() {
       if (!res.ok) throw new Error(data.error || voteConfig.messages.failedToVote);
       setHasVoted(true);
       setSuccess(voteConfig.messages.voteSuccess);
-      setCandidates((prev) =>
-        prev.map((c) =>
-          c._id === candidateId ? { ...c, voteCount: c.voteCount + 1 } : c
-        )
-      );
+      setCandidates((prev) => prev.map((c) => c._id === candidateId ? { ...c, voteCount: c.voteCount + 1 } : c));
     } catch (err) {
       setError(err instanceof Error ? err.message : voteConfig.messages.somethingWentWrong);
     } finally {
@@ -75,6 +77,20 @@ export default function VotePage() {
         <Link href="/auth/signin?callbackUrl=/vote" className="px-6 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors text-sm">
           {voteConfig.authGate.signInLabel}
         </Link>
+      </div>
+    </div>
+  );
+
+  if (!votingOpen) return (
+    <div className="min-h-screen flex items-center justify-center px-4 bg-background">
+      <div className="text-center max-w-md">
+        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 mb-5">
+          <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <h2 className="text-2xl font-bold text-foreground mb-3">ยังไม่เปิดโหวต</h2>
+        <p className="text-secondary text-sm">รอประกาศจากทีมงานเพื่อเริ่มการเลือกตั้ง</p>
       </div>
     </div>
   );
@@ -105,13 +121,22 @@ export default function VotePage() {
           <div className="grid md:grid-cols-3 gap-6">
             {candidates.map((c) => (
               <div key={c._id} className="bg-card border border-border rounded-2xl p-6 hover:shadow-md hover:border-blue-200 dark:hover:border-blue-700 transition-[colors,shadow] duration-300 flex flex-col">
-                <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full mx-auto mb-4 flex items-center justify-center text-2xl font-bold text-white overflow-hidden">
-                  {c.image ? <img src={c.image} alt={c.name} className="w-full h-full object-cover" /> : c.name.charAt(0)}
+                <div className="w-20 h-20 rounded-full mx-auto mb-4 flex items-center justify-center text-2xl font-bold text-white overflow-hidden shrink-0"
+                  style={{ backgroundColor: getMemberColor(c.name) }}>
+                  {c.image
+                    ? <img src={c.image} alt={c.name} className="w-full h-full object-cover" />
+                    : (c.nickname || c.name).charAt(0)
+                  }
                 </div>
                 <div className="text-center flex-1">
+                  {c.section && (
+                    <span className="inline-block px-2.5 py-0.5 mb-2 text-xs font-medium rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800">
+                      ภาค{c.section}
+                    </span>
+                  )}
                   <h3 className="text-foreground font-semibold text-lg">{c.name}</h3>
-                  <p className="text-muted text-sm mt-1">{c.role}</p>
-                  <p className="text-secondary text-sm mt-3 leading-relaxed">{c.bio}</p>
+                  {c.nickname && <p className="text-muted text-sm">({c.nickname})</p>}
+                  {c.motto && <p className="text-secondary text-sm mt-3 leading-relaxed italic">&ldquo;{c.motto}&rdquo;</p>}
                 </div>
                 <div className="mt-6 space-y-3">
                   <div className="text-center">
@@ -135,9 +160,7 @@ export default function VotePage() {
         )}
 
         {hasVoted && (
-          <p className="text-center text-muted text-sm mt-8">
-            {voteConfig.messages.thankYou}
-          </p>
+          <p className="text-center text-muted text-sm mt-8">{voteConfig.messages.thankYou}</p>
         )}
       </div>
     </div>

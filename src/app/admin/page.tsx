@@ -811,7 +811,6 @@ type CandidateApplication = {
 function CandidatesTab({ callerRole }: { callerRole: Role }) {
   const [apps, setApps] = useState<CandidateApplication[]>([]);
   const [loading, setLoading] = useState(true);
-  const [working, setWorking] = useState<string | null>(null);
   const [detail, setDetail] = useState<CandidateApplication | null>(null);
   const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
   const [confirmClear, setConfirmClear] = useState(false);
@@ -819,6 +818,9 @@ function CandidatesTab({ callerRole }: { callerRole: Role }) {
   const [confirmDelete, setConfirmDelete] = useState<CandidateApplication | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [sectionFilter, setSectionFilter] = useState<"all" | "ปกติ" | "พิเศษ">("all");
+  const [votingOpen, setVotingOpen] = useState(false);
+  const [votingLoading, setVotingLoading] = useState(true);
+  const [votingToggling, setVotingToggling] = useState(false);
 
   const showToast = (msg: string, ok: boolean) => {
     setToast({ msg, ok });
@@ -836,21 +838,33 @@ function CandidatesTab({ callerRole }: { callerRole: Role }) {
 
   useEffect(() => { load(); }, [load]);
 
-  const handlePromote = async (id: string) => {
-    setWorking(id);
+  useEffect(() => {
+    fetch("/api/admin/voting")
+      .then((r) => r.json())
+      .then((d) => { setVotingOpen(d.votingOpen ?? false); })
+      .catch(() => {})
+      .finally(() => setVotingLoading(false));
+  }, []);
+
+  const handleToggleVoting = async () => {
+    setVotingToggling(true);
     try {
-      const res = await fetch(`/api/admin/candidate-applications/${id}/promote`, { method: "POST" });
+      const res = await fetch("/api/admin/voting", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ open: !votingOpen }),
+      });
       const data = await res.json();
       if (res.ok) {
-        setApps((p) => p.map((a) => a._id === id ? { ...a, promoted: true, promotedCandidateId: data.candidateId } : a));
-        showToast("✓ เพิ่มเข้าระบบโหวตแล้ว", true);
+        setVotingOpen(data.votingOpen);
+        showToast(data.votingOpen ? "✓ เปิดโหวตแล้ว" : "✓ ปิดโหวตแล้ว", true);
       } else {
         showToast(`✗ ${data.error}`, false);
       }
     } catch {
       showToast("✗ Network error", false);
     } finally {
-      setWorking(null);
+      setVotingToggling(false);
     }
   };
 
@@ -884,7 +898,7 @@ function CandidatesTab({ callerRole }: { callerRole: Role }) {
       const res = await fetch("/api/admin/vote-data", { method: "DELETE" });
       const data = await res.json();
       if (res.ok) {
-        showToast(`✓ ลบแล้ว: ผู้สมัคร ${data.candidatesDeleted}, คะแนน ${data.votesDeleted}`, true);
+        showToast(`✓ ล้างข้อมูลโหวตแล้ว (${data.votesDeleted} คะแนน)`, true);
         load();
       } else {
         showToast(`✗ ${data.error}`, false);
@@ -905,8 +919,6 @@ function CandidatesTab({ callerRole }: { callerRole: Role }) {
     total: apps.length,
     normal: apps.filter((a) => a.section === "ปกติ").length,
     special: apps.filter((a) => a.section === "พิเศษ").length,
-    promoted: apps.filter((a) => a.promoted).length,
-    pending: apps.filter((a) => !a.promoted).length,
   }), [apps]);
 
   return (
@@ -917,7 +929,7 @@ function CandidatesTab({ callerRole }: { callerRole: Role }) {
         </div>
       )}
 
-      {/* Section filter + summary */}
+      {/* Section filter + voting toggle */}
       <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <div className="flex items-center gap-1 bg-card border border-border rounded-xl p-1">
           {([
@@ -931,14 +943,26 @@ function CandidatesTab({ callerRole }: { callerRole: Role }) {
             </button>
           ))}
         </div>
-        {callerRole === "admin" && (
-          <button
-            onClick={() => setConfirmClear(true)}
-            className="px-4 py-3 rounded-lg text-sm font-medium border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors cursor-pointer"
-          >
-            Clear all candidates & votes
-          </button>
-        )}
+        <div className="flex items-center gap-2">
+          {callerRole === "admin" && (
+            <button
+              onClick={handleToggleVoting}
+              disabled={votingLoading || votingToggling}
+              className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer disabled:opacity-60 flex items-center gap-2 ${votingOpen ? "bg-green-600 text-white hover:bg-green-700" : "bg-card text-secondary border border-border hover:bg-hover"}`}
+            >
+              <span className={`w-2 h-2 rounded-full ${votingOpen ? "bg-white" : "bg-muted"}`} aria-hidden="true" />
+              {votingToggling ? "..." : votingOpen ? "โหวตเปิดอยู่" : "เปิดโหวต"}
+            </button>
+          )}
+          {callerRole === "admin" && (
+            <button
+              onClick={() => setConfirmClear(true)}
+              className="px-4 py-2.5 rounded-lg text-sm font-medium border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors cursor-pointer"
+            >
+              ล้างข้อมูลโหวต
+            </button>
+          )}
+        </div>
       </div>
 
       {loading ? (
@@ -955,7 +979,7 @@ function CandidatesTab({ callerRole }: { callerRole: Role }) {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border-subtle bg-hover">
-                  {["ชื่อ","อีเมล","ชื่อเล่น","ภาค","สถานะ","Actions"].map((h) => (
+                  {["ชื่อ","อีเมล","ชื่อเล่น","ภาค","Actions"].map((h) => (
                     <th key={h} className="text-left px-6 py-4 text-secondary font-medium">{h}</th>
                   ))}
                 </tr>
@@ -968,31 +992,8 @@ function CandidatesTab({ callerRole }: { callerRole: Role }) {
                     <td className="px-6 py-4 text-secondary">{a.nickname || a.role || "—"}</td>
                     <td className="px-6 py-4 text-secondary">{a.section ? `ภาค${a.section}` : "—"}</td>
                     <td className="px-6 py-4">
-                      {a.promoted ? (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800">
-                          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                          </svg>
-                          Promoted
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800">
-                          Pending
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <button onClick={() => setDetail(a)} className="text-primary hover:text-primary-dark text-sm font-medium cursor-pointer">View</button>
-                        {callerRole === "admin" && !a.promoted && (
-                          <button
-                            onClick={() => handlePromote(a._id)}
-                            disabled={working === a._id}
-                            className="text-sm font-medium px-3 py-1.5 rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60 cursor-pointer transition-colors"
-                          >
-                            {working === a._id ? "..." : "Add to Vote"}
-                          </button>
-                        )}
                         {callerRole === "admin" && (
                           <button
                             onClick={() => setConfirmDelete(a)}
@@ -1053,7 +1054,7 @@ function CandidatesTab({ callerRole }: { callerRole: Role }) {
         </div>
       )}
 
-      {/* Clear confirmation modal */}
+      {/* Delete application confirmation modal */}
       {confirmDelete && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
           onClick={(e) => { if (e.target === e.currentTarget && !deleting) setConfirmDelete(null); }}>
@@ -1081,6 +1082,7 @@ function CandidatesTab({ callerRole }: { callerRole: Role }) {
         </div>
       )}
 
+      {/* Clear votes confirmation modal */}
       {confirmClear && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
           onClick={(e) => { if (e.target === e.currentTarget && !clearing) setConfirmClear(false); }}>
@@ -1092,18 +1094,18 @@ function CandidatesTab({ callerRole }: { callerRole: Role }) {
                 </svg>
               </div>
               <div>
-                <h3 className="font-semibold text-foreground">Clear all candidates & votes?</h3>
+                <h3 className="font-semibold text-foreground">ล้างข้อมูลโหวตทั้งหมด?</h3>
                 <p className="mt-1 text-sm text-secondary leading-relaxed">
-                  This deletes every Candidate and Vote document, resets user vote flags, and unmarks promoted applications so they can be re-promoted. This cannot be undone.
+                  จะลบคะแนนโหวตทั้งหมด รีเซ็ต hasVoted ของทุก user และรีเซ็ต voteCount ของทุกผู้สมัคร ไม่สามารถย้อนกลับได้
                 </p>
               </div>
             </div>
             <div className="flex items-center justify-end gap-3">
               <button onClick={() => setConfirmClear(false)} disabled={clearing} className="px-4 py-2 text-sm font-medium text-secondary hover:bg-hover rounded-lg transition-colors cursor-pointer">
-                Cancel
+                ยกเลิก
               </button>
               <button onClick={handleClearVotes} disabled={clearing} className="px-4 py-2 text-sm font-medium bg-red-600 text-white hover:bg-red-700 disabled:opacity-60 rounded-lg transition-colors cursor-pointer">
-                {clearing ? "Clearing..." : "Yes, clear"}
+                {clearing ? "กำลังล้าง..." : "ล้างข้อมูล"}
               </button>
             </div>
           </div>

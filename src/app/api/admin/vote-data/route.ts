@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import clientPromise from "@/lib/mongodb-client";
 import dbConnect from "@/lib/mongodb";
-import Candidate from "@/models/Candidate";
 import Vote from "@/models/Vote";
 import User from "@/models/User";
 import CandidateApplication from "@/models/CandidateApplication";
@@ -20,23 +19,14 @@ export async function DELETE() {
     }
 
     await dbConnect();
-    const [candidates, votes] = await Promise.all([
-      Candidate.deleteMany({}),
+    const [votes] = await Promise.all([
       Vote.deleteMany({}),
+      User.updateMany({ hasVoted: true }, { $set: { hasVoted: false } }),
+      CandidateApplication.updateMany({}, { $set: { voteCount: 0 } }),
     ]);
-
-    // Reset hasVoted on all users so they can vote again after a fresh seeding.
-    await User.updateMany({ hasVoted: true }, { $set: { hasVoted: false } });
-
-    // Detach promoted flags on applications so admin can re-promote into a fresh list.
-    await CandidateApplication.updateMany(
-      { promoted: true },
-      { $set: { promoted: false }, $unset: { promotedCandidateId: "" } }
-    );
 
     return NextResponse.json({
       message: "Vote data cleared",
-      candidatesDeleted: candidates.deletedCount,
       votesDeleted: votes.deletedCount,
     });
   } catch (error) {

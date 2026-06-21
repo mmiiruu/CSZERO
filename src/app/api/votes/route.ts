@@ -1,16 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
 import mongoose from "mongoose";
 import dbConnect from "@/lib/mongodb";
+import clientPromise from "@/lib/mongodb-client";
 import Vote from "@/models/Vote";
-import Candidate from "@/models/Candidate";
+import CandidateApplication from "@/models/CandidateApplication";
 import User from "@/models/User";
 import { auth } from "@/lib/auth";
+
+async function isVotingOpen(): Promise<boolean> {
+  const db = (await clientPromise).db();
+  const doc = await db.collection("settings").findOne({ _id: "voting" as unknown as never });
+  return doc?.open ?? false;
+}
+
 export async function GET(_req: NextRequest) {
   try {
     const session = await auth();
-    await dbConnect();
+    const open = await isVotingOpen();
 
-    const candidates = await Candidate.find().lean();
+    if (!open) {
+      return NextResponse.json({ votingOpen: false, candidates: [], hasVoted: false });
+    }
+
+    await dbConnect();
+    const applications = await CandidateApplication.find().sort({ createdAt: 1 }).lean();
 
     let hasVoted = false;
     if (session?.user?.id) {
@@ -18,20 +31,20 @@ export async function GET(_req: NextRequest) {
       hasVoted = !!existingVote;
     }
 
-    // Serialize ObjectId fields to plain strings so the client can use them
-    // directly as candidateId in the vote POST body.
-    const serialized = candidates.map((c: any) => ({
-      ...c,
-      _id: c._id.toString(),
+    const candidates = applications.map((a: any) => ({
+      _id: a._id.toString(),
+      name: a.name,
+      nickname: a.nickname || "",
+      image: a.image || "",
+      motto: a.motto || "",
+      section: a.section || "",
+      voteCount: a.voteCount ?? 0,
     }));
 
-    return NextResponse.json({ candidates: serialized, hasVoted });
+    return NextResponse.json({ votingOpen: true, candidates, hasVoted });
   } catch (error) {
     console.error("Fetch votes error:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
@@ -39,10 +52,12 @@ export async function POST(req: NextRequest) {
   try {
     const session = await auth();
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { error: "Authentication required" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+    }
+
+    const open = await isVotingOpen();
+    if (!open) {
+      return NextResponse.json({ error: "การโหวตยังไม่เปิด" }, { status: 403 });
     }
 
     await dbConnect();
@@ -50,46 +65,29 @@ export async function POST(req: NextRequest) {
     const candidateId = body?.candidateId;
 
     if (typeof candidateId !== "string" || !mongoose.Types.ObjectId.isValid(candidateId)) {
-      return NextResponse.json(
-        { error: "Invalid candidate ID" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Invalid candidate ID" }, { status: 400 });
     }
 
-    // Confirm the candidate actually exists.
-    const candidate = await Candidate.findById(candidateId);
-    if (!candidate) {
-      return NextResponse.json(
-        { error: "Candidate not found" },
-        { status: 404 }
-      );
+    const application = await CandidateApplication.findById(candidateId);
+    if (!application) {
+      return NextResponse.json({ error: "Candidate not found" }, { status: 404 });
     }
 
-    // Persist the vote — the unique index on userId makes this atomic.
-    // A duplicate key error (11000) means the user already voted.
     try {
       await Vote.create({ userId: session.user.id, candidateId });
     } catch (err: any) {
       if (err?.code === 11000) {
-        return NextResponse.json({ error: "You have already voted" }, { status: 409 });
+        return NextResponse.json({ error: "คุณโหวตไปแล้ว" }, { status: 409 });
       }
       throw err;
     }
 
-    // Increment candidate vote count.
-    await Candidate.findByIdAndUpdate(candidateId, {
-      $inc: { voteCount: 1 },
-    });
-
-    // Mark user as voted.
+    await CandidateApplication.findByIdAndUpdate(candidateId, { $inc: { voteCount: 1 } });
     await User.findByIdAndUpdate(session.user.id, { hasVoted: true });
 
     return NextResponse.json({ message: "Vote cast successfully" });
   } catch (error) {
     console.error("Vote error:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
