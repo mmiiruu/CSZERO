@@ -19,8 +19,8 @@ export const navLinks: Array<{
   adminOnly?: boolean;
   candidateRegistration?: boolean;
 }> = [
-  { href: "/events/cs101", label: "CS101" },
-  { href: "/events/hello-world", label: "Hello World" },
+  { href: "/events/cs101", label: "CS101", adminOnly: true },
+  { href: "/events/hello-world", label: "Hello World", adminOnly: true },
   { href: "/team", label: "ชุมนุมนิสิต", adminOnly: true },
   { href: "/vote", label: "โหวต", adminOnly: true },
   { href: "/candidate/register", label: "สมัครผู้สมัคร", candidateRegistration: true },
@@ -75,10 +75,9 @@ export const homePage = {
     ],
   },
   cta: {
-    title: "เริ่มต้น CS ที่ KU กับเรา",
+    title: "ติดตาม CSKU",
     description:
-      "CS101 และ Hello World คือกิจกรรมที่ออกแบบโดยนิสิต CS เพื่อให้น้องปี 1 ได้เริ่มต้นอย่างถูกต้อง",
-    primaryButton: { label: "สมัคร CS101", href: "/events/cs101/register" },
-    secondaryButton: { label: "เข้าร่วม Hello World", href: "/events/hello-world/register" },
+      "กิจกรรมปีนี้จบแล้ว ติดตามข่าวสารและกิจกรรมในปีถัดไปได้ที่ Instagram ของเรา",
+    instagramButton: { label: "ติดตามบน Instagram", href: "https://www.instagram.com/ku.comsciclub/" },
   },
 };
