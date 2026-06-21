@@ -207,7 +207,7 @@ function CandidateCard({
       {/* Photo banner */}
       <div
         aria-hidden="true"
-        className="h-36 flex items-center justify-center text-4xl font-bold text-white relative overflow-hidden"
+        className="h-56 flex items-center justify-center text-4xl font-bold text-white relative overflow-hidden"
         style={{ backgroundColor: getMemberColor(c.name) }}
       >
         {c.image
