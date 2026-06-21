@@ -818,6 +818,7 @@ function CandidatesTab({ callerRole }: { callerRole: Role }) {
   const [clearing, setClearing] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState<CandidateApplication | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [sectionFilter, setSectionFilter] = useState<"all" | "ปกติ" | "พิเศษ">("all");
 
   const showToast = (msg: string, ok: boolean) => {
     setToast({ msg, ok });
@@ -896,8 +897,14 @@ function CandidatesTab({ callerRole }: { callerRole: Role }) {
     }
   };
 
+  const filteredApps = useMemo(() =>
+    sectionFilter === "all" ? apps : apps.filter((a) => a.section === sectionFilter),
+  [apps, sectionFilter]);
+
   const stats = useMemo(() => ({
     total: apps.length,
+    normal: apps.filter((a) => a.section === "ปกติ").length,
+    special: apps.filter((a) => a.section === "พิเศษ").length,
     promoted: apps.filter((a) => a.promoted).length,
     pending: apps.filter((a) => !a.promoted).length,
   }), [apps]);
@@ -910,23 +917,19 @@ function CandidatesTab({ callerRole }: { callerRole: Role }) {
         </div>
       )}
 
-      {/* Summary strip + Danger button */}
-      <div className="flex flex-wrap items-center justify-between gap-3 mb-6 text-sm">
-        <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
-          <span>
-            <strong className="font-semibold text-foreground">{stats.total}</strong>
-            <span className="ml-1.5 text-muted">applications</span>
-          </span>
-          <span aria-hidden="true" className="hidden sm:block w-px h-4 bg-border" />
-          <span>
-            <strong className="font-semibold text-amber-600 dark:text-amber-400">{stats.pending}</strong>
-            <span className="ml-1.5 text-muted">pending</span>
-          </span>
-          <span aria-hidden="true" className="hidden sm:block w-px h-4 bg-border" />
-          <span>
-            <strong className="font-semibold text-green-600 dark:text-green-400">{stats.promoted}</strong>
-            <span className="ml-1.5 text-muted">promoted</span>
-          </span>
+      {/* Section filter + summary */}
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+        <div className="flex items-center gap-1 bg-card border border-border rounded-xl p-1">
+          {([
+            { key: "all",   label: `ทั้งหมด (${stats.total})` },
+            { key: "ปกติ",  label: `ภาคปกติ (${stats.normal})` },
+            { key: "พิเศษ", label: `ภาคพิเศษ (${stats.special})` },
+          ] as const).map(({ key, label }) => (
+            <button key={key} onClick={() => setSectionFilter(key)}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${sectionFilter === key ? "bg-blue-600 text-white shadow-sm" : "text-secondary hover:text-foreground"}`}>
+              {label}
+            </button>
+          ))}
         </div>
         {callerRole === "admin" && (
           <button
@@ -942,9 +945,9 @@ function CandidatesTab({ callerRole }: { callerRole: Role }) {
         <div role="status" aria-label="กำลังโหลด..." className="flex items-center justify-center py-20">
           <div aria-hidden="true" className="w-8 h-8 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
         </div>
-      ) : apps.length === 0 ? (
+      ) : filteredApps.length === 0 ? (
         <div className="bg-card border border-border rounded-2xl p-12 text-center">
-          <p className="text-muted">No applications yet.</p>
+          <p className="text-muted">{apps.length === 0 ? "ยังไม่มีใบสมัคร" : "ไม่มีใบสมัครในภาคนี้"}</p>
         </div>
       ) : (
         <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
@@ -952,17 +955,18 @@ function CandidatesTab({ callerRole }: { callerRole: Role }) {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border-subtle bg-hover">
-                  {["ชื่อ","อีเมล","ชื่อเล่น","สถานะ","Actions"].map((h) => (
+                  {["ชื่อ","อีเมล","ชื่อเล่น","ภาค","สถานะ","Actions"].map((h) => (
                     <th key={h} className="text-left px-6 py-4 text-secondary font-medium">{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
-                {apps.map((a) => (
+                {filteredApps.map((a) => (
                   <tr key={a._id} className="border-b border-border-subtle hover:bg-hover transition-colors">
                     <td className="px-6 py-4 text-foreground font-medium">{a.name}</td>
                     <td className="px-6 py-4 text-secondary">{a.email}</td>
                     <td className="px-6 py-4 text-secondary">{a.nickname || a.role || "—"}</td>
+                    <td className="px-6 py-4 text-secondary">{a.section ? `ภาค${a.section}` : "—"}</td>
                     <td className="px-6 py-4">
                       {a.promoted ? (
                         <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800">
