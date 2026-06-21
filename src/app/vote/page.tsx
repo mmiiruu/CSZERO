@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import Button from "@/components/ui/Button";
@@ -21,9 +21,9 @@ interface Candidate {
 }
 
 const WRITTEN_QA = [
-  { key: "dutyAnswer" as const,               q: "คิดว่าหน้าที่ของประธานรุ่นคืออะไร" },
-  { key: "visionAnswer" as const,             q: "มีแนวคิดหรือกิจกรรมอะไรที่อยากผลักดัน" },
-  { key: "strengthWeaknessAnswer" as const,   q: "จุดแข็งและจุดอ่อนของตัวเอง" },
+  { key: "dutyAnswer" as const,             q: "คิดว่าหน้าที่ของประธานรุ่นคืออะไร" },
+  { key: "visionAnswer" as const,           q: "มีแนวคิดหรือกิจกรรมอะไรที่อยากผลักดัน" },
+  { key: "strengthWeaknessAnswer" as const, q: "จุดแข็งและจุดอ่อนของตัวเอง" },
 ];
 
 /* ─── Candidate detail modal ────────────────────────────────────── */
@@ -40,8 +40,36 @@ function CandidateModal({
   onVote: (id: string) => void;
   onClose: () => void;
 }) {
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const c = candidate;
+
+  // Move focus in on open; restore to trigger on close
   useEffect(() => {
-    const h = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    const trigger = document.activeElement as HTMLElement | null;
+    closeRef.current?.focus();
+    return () => { trigger?.focus(); };
+  }, []);
+
+  // Escape + Tab trap
+  useEffect(() => {
+    const h = (e: KeyboardEvent) => {
+      if (e.key === "Escape") { onClose(); return; }
+      if (e.key !== "Tab") return;
+      const dialog = closeRef.current?.closest('[role="dialog"]');
+      if (!dialog) return;
+      const focusable = Array.from(
+        dialog.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
+        )
+      );
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey) {
+        if (document.activeElement === first) { e.preventDefault(); last?.focus(); }
+      } else {
+        if (document.activeElement === last) { e.preventDefault(); first?.focus(); }
+      }
+    };
     document.addEventListener("keydown", h);
     document.body.style.overflow = "hidden";
     return () => {
@@ -49,8 +77,6 @@ function CandidateModal({
       document.body.style.overflow = "";
     };
   }, [onClose]);
-
-  const c = candidate;
 
   return (
     <div
@@ -60,6 +86,7 @@ function CandidateModal({
       <div
         role="dialog"
         aria-modal="true"
+        aria-labelledby="modal-candidate-name"
         className="relative w-full sm:max-w-lg max-h-[92dvh] sm:max-h-[85vh] flex flex-col rounded-t-3xl sm:rounded-2xl bg-card border border-border shadow-2xl overflow-hidden"
       >
         {/* Header */}
@@ -70,13 +97,13 @@ function CandidateModal({
               style={{ backgroundColor: getMemberColor(c.name) }}
             >
               {c.image
-                ? <img src={c.image} alt={c.name} className="w-full h-full object-contain" />
+                ? <img src={c.image} alt={c.name} loading="lazy" className="w-full h-full object-contain" />
                 : (c.nickname || c.name).charAt(0)
               }
             </div>
             <div className="flex-1 min-w-0 pt-0.5">
               <div className="flex items-center gap-2 flex-wrap mb-0.5">
-                <h2 className="text-lg font-bold text-foreground leading-tight">{c.name}</h2>
+                <h2 id="modal-candidate-name" className="text-lg font-bold text-foreground leading-tight">{c.name}</h2>
                 {c.nickname && <span className="text-sm text-muted">({c.nickname})</span>}
               </div>
               {c.section && (
@@ -86,11 +113,12 @@ function CandidateModal({
               )}
             </div>
             <button
+              ref={closeRef}
               onClick={onClose}
               aria-label="ปิด"
-              className="shrink-0 p-2 -mr-1 -mt-1 text-muted hover:text-secondary rounded-lg transition-colors cursor-pointer"
+              className="shrink-0 p-3 -mr-1 -mt-1 text-muted hover:text-secondary rounded-lg transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
             >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg aria-hidden="true" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
@@ -112,10 +140,9 @@ function CandidateModal({
               href={c.videoUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-3 w-full px-4 py-3.5 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors group"
+              className="flex items-center gap-3 w-full px-4 py-3.5 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400/40"
             >
-              {/* YouTube icon */}
-              <span className="shrink-0 w-8 h-8 rounded-lg bg-red-600 flex items-center justify-center">
+              <span aria-hidden="true" className="shrink-0 w-8 h-8 rounded-lg bg-red-600 flex items-center justify-center">
                 <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
                 </svg>
@@ -123,7 +150,7 @@ function CandidateModal({
               <span className="flex-1 text-sm font-medium text-red-700 dark:text-red-400 group-hover:text-red-800 dark:group-hover:text-red-300">
                 ดูวิดีโอแนะนำตัว
               </span>
-              <svg className="w-4 h-4 text-red-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg aria-hidden="true" className="w-4 h-4 text-red-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
               </svg>
             </a>
@@ -174,27 +201,27 @@ function CandidateCard({
   return (
     <button
       onClick={onClick}
+      aria-label={c.name}
       className="w-full text-left bg-card border border-border rounded-2xl overflow-hidden hover:shadow-lg hover:border-blue-200 dark:hover:border-blue-700 transition-[box-shadow,border-color] duration-300 cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
     >
       {/* Photo banner */}
       <div
+        aria-hidden="true"
         className="h-36 flex items-center justify-center text-4xl font-bold text-white relative overflow-hidden"
         style={{ backgroundColor: getMemberColor(c.name) }}
       >
         {c.image
-          ? <img src={c.image} alt={c.name} className="w-full h-full object-contain" />
+          ? <img src={c.image} alt="" loading="lazy" className="w-full h-full object-contain" />
           : <span>{(c.nickname || c.name).charAt(0)}</span>
         }
-        {/* Overlay on hover */}
-        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 flex items-center justify-center">
-          <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-white text-sm font-medium bg-black/40 px-3 py-1.5 rounded-full">
-            ดูโปรไฟล์
-          </span>
+        {/* Opacity-based overlay — avoids background-color paint on every frame */}
+        <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
+          <span className="text-white text-sm font-medium bg-black/40 px-3 py-1.5 rounded-full">ดูโปรไฟล์</span>
         </div>
       </div>
 
-      {/* Info */}
-      <div className="px-4 py-4">
+      {/* Info — visible to screen readers via aria-label on the button */}
+      <div aria-hidden="true" className="px-4 py-4">
         <div className="flex items-start justify-between gap-2 mb-1">
           <div className="min-w-0">
             <p className="font-semibold text-foreground truncate">{c.name}</p>
@@ -207,17 +234,16 @@ function CandidateCard({
         {c.motto && (
           <p className="text-xs text-secondary mt-2 line-clamp-2 leading-relaxed italic">&ldquo;{c.motto}&rdquo;</p>
         )}
-        <div className="mt-3 flex items-center gap-1.5 text-xs text-muted">
-          {c.videoUrl && (
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800">
-              <svg className="w-2.5 h-2.5" viewBox="0 0 24 24" fill="currentColor">
+        {c.videoUrl && (
+          <div className="mt-3">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 text-xs">
+              <svg aria-hidden="true" className="w-2.5 h-2.5" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
               </svg>
               วิดีโอ
             </span>
-          )}
-          <span className="text-muted">แตะเพื่อดูข้อมูล →</span>
-        </div>
+          </div>
+        )}
       </div>
     </button>
   );
@@ -297,7 +323,7 @@ export default function VotePage() {
     <div className="min-h-screen flex items-center justify-center px-4 bg-background">
       <div className="text-center max-w-md">
         <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 mb-5">
-          <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
+          <svg aria-hidden="true" className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>
@@ -319,7 +345,7 @@ export default function VotePage() {
             <button
               key={sec}
               onClick={() => setSelectedSection(sec)}
-              className="w-full py-5 rounded-2xl border-2 border-border bg-card hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-[colors,border-color] duration-200 cursor-pointer group"
+              className="w-full py-6 rounded-2xl border-2 border-border bg-card hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-[colors,border-color] duration-200 cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
             >
               <p className="text-xl font-semibold text-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                 ภาค{sec}
@@ -342,9 +368,9 @@ export default function VotePage() {
         <div className="mb-10">
           <button
             onClick={() => setSelectedSection(null)}
-            className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-secondary transition-colors cursor-pointer mb-6"
+            className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-secondary transition-colors cursor-pointer mb-6 min-h-[44px] py-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 rounded-lg"
           >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <svg aria-hidden="true" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
             </svg>
             เปลี่ยนภาค
@@ -361,7 +387,7 @@ export default function VotePage() {
           </div>
         )}
         {success && (
-          <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl text-green-600 dark:text-green-400 text-sm">
+          <div role="alert" className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl text-green-600 dark:text-green-400 text-sm">
             ✓ {success}
           </div>
         )}
