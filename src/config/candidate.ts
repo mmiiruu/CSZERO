@@ -45,9 +45,9 @@ export const candidateRegistrationConfig: CandidateRegistrationConfig = {
     name: { label: "ชื่อจริง–นามสกุล", placeholder: "ชื่อ นามสกุล" },
     nickname: { label: "ชื่อเล่น", placeholder: "ชื่อเล่น" },
     image: {
-      label: "รูปตนเอง (URL)",
-      placeholder: "https://...",
-      helper: "ลิงก์รูปภาพที่อัปโหลดไว้แล้ว หากไม่มีจะใช้อักษรย่อแทน",
+      label: "รูปตนเอง",
+      placeholder: "",
+      helper: "",
     },
     motto: { label: "คติประจำใจ", placeholder: "คติประจำใจที่สร้างแรงบันดาลใจให้คุณ" },
     email: { label: "อีเมล", lockedNotice: "ใช้อีเมลที่ลงชื่อเข้าใช้" },
