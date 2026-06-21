@@ -161,8 +161,9 @@ export default function TeamMemberPage() {
                 <Image
                   src={member.image}
                   alt={member.name}
-                  width={128}
-                  height={128}
+                  width={300}
+                  height={300}
+                  quality={90}
                   className="w-full h-full object-cover"
                   priority
                 />

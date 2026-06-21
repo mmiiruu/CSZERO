@@ -91,7 +91,7 @@ function LeaderCard({ member }: { member: TeamMember | FallbackMember }) {
           style={{ backgroundColor: accentColor, ...DOT_PATTERN }}
         >
           {member.image ? (
-            <Image src={member.image} alt={displayName(member)} width={80} height={80} className="w-full h-full object-cover" loading="lazy" />
+            <Image src={member.image} alt={displayName(member)} width={200} height={200} quality={90} className="w-full h-full object-cover" loading="lazy" />
           ) : (
             <span aria-hidden="true">{displayName(member).charAt(0)}</span>
           )}
@@ -148,7 +148,7 @@ function DeptHeadCard({ member, deptColor }: { member: TeamMember | FallbackMemb
           style={{ backgroundColor: accentColor, ...DOT_PATTERN }}
         >
           {member.image ? (
-            <Image src={member.image} alt={displayName(member)} width={64} height={64} className="w-full h-full object-cover" loading="lazy" />
+            <Image src={member.image} alt={displayName(member)} width={160} height={160} quality={90} className="w-full h-full object-cover" loading="lazy" />
           ) : (
             <span aria-hidden="true">{displayName(member).charAt(0)}</span>
           )}
@@ -207,7 +207,7 @@ function MemberCard({ member }: { member: TeamMember | FallbackMember }) {
           style={{ backgroundColor: accentColor, ...DOT_PATTERN }}
         >
           {member.image ? (
-            <Image src={member.image} alt={displayName(member)} width={48} height={48} className="w-full h-full object-cover" loading="lazy" />
+            <Image src={member.image} alt={displayName(member)} width={120} height={120} quality={90} className="w-full h-full object-cover" loading="lazy" />
           ) : (
             <span aria-hidden="true">{displayName(member).charAt(0)}</span>
           )}
