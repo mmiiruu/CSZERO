@@ -70,7 +70,7 @@ function CandidateModal({
               style={{ backgroundColor: getMemberColor(c.name) }}
             >
               {c.image
-                ? <img src={c.image} alt={c.name} className="w-full h-full object-cover" />
+                ? <img src={c.image} alt={c.name} className="w-full h-full object-contain" />
                 : (c.nickname || c.name).charAt(0)
               }
             </div>
@@ -182,7 +182,7 @@ function CandidateCard({
         style={{ backgroundColor: getMemberColor(c.name) }}
       >
         {c.image
-          ? <img src={c.image} alt={c.name} className="w-full h-full object-cover" />
+          ? <img src={c.image} alt={c.name} className="w-full h-full object-contain" />
           : <span>{(c.nickname || c.name).charAt(0)}</span>
         }
         {/* Overlay on hover */}
