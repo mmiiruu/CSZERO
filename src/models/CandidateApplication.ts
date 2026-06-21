@@ -12,6 +12,7 @@ export interface ICandidateApplication extends Document {
   dutyAnswer?: string;
   visionAnswer?: string;
   strengthWeaknessAnswer?: string;
+  conflictAnswer?: string;
   // Legacy fields (pre-redesign)
   studentId?: string;
   year?: string;
@@ -38,6 +39,7 @@ const CandidateApplicationSchema = new Schema<ICandidateApplication>(
     dutyAnswer: { type: String },
     visionAnswer: { type: String },
     strengthWeaknessAnswer: { type: String },
+    conflictAnswer: { type: String },
     // Legacy
     studentId: { type: String },
     year: { type: String },

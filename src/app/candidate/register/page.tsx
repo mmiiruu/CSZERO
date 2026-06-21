@@ -79,11 +79,7 @@ function ImageUpload({ value, onChange }: { value: string; onChange: (url: strin
   );
 }
 
-const TITLES = ["นาย", "นาง", "นางสาว"] as const;
-type Title = (typeof TITLES)[number] | "";
-
 type FormState = {
-  title: Title;
   name: string;
   nickname: string;
   section: "ปกติ" | "พิเศษ" | "";
@@ -93,11 +89,12 @@ type FormState = {
   dutyAnswer: string;
   visionAnswer: string;
   strengthWeaknessAnswer: string;
+  conflictAnswer: string;
 };
 
 const INITIAL_FORM: FormState = {
-  title: "", name: "", nickname: "", section: "", image: "", motto: "",
-  videoUrl: "", dutyAnswer: "", visionAnswer: "", strengthWeaknessAnswer: "",
+  name: "", nickname: "", section: "", image: "", motto: "",
+  videoUrl: "", dutyAnswer: "", visionAnswer: "", strengthWeaknessAnswer: "", conflictAnswer: "",
 };
 
 function Loading() {
@@ -213,8 +210,7 @@ export default function CandidateRegisterPage() {
   const validateStep = (s: number): boolean => {
     const e: Partial<Record<keyof FormState, string>> = {};
     if (s === 0) {
-      if (!form.title) e.title = "กรุณาเลือกคำนำหน้า";
-      if (!form.name.trim()) e.name = "กรุณากรอกชื่อจริง–นามสกุล";
+      if (!form.name.trim()) e.name = "กรุณากรอกคำนำหน้า ชื่อจริง นามสกุล";
       if (!form.nickname.trim()) e.nickname = "กรุณากรอกชื่อเล่น";
       if (!form.section) e.section = "กรุณาเลือกภาค";
       if (!form.motto.trim()) e.motto = "กรุณากรอกคติประจำใจ";
@@ -225,6 +221,7 @@ export default function CandidateRegisterPage() {
       if (!form.dutyAnswer.trim()) e.dutyAnswer = "กรุณาตอบคำถามนี้";
       if (!form.visionAnswer.trim()) e.visionAnswer = "กรุณาตอบคำถามนี้";
       if (!form.strengthWeaknessAnswer.trim()) e.strengthWeaknessAnswer = "กรุณาตอบคำถามนี้";
+      if (!form.conflictAnswer.trim()) e.conflictAnswer = "กรุณาตอบคำถามนี้";
     }
     setErrors(e);
     return Object.keys(e).length === 0;
@@ -311,22 +308,6 @@ export default function CandidateRegisterPage() {
                     </span>
                   </div>
                 )}
-                <div>
-                  <p className="block text-sm font-medium text-foreground mb-2">คำนำหน้า</p>
-                  <div className="flex gap-2">
-                    {TITLES.map((t) => (
-                      <button
-                        key={t}
-                        type="button"
-                        onClick={() => update("title", t)}
-                        className={`px-5 py-2.5 rounded-xl text-sm font-medium transition-colors cursor-pointer ${form.title === t ? "bg-blue-600 text-white shadow-sm" : "bg-card border border-border text-secondary hover:bg-hover"}`}
-                      >
-                        {t}
-                      </button>
-                    ))}
-                  </div>
-                  {errors.title && <p className="mt-1.5 text-xs text-red-500">{errors.title}</p>}
-                </div>
                 <Input
                   label={cfg.fields.name.label}
                   placeholder={cfg.fields.name.placeholder}
@@ -377,7 +358,7 @@ export default function CandidateRegisterPage() {
                   <p className="text-sm font-semibold text-blue-700 dark:text-blue-300 mb-3">
                     ในคลิปวิดีโอ ควรตอบคำถามดังนี้
                   </p>
-                  <ol className="space-y-2">
+                  <ol className="space-y-2 mb-3">
                     {cfg.fields.videoQuestions.map((q, i) => (
                       <li key={i} className="flex gap-2.5 text-sm text-blue-700 dark:text-blue-300">
                         <span className="shrink-0 w-5 h-5 rounded-full bg-blue-200 dark:bg-blue-800 text-blue-700 dark:text-blue-300 flex items-center justify-center text-xs font-bold mt-0.5">
@@ -387,6 +368,9 @@ export default function CandidateRegisterPage() {
                       </li>
                     ))}
                   </ol>
+                  <p className="text-xs font-medium text-blue-600 dark:text-blue-400 pt-2 border-t border-blue-200 dark:border-blue-800">
+                    คลิปวิดีโอไม่น้อยกว่า 1 นาที
+                  </p>
                 </div>
 
                 <Input
@@ -428,6 +412,15 @@ export default function CandidateRegisterPage() {
                   value={form.strengthWeaknessAnswer}
                   onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => update("strengthWeaknessAnswer", e.target.value)}
                   error={errors.strengthWeaknessAnswer}
+                  rows={4}
+                />
+                <Input
+                  as="textarea"
+                  label={cfg.fields.conflictAnswer.label}
+                  placeholder={cfg.fields.conflictAnswer.placeholder}
+                  value={form.conflictAnswer}
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => update("conflictAnswer", e.target.value)}
+                  error={errors.conflictAnswer}
                   rows={4}
                 />
 

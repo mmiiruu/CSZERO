@@ -10,6 +10,7 @@ export interface CandidateRegistrationConfig extends RegistrationConfig {
   steps: Array<{ title: string; subtitle: string }>;
   fields: {
     name: { label: string; placeholder: string };
+    conflictAnswer: { label: string; placeholder: string };
     nickname: { label: string; placeholder: string };
     image: { label: string; placeholder: string; helper: string };
     motto: { label: string; placeholder: string };
@@ -42,7 +43,7 @@ export const candidateRegistrationConfig: CandidateRegistrationConfig = {
     { title: "คำถามเขียน", subtitle: "ตอบคำถามเกี่ยวกับตำแหน่งประธานรุ่น" },
   ],
   fields: {
-    name: { label: "ชื่อจริง–นามสกุล", placeholder: "ชื่อ นามสกุล" },
+    name: { label: "คำนำหน้า ชื่อจริง นามสกุล ภาษาไทย", placeholder: "เช่น นาย สมชาย ใจดี" },
     nickname: { label: "ชื่อเล่น", placeholder: "ชื่อเล่น" },
     image: {
       label: "รูปตนเอง",
@@ -62,7 +63,7 @@ export const candidateRegistrationConfig: CandidateRegistrationConfig = {
       "ฝากข้อความถึงเพื่อนในรุ่นที่กำลังตัดสินใจเลือกประธานรุ่น",
     ],
     dutyAnswer: {
-      label: "คิดว่าหน้าที่ของประธานรุ่นคืออะไร",
+      label: "หน้าที่ของประธานรุ่นคืออะไร",
       placeholder: "อธิบายความเข้าใจของคุณเกี่ยวกับบทบาทและหน้าที่ของประธานรุ่น",
     },
     visionAnswer: {
@@ -72,6 +73,10 @@ export const candidateRegistrationConfig: CandidateRegistrationConfig = {
     strengthWeaknessAnswer: {
       label: "คุณคิดว่าจุดแข็งและจุดอ่อนของตัวเองคืออะไร",
       placeholder: "อธิบายจุดแข็งที่จะช่วยให้คุณทำหน้าที่ได้ดี และจุดอ่อนที่คุณกำลังพัฒนา",
+    },
+    conflictAnswer: {
+      label: "ในระหว่างการจัดกิจกรรม มีเพื่อนสองคนมีความเห็นที่ไม่ตรงกัน น้องจะจัดการสถานการณ์นี้ยังไง",
+      placeholder: "อธิบายแนวทางที่คุณจะใช้จัดการความขัดแย้งระหว่างเพื่อนในทีม",
     },
   },
 };
