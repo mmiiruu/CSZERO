@@ -33,6 +33,7 @@ type ManagedUser = {
 };
 
 const ROLES: Role[] = ["user", "staff", "admin"];
+const ROLE_ORDER: Record<Role, number> = { admin: 0, staff: 1, user: 2 };
 const houseOptions = ["spongebob", "conan", "kungfupanda", "zootopia", "toystory"];
 
 /* ─── Role badge ─────────────────────────────────────────────────── */
@@ -568,15 +569,13 @@ function UsersTab({ callerEmail, callerRole }: { callerEmail: string; callerRole
 
   const isSelf = (u: ManagedUser) => u.email === callerEmail;
 
-  const roleOrder: Record<Role, number> = { admin: 0, staff: 1, user: 2 };
-
   const sortedUsers = useMemo(() =>
     [...users].sort((a, b) => {
-      const roleDiff = roleOrder[a.role] - roleOrder[b.role];
+      const roleDiff = (ROLE_ORDER[a.role] ?? 2) - (ROLE_ORDER[b.role] ?? 2);
       if (roleDiff !== 0) return roleDiff;
       return (a.name ?? a.email).localeCompare(b.name ?? b.email, "th");
     }),
-  [users]); // eslint-disable-line react-hooks/exhaustive-deps
+  [users]);
 
   const userStats = useMemo(() => ({
     total: users.length,
