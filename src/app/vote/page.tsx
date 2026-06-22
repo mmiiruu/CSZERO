@@ -263,15 +263,17 @@ function VerifyModal({
   loading,
 }: {
   email: string;
-  onConfirm: (studentId: string) => void;
+  onConfirm: (studentId: string, voterName: string) => void;
   onClose: () => void;
   loading: boolean;
 }) {
   const [studentId, setStudentId] = useState("");
+  const [voterName, setVoterName] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const emailOk = isKuEmail(email);
   const idOk = STUDENT_ID_RE.test(studentId.trim());
-  const canSubmit = emailOk && idOk && !loading;
+  const nameOk = voterName.trim().length > 0;
+  const canSubmit = emailOk && idOk && nameOk && !loading;
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -309,13 +311,28 @@ function VerifyModal({
           </div>
         </div>
 
+        {/* Full name input */}
+        <div className="mb-4">
+          <label htmlFor="voter-name" className="block text-sm font-medium text-foreground mb-1.5">
+            ชื่อจริง นามสกุล (ภาษาอังกฤษ)
+          </label>
+          <input
+            ref={inputRef}
+            id="voter-name"
+            type="text"
+            value={voterName}
+            onChange={(e) => setVoterName(e.target.value)}
+            placeholder="Firstname Lastname"
+            className="w-full bg-background border border-border rounded-xl px-4 py-3 text-foreground placeholder:text-muted text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-[colors,shadow]"
+          />
+        </div>
+
         {/* Student ID input */}
         <div className="mb-5">
           <label htmlFor="student-id" className="block text-sm font-medium text-foreground mb-1.5">
             รหัสนิสิต
           </label>
           <input
-            ref={inputRef}
             id="student-id"
             type="text"
             inputMode="numeric"
@@ -342,7 +359,7 @@ function VerifyModal({
           <button
             type="button"
             disabled={!canSubmit}
-            onClick={() => onConfirm(studentId.trim())}
+            onClick={() => onConfirm(studentId.trim(), voterName.trim())}
             className="flex-1 py-2.5 text-sm font-medium rounded-xl transition-colors cursor-pointer bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {loading ? "กำลังโหวต..." : "ยืนยันโหวต"}
@@ -384,7 +401,7 @@ export default function VotePage() {
     setPendingVoteId(candidateId);
   };
 
-  const handleConfirmedVote = async (studentId: string) => {
+  const handleConfirmedVote = async (studentId: string, voterName: string) => {
     if (!pendingVoteId) return;
     setVoting(pendingVoteId);
     setError("");
@@ -392,7 +409,7 @@ export default function VotePage() {
       const res = await fetch("/api/votes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ candidateId: pendingVoteId, studentId }),
+        body: JSON.stringify({ candidateId: pendingVoteId, studentId, voterName }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || voteConfig.messages.failedToVote);
@@ -543,7 +560,7 @@ export default function VotePage() {
       {pendingVoteId && (
         <VerifyModal
           email={session?.user?.email ?? ""}
-          onConfirm={handleConfirmedVote}
+          onConfirm={(sid, name) => handleConfirmedVote(sid, name)}
           onClose={() => setPendingVoteId(null)}
           loading={!!voting}
         />

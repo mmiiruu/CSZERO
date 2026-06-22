@@ -73,9 +73,13 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const candidateId = body?.candidateId;
     const studentId = typeof body?.studentId === "string" ? body.studentId.trim() : "";
+    const voterName = typeof body?.voterName === "string" ? body.voterName.trim().slice(0, 200) : "";
 
     if (!STUDENT_ID_RE.test(studentId)) {
       return NextResponse.json({ error: "รหัสนิสิตไม่ถูกต้อง (ต้องขึ้นต้นด้วย 691040 หรือ 691045)" }, { status: 400 });
+    }
+    if (!voterName) {
+      return NextResponse.json({ error: "กรุณากรอกชื่อจริง นามสกุล ภาษาอังกฤษ" }, { status: 400 });
     }
 
     if (typeof candidateId !== "string" || !mongoose.Types.ObjectId.isValid(candidateId)) {
@@ -88,7 +92,7 @@ export async function POST(req: NextRequest) {
     }
 
     try {
-      await Vote.create({ userId: session.user.id, candidateId });
+      await Vote.create({ userId: session.user.id, candidateId, studentId, voterEmail: session.user.email, voterName });
     } catch (err: any) {
       if (err?.code === 11000) {
         return NextResponse.json({ error: "คุณโหวตไปแล้ว" }, { status: 409 });
