@@ -249,6 +249,110 @@ function CandidateCard({
   );
 }
 
+const STUDENT_ID_RE = /^69104[05]\d{4}$/;
+
+function isKuEmail(email?: string | null) {
+  return !!email && email.toLowerCase().endsWith("@ku.th");
+}
+
+/* ─── Pre-vote verification modal ──────────────────────────────── */
+function VerifyModal({
+  email,
+  onConfirm,
+  onClose,
+  loading,
+}: {
+  email: string;
+  onConfirm: (studentId: string) => void;
+  onClose: () => void;
+  loading: boolean;
+}) {
+  const [studentId, setStudentId] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+  const emailOk = isKuEmail(email);
+  const idOk = STUDENT_ID_RE.test(studentId.trim());
+  const canSubmit = emailOk && idOk && !loading;
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
+
+  useEffect(() => {
+    const h = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", h);
+    document.body.style.overflow = "hidden";
+    return () => { document.removeEventListener("keydown", h); document.body.style.overflow = ""; };
+  }, [onClose]);
+
+  return (
+    <div
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+      onClick={(e) => { if (e.target === e.currentTarget && !loading) onClose(); }}
+    >
+      <div role="dialog" aria-modal="true" aria-labelledby="verify-title" className="w-full max-w-sm bg-card border border-border rounded-2xl shadow-2xl p-6">
+        <h2 id="verify-title" className="text-lg font-bold text-foreground mb-1">ยืนยันตัวตนก่อนโหวต</h2>
+        <p className="text-sm text-secondary mb-5">ใช้ได้เฉพาะนิสิต CS KU รุ่น 69 เท่านั้น</p>
+
+        {/* Email check */}
+        <div className={`flex items-start gap-3 p-3.5 rounded-xl mb-4 ${emailOk ? "bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800" : "bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800"}`}>
+          <svg aria-hidden="true" className={`w-5 h-5 mt-0.5 shrink-0 ${emailOk ? "text-green-600 dark:text-green-400" : "text-red-500"}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            {emailOk
+              ? <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              : <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            }
+          </svg>
+          <div className="min-w-0">
+            <p className={`text-xs font-semibold mb-0.5 ${emailOk ? "text-green-700 dark:text-green-300" : "text-red-600 dark:text-red-400"}`}>
+              {emailOk ? "อีเมล @ku.th ✓" : "ต้องใช้อีเมล @ku.th เท่านั้น"}
+            </p>
+            <p className="text-xs text-secondary break-all">{email}</p>
+          </div>
+        </div>
+
+        {/* Student ID input */}
+        <div className="mb-5">
+          <label htmlFor="student-id" className="block text-sm font-medium text-foreground mb-1.5">
+            รหัสนิสิต
+          </label>
+          <input
+            ref={inputRef}
+            id="student-id"
+            type="text"
+            inputMode="numeric"
+            maxLength={10}
+            value={studentId}
+            onChange={(e) => setStudentId(e.target.value.replace(/\D/g, ""))}
+            placeholder="691040____ หรือ 691045____"
+            className="w-full bg-background border border-border rounded-xl px-4 py-3 text-foreground placeholder:text-muted text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-[colors,shadow]"
+          />
+          {studentId.length > 0 && !idOk && (
+            <p className="mt-1.5 text-xs text-red-500">รหัสนิสิตต้องขึ้นต้นด้วย 691040 หรือ 691045 (10 หลัก)</p>
+          )}
+        </div>
+
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={loading}
+            className="flex-1 py-2.5 text-sm font-medium text-secondary hover:bg-hover rounded-xl transition-colors cursor-pointer border border-border"
+          >
+            ยกเลิก
+          </button>
+          <button
+            type="button"
+            disabled={!canSubmit}
+            onClick={() => onConfirm(studentId.trim())}
+            className="flex-1 py-2.5 text-sm font-medium rounded-xl transition-colors cursor-pointer bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            {loading ? "กำลังโหวต..." : "ยืนยันโหวต"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ─── Page ──────────────────────────────────────────────────────── */
 export default function VotePage() {
   const { data: session, status } = useSession();
@@ -261,6 +365,7 @@ export default function VotePage() {
   const [success, setSuccess] = useState("");
   const [selectedSection, setSelectedSection] = useState<"ปกติ" | "พิเศษ" | null>(null);
   const [activeCandidate, setActiveCandidate] = useState<Candidate | null>(null);
+  const [pendingVoteId, setPendingVoteId] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/votes")
@@ -274,23 +379,30 @@ export default function VotePage() {
       .finally(() => setLoading(false));
   }, []);
 
-  const handleVote = async (candidateId: string) => {
+  const handleVote = (candidateId: string) => {
     if (!session?.user) { setError(voteConfig.messages.mustBeSignedIn); return; }
-    setVoting(candidateId);
+    setPendingVoteId(candidateId);
+  };
+
+  const handleConfirmedVote = async (studentId: string) => {
+    if (!pendingVoteId) return;
+    setVoting(pendingVoteId);
     setError("");
     try {
       const res = await fetch("/api/votes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ candidateId }),
+        body: JSON.stringify({ candidateId: pendingVoteId, studentId }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || voteConfig.messages.failedToVote);
       setHasVoted(true);
       setSuccess(voteConfig.messages.voteSuccess);
       setActiveCandidate(null);
+      setPendingVoteId(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : voteConfig.messages.somethingWentWrong);
+      setPendingVoteId(null);
     } finally {
       setVoting(null);
     }
@@ -424,6 +536,16 @@ export default function VotePage() {
           voting={voting}
           onVote={handleVote}
           onClose={() => setActiveCandidate(null)}
+        />
+      )}
+
+      {/* Verify modal */}
+      {pendingVoteId && (
+        <VerifyModal
+          email={session?.user?.email ?? ""}
+          onConfirm={handleConfirmedVote}
+          onClose={() => setPendingVoteId(null)}
+          loading={!!voting}
         />
       )}
     </div>

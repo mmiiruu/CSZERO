@@ -51,11 +51,17 @@ export async function GET(_req: NextRequest) {
   }
 }
 
+const STUDENT_ID_RE = /^69104[05]\d{4}$/;
+
 export async function POST(req: NextRequest) {
   try {
     const session = await auth();
-    if (!session?.user?.id) {
+    if (!session?.user?.id || !session.user.email) {
       return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+    }
+
+    if (!session.user.email.toLowerCase().endsWith("@ku.th")) {
+      return NextResponse.json({ error: "ต้องใช้อีเมล @ku.th เท่านั้น" }, { status: 403 });
     }
 
     const open = await isVotingOpen();
@@ -66,6 +72,11 @@ export async function POST(req: NextRequest) {
     await dbConnect();
     const body = await req.json();
     const candidateId = body?.candidateId;
+    const studentId = typeof body?.studentId === "string" ? body.studentId.trim() : "";
+
+    if (!STUDENT_ID_RE.test(studentId)) {
+      return NextResponse.json({ error: "รหัสนิสิตไม่ถูกต้อง (ต้องขึ้นต้นด้วย 691040 หรือ 691045)" }, { status: 400 });
+    }
 
     if (typeof candidateId !== "string" || !mongoose.Types.ObjectId.isValid(candidateId)) {
       return NextResponse.json({ error: "Invalid candidate ID" }, { status: 400 });
