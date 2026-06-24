@@ -9,9 +9,5 @@ export default async function TeamLayout({
   const session = await auth();
   const role = (session?.user as any)?.role;
 
-  if (role !== "admin" && role !== "staff") {
-    redirect("/");
-  }
-
   return <>{children}</>;
 }
