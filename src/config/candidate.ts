@@ -39,7 +39,7 @@ export const candidateRegistrationConfig: CandidateRegistrationConfig = {
   successMessage: "ทีมงานจะตรวจสอบและเพิ่มคุณเข้าสู่ระบบโหวตในเร็วๆ นี้",
   steps: [
     { title: "ข้อมูลส่วนตัว", subtitle: "ชื่อ รูปภาพ และคติประจำใจ" },
-    { title: "คลิปวิดีโอ", subtitle: "แนะนำตัวและตอบคำถามในคลิป" },
+    { title: "คลิปวิดีโอ ส่วนนี้จะเป็นส่วนนึงที่ให้เพื่อนๆโหวต", subtitle: "แนะนำตัวและตอบคำถามในคลิป" },
     { title: "คำถามเขียน", subtitle: "ตอบคำถามเกี่ยวกับตำแหน่งประธานรุ่น" },
   ],
   fields: {
