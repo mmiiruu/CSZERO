@@ -4,12 +4,14 @@ import { MongoDBAdapter } from "@auth/mongodb-adapter";
 import clientPromise from "@/lib/mongodb-client";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  trustHost: true,
   adapter: MongoDBAdapter(clientPromise),
   providers: [
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
       authorization: { params: { prompt: "select_account" } },
+      allowDangerousEmailAccountLinking: true,
     }),
   ],
   pages: {
@@ -19,12 +21,16 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     strategy: "jwt",
     maxAge: 60 * 60,
   },
+  debug: process.env.NODE_ENV === "development",
   callbacks: {
+    async signIn({ user, account }) {
+      if (!user?.email || !account) return false;
+      return true;
+    },
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
       }
-      // Refresh role from DB on every JWT pass so demotions take effect immediately.
       if (token.email) {
         const db = (await clientPromise).db();
         const dbUser = await db.collection("users").findOne({ email: token.email });
