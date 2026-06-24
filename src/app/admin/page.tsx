@@ -531,6 +531,8 @@ function UsersTab({ callerEmail, callerRole }: { callerEmail: string; callerRole
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState<string | null>(null);
   const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<ManagedUser | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const showToast = (msg: string, ok: boolean) => {
     setToast({ msg, ok });
@@ -566,6 +568,26 @@ function UsersTab({ callerEmail, callerRole }: { callerEmail: string; callerRole
       setUpdating(null);
     }
   }, []);
+
+  const handleDeleteUser = async () => {
+    if (!confirmDelete) return;
+    setDeleting(true);
+    try {
+      const res = await fetch(`/api/admin/users/${confirmDelete._id}`, { method: "DELETE" });
+      const data = await res.json();
+      if (res.ok) {
+        setUsers((prev) => prev.filter((u) => u._id !== confirmDelete._id));
+        showToast(`✓ ลบ ${confirmDelete.name || confirmDelete.email} แล้ว`, true);
+      } else {
+        showToast(`✗ ${data.error}`, false);
+      }
+    } catch {
+      showToast("✗ Network error", false);
+    } finally {
+      setDeleting(false);
+      setConfirmDelete(null);
+    }
+  };
 
   const isSelf = (u: ManagedUser) => u.email === callerEmail;
 
@@ -620,8 +642,8 @@ function UsersTab({ callerEmail, callerRole }: { callerEmail: string; callerRole
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-border-subtle bg-hover">
-                    {["User","Email","Role","Joined", callerRole === "admin" ? "Change Role" : "Access"].map((h) => (
-                      <th key={h} className="text-left px-6 py-4 text-secondary font-medium">{h}</th>
+                    {["User","Email","Role","Joined", callerRole === "admin" ? "Change Role" : "Access", ...(callerRole === "admin" ? [""] : [])].map((h, i) => (
+                      <th key={`${h}-${i}`} className="text-left px-6 py-4 text-secondary font-medium">{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -698,6 +720,19 @@ function UsersTab({ callerEmail, callerRole }: { callerEmail: string; callerRole
                           </div>
                         )}
                       </td>
+                      {callerRole === "admin" && (
+                        <td className="px-6 py-4">
+                          {!isSelf(u) && (
+                            <button
+                              onClick={() => setConfirmDelete(u)}
+                              aria-label={`Delete ${u.name || u.email}`}
+                              className="text-red-500 hover:text-red-700 dark:hover:text-red-400 text-sm font-medium cursor-pointer transition-colors"
+                            >
+                              Delete
+                            </button>
+                          )}
+                        </td>
+                      )}
                     </tr>
                   ))}
                 </tbody>
@@ -774,10 +809,49 @@ function UsersTab({ callerEmail, callerRole }: { callerEmail: string; callerRole
                     </div>
                   </div>
                 )}
+
+                {callerRole === "admin" && !isSelf(u) && (
+                  <button
+                    onClick={() => setConfirmDelete(u)}
+                    className="w-full mt-1 py-2.5 text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors cursor-pointer border border-red-200 dark:border-red-800"
+                  >
+                    Delete User
+                  </button>
+                )}
               </li>
             ))}
           </ul>
         </>
+      )}
+
+      {/* Delete user confirmation modal */}
+      {confirmDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+          onClick={(e) => { if (e.target === e.currentTarget && !deleting) setConfirmDelete(null); }}>
+          <div role="dialog" aria-modal="true" className="w-full max-w-md rounded-2xl shadow-2xl bg-card border border-border p-6">
+            <div className="flex items-start gap-4 mb-4">
+              <div className="shrink-0 w-10 h-10 rounded-full bg-red-50 dark:bg-red-900/30 flex items-center justify-center">
+                <svg className="w-5 h-5 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="font-semibold text-foreground">ลบ User?</h3>
+                <p className="mt-1 text-sm text-secondary leading-relaxed">
+                  จะลบ <strong className="text-secondary">{confirmDelete.name || "—"}</strong> ({confirmDelete.email}) ออกจากระบบ ไม่สามารถย้อนกลับได้
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center justify-end gap-3">
+              <button onClick={() => setConfirmDelete(null)} disabled={deleting} className="px-4 py-2 text-sm font-medium text-secondary hover:bg-hover rounded-lg transition-colors cursor-pointer">
+                ยกเลิก
+              </button>
+              <button onClick={handleDeleteUser} disabled={deleting} className="px-4 py-2 text-sm font-medium bg-red-600 text-white hover:bg-red-700 disabled:opacity-60 rounded-lg transition-colors cursor-pointer">
+                {deleting ? "กำลังลบ..." : "ลบ"}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </>
   );

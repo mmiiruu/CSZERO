@@ -74,3 +74,46 @@ export async function PATCH(
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
+
+export async function DELETE(
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const session = await auth();
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const db = (await clientPromise).db();
+    const caller = await db.collection("users").findOne({ email: session.user.email });
+    if (caller?.role !== "admin") {
+      return NextResponse.json({ error: "Forbidden: admin role required" }, { status: 403 });
+    }
+
+    await dbConnect();
+    const { id } = await params;
+    const target = await User.findById(id);
+    if (!target) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    if (target.email === session.user.email) {
+      return NextResponse.json({ error: "You cannot delete yourself" }, { status: 422 });
+    }
+
+    if (target.role === "admin") {
+      const adminCount = await User.countDocuments({ role: "admin" });
+      if (adminCount <= 1) {
+        return NextResponse.json({ error: "Cannot delete the last admin" }, { status: 422 });
+      }
+    }
+
+    await User.findByIdAndDelete(id);
+
+    return NextResponse.json({ message: `User "${target.email}" deleted` });
+  } catch (error) {
+    console.error("User delete error:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
+}
