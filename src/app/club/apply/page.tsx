@@ -340,7 +340,7 @@ export default function ClubApplyPage() {
                   as={field.type === "textarea" ? "textarea" : undefined}
                   placeholder={field.placeholder}
                   value={formData[field.name] || ""}
-                  onChange={(e) => setField(field.name, e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setField(field.name, e.target.value)}
                   error={errors[field.name]}
                   readOnly={field.name === "email"}
                 />
