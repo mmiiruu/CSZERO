@@ -27,7 +27,7 @@ export async function GET() {
 
     const slotIds = applications
       .filter((a) => a.interviewSlotId)
-      .map((a) => a.interviewSlotId);
+      .map((a) => a.interviewSlotId!);
     const slots = slotIds.length > 0
       ? await InterviewSlot.find({ _id: { $in: slotIds } }).lean()
       : [];
