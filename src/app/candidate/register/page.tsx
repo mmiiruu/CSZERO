@@ -199,6 +199,7 @@ export default function CandidateRegisterPage() {
   const [errors, setErrors] = useState<Partial<Record<keyof FormState | "submit", string>>>({});
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   const showComingSoon = status === "authenticated" && !cfg.open && !isAdminOrStaff;
 
@@ -235,9 +236,14 @@ export default function CandidateRegisterPage() {
     setStep((s) => s - 1);
   };
 
-  const handleSubmit = async (ev: React.FormEvent) => {
+  const handleSubmit = (ev: React.FormEvent) => {
     ev.preventDefault();
     if (!validateStep(2)) return;
+    setShowConfirm(true);
+  };
+
+  const handleConfirmedSubmit = async () => {
+    setShowConfirm(false);
     setSubmitting(true);
     setErrors({});
     try {
@@ -460,6 +466,59 @@ export default function CandidateRegisterPage() {
           </form>
         </div>
       </div>
+
+      {/* Confirm popup */}
+      {showConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+          onClick={(e) => { if (e.target === e.currentTarget) setShowConfirm(false); }}>
+          <div role="dialog" aria-modal="true" className="w-full max-w-md rounded-2xl shadow-2xl bg-card border border-border p-6">
+            <div className="flex items-start gap-4 mb-4">
+              <div className="shrink-0 w-10 h-10 rounded-full bg-amber-50 dark:bg-amber-900/30 flex items-center justify-center">
+                <svg className="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="font-semibold text-foreground mb-1">โปรดทราบก่อนส่งใบสมัคร</h3>
+                <p className="text-sm text-secondary leading-relaxed">
+                  ผู้สมัครประธานต้องเข้าร่วมกิจกรรมแนะนำตัว
+                </p>
+              </div>
+            </div>
+            <div className="bg-hover rounded-xl px-4 py-3 mb-5 space-y-2">
+              <div className="flex items-center gap-2 text-sm text-foreground">
+                <svg className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <span className="font-medium">วันที่ 1 กรกฎาคม</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-foreground">
+                <svg className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span className="font-medium">เวลา 1 ทุ่ม - 3 ทุ่ม</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-foreground">
+                <svg className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <span className="font-medium">Stage Discord : ComSci City</span>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <button type="button" onClick={() => setShowConfirm(false)}
+                className="flex-1 py-2.5 text-sm font-medium text-secondary hover:bg-hover rounded-xl transition-colors cursor-pointer border border-border">
+                ยกเลิก
+              </button>
+              <button type="button" onClick={handleConfirmedSubmit}
+                className="flex-1 py-2.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition-colors cursor-pointer">
+                รับทราบและส่งใบสมัคร
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
