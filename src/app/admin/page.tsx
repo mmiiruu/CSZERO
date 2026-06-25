@@ -2057,37 +2057,76 @@ function ClubTab({ callerRole }: { callerRole: Role }) {
       {/* Slots sub-view */}
       {subView === "slots" && (
         <>
-          {callerRole === "admin" && (
+          {callerRole === "admin" && (() => {
+            const previewSlots: string[] = [];
+            if (newSlotDate && newSlotStart && newSlotBulkEnd && newSlotInterval > 0) {
+              let [h, m] = newSlotStart.split(":").map(Number);
+              const [eh, em] = newSlotBulkEnd.split(":").map(Number);
+              while (h * 60 + m + newSlotInterval <= eh * 60 + em) {
+                const s = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+                m += newSlotInterval;
+                if (m >= 60) { h += Math.floor(m / 60); m = m % 60; }
+                const e = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+                previewSlots.push(`${s}-${e}`);
+              }
+            }
+            return (
             <div className="bg-card border border-border rounded-2xl p-5 mb-6">
               <h3 className="text-sm font-bold text-foreground mb-4">สร้าง Slot สัมภาษณ์</h3>
-              <div className="flex flex-wrap gap-3 items-end">
+
+              {/* Row 1: Date + Time range */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
                 <div>
                   <label className="block text-xs font-medium text-secondary mb-1">วันที่</label>
                   <input type="date" value={newSlotDate} onChange={(e) => setNewSlotDate(e.target.value)}
-                    className="px-3 py-2 border border-border rounded-lg text-sm bg-card text-foreground" />
+                    className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-card text-foreground focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500" />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-secondary mb-1">เริ่ม</label>
+                  <label className="block text-xs font-medium text-secondary mb-1">เวลาเริ่ม</label>
                   <input type="time" value={newSlotStart} onChange={(e) => setNewSlotStart(e.target.value)}
-                    className="px-3 py-2 border border-border rounded-lg text-sm bg-card text-foreground" />
+                    className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-card text-foreground focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500" />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-secondary mb-1">ถึง</label>
+                  <label className="block text-xs font-medium text-secondary mb-1">เวลาจบ</label>
                   <input type="time" value={newSlotBulkEnd} onChange={(e) => setNewSlotBulkEnd(e.target.value)}
-                    className="px-3 py-2 border border-border rounded-lg text-sm bg-card text-foreground" />
+                    className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-card text-foreground focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500" />
                 </div>
-                <div>
-                  <label className="block text-xs font-medium text-secondary mb-1">ทุกๆ (นาที)</label>
-                  <input type="number" value={newSlotInterval} onChange={(e) => setNewSlotInterval(Number(e.target.value))} min={5} max={120}
-                    className="w-20 px-3 py-2 border border-border rounded-lg text-sm bg-card text-foreground" />
-                </div>
-                <button onClick={() => handleCreateSlots(true)} disabled={creatingSingle}
-                  className="px-4 py-2 text-sm font-medium bg-teal-600 text-white hover:bg-teal-700 rounded-lg disabled:opacity-60 transition-colors cursor-pointer">
-                  {creatingSingle ? "กำลังสร้าง..." : "สร้าง Bulk"}
-                </button>
               </div>
+
+              {/* Row 2: Interval presets */}
+              <div className="mb-4">
+                <label className="block text-xs font-medium text-secondary mb-2">รอบละกี่นาที</label>
+                <div className="flex flex-wrap gap-2">
+                  {[10, 15, 20, 30].map((mins) => (
+                    <button key={mins} type="button" onClick={() => setNewSlotInterval(mins)}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${newSlotInterval === mins ? "bg-blue-600 text-white shadow-sm" : "bg-hover text-secondary border border-border hover:bg-card"}`}>
+                      {mins} นาที
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Preview */}
+              {previewSlots.length > 0 && (
+                <div className="mb-4 p-3 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
+                  <p className="text-xs font-medium text-blue-700 dark:text-blue-300 mb-2">
+                    จะสร้าง {previewSlots.length} slot ({newSlotDate})
+                  </p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {previewSlots.map((s) => (
+                      <span key={s} className="px-2 py-0.5 rounded text-xs bg-blue-100 dark:bg-blue-800/40 text-blue-600 dark:text-blue-300 font-mono">{s}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <button onClick={() => handleCreateSlots(true)} disabled={creatingSingle || previewSlots.length === 0}
+                className="w-full sm:w-auto px-5 py-2.5 text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 rounded-lg disabled:opacity-60 transition-colors cursor-pointer">
+                {creatingSingle ? "กำลังสร้าง..." : `สร้าง ${previewSlots.length} Slot`}
+              </button>
             </div>
-          )}
+            );
+          })()}
 
           {loadingSlots ? (
             <div className="flex items-center justify-center py-20"><div className="w-8 h-8 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin" /></div>
