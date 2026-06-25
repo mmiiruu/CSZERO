@@ -22,7 +22,7 @@ export const navLinks: Array<{
   { href: "/team", label: "ชุมนุมนิสิต", adminOnly: false },
   { href: "/vote", label: "โหวต", adminOnly: true },
   { href: "/candidate/register", label: "สมัครประธาน", candidateRegistration: true },
-  { href: "/club/apply", label: "สมัครชุมนุม" },
+  { href: "/club/apply", label: "สมัครชุมนุม", adminOnly: true },
 ];
 
 export const navbar = {
