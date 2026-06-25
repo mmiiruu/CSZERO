@@ -1,0 +1,14 @@
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
+
+export default async function ClubApplyLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const session = await auth();
+  if (!session?.user?.email) {
+    redirect("/auth/signin?callbackUrl=/club/apply");
+  }
+  return <>{children}</>;
+}

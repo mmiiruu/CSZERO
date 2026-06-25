@@ -1789,8 +1789,425 @@ function ProjectsTab({ callerRole }: { callerRole: Role }) {
   );
 }
 
+/* ─── Club Tab ──────────────────────────────────────────────────── */
+type ClubApp = {
+  _id: string; name: string; surname: string; nickname: string; email: string;
+  phone: string; contactChannel: string; photo: string; educationType: string;
+  answers: Record<string, string>; interviewSlotId?: string; createdAt: string;
+  interviewSlot?: { date: string; startTime: string; endTime: string } | null;
+};
+
+type AdminSlot = {
+  _id: string; date: string; startTime: string; endTime: string;
+  bookedBy?: string; bookedByEmail?: string;
+};
+
+function ClubTab({ callerRole }: { callerRole: Role }) {
+  const [subView, setSubView] = useState<"apps" | "slots">("apps");
+  const [apps, setApps] = useState<ClubApp[]>([]);
+  const [slots, setSlots] = useState<AdminSlot[]>([]);
+  const [loadingApps, setLoadingApps] = useState(true);
+  const [loadingSlots, setLoadingSlots] = useState(true);
+  const [bookingOpen, setBookingOpen] = useState(false);
+  const [toggling, setToggling] = useState(false);
+  const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
+  const [detail, setDetail] = useState<ClubApp | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<ClubApp | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [sectionFilter, setSectionFilter] = useState<"all" | "regular" | "special">("all");
+
+  // Slot creation
+  const [newSlotDate, setNewSlotDate] = useState("");
+  const [newSlotStart, setNewSlotStart] = useState("09:00");
+  const [newSlotEnd, setNewSlotEnd] = useState("09:15");
+  const [newSlotInterval, setNewSlotInterval] = useState(15);
+  const [newSlotBulkEnd, setNewSlotBulkEnd] = useState("17:00");
+  const [creatingSingle, setCreatingSingle] = useState(false);
+
+  const showToast = (msg: string, ok: boolean) => {
+    setToast({ msg, ok });
+    setTimeout(() => setToast(null), 3500);
+  };
+
+  useEffect(() => {
+    fetch("/api/admin/club/applications")
+      .then((r) => r.json())
+      .then((d) => { if (Array.isArray(d)) setApps(d); })
+      .catch(() => {})
+      .finally(() => setLoadingApps(false));
+  }, []);
+
+  useEffect(() => {
+    fetch("/api/admin/club/slots")
+      .then((r) => r.json())
+      .then((d) => { if (Array.isArray(d)) setSlots(d); })
+      .catch(() => {})
+      .finally(() => setLoadingSlots(false));
+    fetch("/api/admin/club/settings")
+      .then((r) => r.json())
+      .then((d) => setBookingOpen(d.clubBookingOpen ?? false))
+      .catch(() => {});
+  }, []);
+
+  const handleToggleBooking = async () => {
+    setToggling(true);
+    try {
+      const res = await fetch("/api/admin/club/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ open: !bookingOpen }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setBookingOpen(data.clubBookingOpen);
+        showToast(data.clubBookingOpen ? "✓ เปิดจองแล้ว" : "✓ ปิดจองแล้ว", true);
+      }
+    } catch { showToast("✗ Network error", false); }
+    finally { setToggling(false); }
+  };
+
+  const handleDeleteApp = async () => {
+    if (!confirmDelete) return;
+    setDeleting(true);
+    try {
+      const res = await fetch("/api/admin/club/applications", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: confirmDelete._id }),
+      });
+      if (res.ok) {
+        setApps((p) => p.filter((a) => a._id !== confirmDelete._id));
+        showToast(`✓ ลบ ${confirmDelete.name} แล้ว`, true);
+      } else {
+        const data = await res.json();
+        showToast(`✗ ${data.error}`, false);
+      }
+    } catch { showToast("✗ Network error", false); }
+    finally { setDeleting(false); setConfirmDelete(null); }
+  };
+
+  const handleCreateSlots = async (bulk: boolean) => {
+    if (!newSlotDate) { showToast("✗ กรุณาเลือกวัน", false); return; }
+    setCreatingSingle(true);
+    const slotsToCreate: { startTime: string; endTime: string }[] = [];
+    if (bulk) {
+      let [h, m] = newSlotStart.split(":").map(Number);
+      const [eh, em] = newSlotBulkEnd.split(":").map(Number);
+      while (h * 60 + m + newSlotInterval <= eh * 60 + em) {
+        const start = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+        m += newSlotInterval;
+        if (m >= 60) { h += Math.floor(m / 60); m = m % 60; }
+        const end = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+        slotsToCreate.push({ startTime: start, endTime: end });
+      }
+    } else {
+      slotsToCreate.push({ startTime: newSlotStart, endTime: newSlotEnd });
+    }
+    if (slotsToCreate.length === 0) { showToast("✗ ไม่มี slot ที่สร้างได้", false); setCreatingSingle(false); return; }
+    try {
+      const res = await fetch("/api/admin/club/slots", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ date: newSlotDate, slots: slotsToCreate }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        showToast(`✓ ${data.message}`, true);
+        const r2 = await fetch("/api/admin/club/slots");
+        const d2 = await r2.json();
+        if (Array.isArray(d2)) setSlots(d2);
+      } else { showToast(`✗ ${data.error}`, false); }
+    } catch { showToast("✗ Network error", false); }
+    finally { setCreatingSingle(false); }
+  };
+
+  const handleDeleteSlot = async (id: string) => {
+    try {
+      const res = await fetch("/api/admin/club/slots", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      if (res.ok) {
+        setSlots((p) => p.filter((s) => s._id !== id));
+        showToast("✓ ลบ slot แล้ว", true);
+      }
+    } catch { showToast("✗ Network error", false); }
+  };
+
+  const handleExportExcel = async () => {
+    const filtered = sectionFilter === "all" ? apps : apps.filter((a) => a.educationType === sectionFilter);
+    if (filtered.length === 0) return;
+    const { default: ExcelJS } = await import("exceljs");
+    const answerKeys = Array.from(new Set(filtered.flatMap((a) => Object.keys(a.answers ?? {}))));
+    const headers = ["ชื่อ", "นามสกุล", "ชื่อเล่น", "อีเมล", "เบอร์โทร", "ช่องทางติดต่อ", "ภาค", "รอบสัมภาษณ์", "วันที่สมัคร", ...answerKeys];
+    const rows = filtered.map((a) => [
+      a.name, a.surname, a.nickname, a.email, a.phone, a.contactChannel,
+      a.educationType === "regular" ? "ปกติ" : "พิเศษ",
+      a.interviewSlot ? `${a.interviewSlot.date} ${a.interviewSlot.startTime}-${a.interviewSlot.endTime}` : "-",
+      new Date(a.createdAt).toLocaleDateString("th-TH"),
+      ...answerKeys.map((k) => a.answers?.[k] ?? "-"),
+    ]);
+    const workbook = new ExcelJS.Workbook();
+    const sheet = workbook.addWorksheet("Club Applications");
+    sheet.addRow(headers).font = { bold: true };
+    sheet.addRows(rows);
+    sheet.columns.forEach((col, i) => {
+      const widest = Math.max(headers[i].length, ...rows.map((r) => String(r[i] ?? "").length));
+      col.width = Math.min(Math.max(widest + 2, 12), 60);
+    });
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `club-applications-${new Date().toISOString().slice(0, 10)}.xlsx`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const filteredApps = sectionFilter === "all" ? apps : apps.filter((a) => a.educationType === sectionFilter);
+  const stats = { total: apps.length, regular: apps.filter((a) => a.educationType === "regular").length, special: apps.filter((a) => a.educationType === "special").length };
+
+  // Group slots by date for display
+  const slotsByDate = new Map<string, AdminSlot[]>();
+  for (const s of slots) {
+    if (!slotsByDate.has(s.date)) slotsByDate.set(s.date, []);
+    slotsByDate.get(s.date)!.push(s);
+  }
+
+  return (
+    <>
+      {toast && <div className={`fixed bottom-6 right-6 z-50 px-5 py-3 rounded-xl text-sm font-medium shadow-lg ${toast.ok ? "bg-green-600 text-white" : "bg-red-600 text-white"}`}>{toast.msg}</div>}
+
+      {/* Sub-view toggle */}
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+        <div className="flex items-center gap-1 bg-card border border-border rounded-xl p-1">
+          <button onClick={() => setSubView("apps")} className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${subView === "apps" ? "bg-blue-600 text-white shadow-sm" : "text-secondary hover:text-foreground"}`}>ใบสมัคร ({stats.total})</button>
+          <button onClick={() => setSubView("slots")} className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${subView === "slots" ? "bg-blue-600 text-white shadow-sm" : "text-secondary hover:text-foreground"}`}>รอบสัมภาษณ์ ({slots.length})</button>
+        </div>
+        {callerRole === "admin" && (
+          <button onClick={handleToggleBooking} disabled={toggling}
+            className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer disabled:opacity-60 flex items-center gap-2 ${bookingOpen ? "bg-green-600 text-white hover:bg-green-700" : "bg-card text-secondary border border-border hover:bg-hover"}`}>
+            <span className={`w-2 h-2 rounded-full ${bookingOpen ? "bg-white" : "bg-muted"}`} aria-hidden="true" />
+            {toggling ? "..." : bookingOpen ? "จองเปิดอยู่" : "เปิดจอง"}
+          </button>
+        )}
+      </div>
+
+      {/* Applications sub-view */}
+      {subView === "apps" && (
+        <>
+          <div className="flex flex-wrap gap-2 items-center mb-6">
+            {([ { key: "all" as const, label: `ทั้งหมด (${stats.total})` }, { key: "regular" as const, label: `ภาคปกติ (${stats.regular})` }, { key: "special" as const, label: `ภาคพิเศษ (${stats.special})` } ]).map(({ key, label }) => (
+              <button key={key} onClick={() => setSectionFilter(key)}
+                className={`px-4 py-3 rounded-lg text-sm font-medium transition-colors cursor-pointer ${sectionFilter === key ? "bg-blue-600 text-white shadow-sm" : "bg-card text-secondary border border-border hover:bg-hover"}`}>{label}</button>
+            ))}
+            <button onClick={handleExportExcel} disabled={filteredApps.length === 0}
+              className="px-4 py-3 rounded-lg text-sm font-medium bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-60 transition-colors cursor-pointer flex items-center gap-1.5">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+              Export Excel
+            </button>
+          </div>
+
+          {loadingApps ? (
+            <div className="flex items-center justify-center py-20"><div className="w-8 h-8 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin" /></div>
+          ) : filteredApps.length === 0 ? (
+            <div className="bg-card border border-border rounded-2xl p-12 text-center"><p className="text-muted">ยังไม่มีใบสมัคร</p></div>
+          ) : (
+            <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-border-subtle bg-hover">
+                      {["ชื่อ", "นามสกุล", "ชื่อเล่น", "อีเมล", "ภาค", "รอบสัมภาษณ์", "Actions"].map((h) => (
+                        <th key={h} className="text-left px-6 py-4 text-secondary font-medium">{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredApps.map((a) => (
+                      <tr key={a._id} className="border-b border-border-subtle hover:bg-hover transition-colors">
+                        <td className="px-6 py-4 text-foreground font-medium">{a.name}</td>
+                        <td className="px-6 py-4 text-secondary">{a.surname}</td>
+                        <td className="px-6 py-4 text-secondary">{a.nickname}</td>
+                        <td className="px-6 py-4 text-secondary">{a.email}</td>
+                        <td className="px-6 py-4 text-secondary">{a.educationType === "regular" ? "ปกติ" : "พิเศษ"}</td>
+                        <td className="px-6 py-4 text-secondary">
+                          {a.interviewSlot ? `${a.interviewSlot.date} ${a.interviewSlot.startTime}` : <span className="text-muted">—</span>}
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-3">
+                            <button onClick={() => setDetail(a)} className="text-primary hover:text-primary-dark text-sm font-medium cursor-pointer">View</button>
+                            {callerRole === "admin" && (
+                              <button onClick={() => setConfirmDelete(a)} className="text-red-500 hover:text-red-700 dark:hover:text-red-400 text-sm font-medium cursor-pointer">ลบ</button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </>
+      )}
+
+      {/* Slots sub-view */}
+      {subView === "slots" && (
+        <>
+          {callerRole === "admin" && (
+            <div className="bg-card border border-border rounded-2xl p-5 mb-6">
+              <h3 className="text-sm font-bold text-foreground mb-4">สร้าง Slot สัมภาษณ์</h3>
+              <div className="flex flex-wrap gap-3 items-end">
+                <div>
+                  <label className="block text-xs font-medium text-secondary mb-1">วันที่</label>
+                  <input type="date" value={newSlotDate} onChange={(e) => setNewSlotDate(e.target.value)}
+                    className="px-3 py-2 border border-border rounded-lg text-sm bg-card text-foreground" />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-secondary mb-1">เริ่ม</label>
+                  <input type="time" value={newSlotStart} onChange={(e) => setNewSlotStart(e.target.value)}
+                    className="px-3 py-2 border border-border rounded-lg text-sm bg-card text-foreground" />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-secondary mb-1">ถึง</label>
+                  <input type="time" value={newSlotBulkEnd} onChange={(e) => setNewSlotBulkEnd(e.target.value)}
+                    className="px-3 py-2 border border-border rounded-lg text-sm bg-card text-foreground" />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-secondary mb-1">ทุกๆ (นาที)</label>
+                  <input type="number" value={newSlotInterval} onChange={(e) => setNewSlotInterval(Number(e.target.value))} min={5} max={120}
+                    className="w-20 px-3 py-2 border border-border rounded-lg text-sm bg-card text-foreground" />
+                </div>
+                <button onClick={() => handleCreateSlots(true)} disabled={creatingSingle}
+                  className="px-4 py-2 text-sm font-medium bg-teal-600 text-white hover:bg-teal-700 rounded-lg disabled:opacity-60 transition-colors cursor-pointer">
+                  {creatingSingle ? "กำลังสร้าง..." : "สร้าง Bulk"}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {loadingSlots ? (
+            <div className="flex items-center justify-center py-20"><div className="w-8 h-8 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin" /></div>
+          ) : slots.length === 0 ? (
+            <div className="bg-card border border-border rounded-2xl p-12 text-center"><p className="text-muted">ยังไม่มี slot</p></div>
+          ) : (
+            <div className="space-y-6">
+              {Array.from(slotsByDate.entries()).map(([date, dateSlots]) => (
+                <div key={date}>
+                  <h3 className="text-sm font-bold text-foreground mb-3">{date}</h3>
+                  <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="border-b border-border-subtle bg-hover">
+                            {["เวลา", "สถานะ", "ผู้จอง", "อีเมล", ...(callerRole === "admin" ? [""] : [])].map((h, i) => (
+                              <th key={`${h}-${i}`} className="text-left px-5 py-3 text-secondary font-medium">{h}</th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {dateSlots.map((s) => (
+                            <tr key={s._id} className="border-b border-border-subtle hover:bg-hover transition-colors">
+                              <td className="px-5 py-3 text-foreground font-medium">{s.startTime} - {s.endTime}</td>
+                              <td className="px-5 py-3">
+                                <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${s.bookedBy ? "bg-teal-50 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400 border border-teal-200 dark:border-teal-800" : "bg-hover text-muted border border-border"}`}>
+                                  {s.bookedBy ? "จองแล้ว" : "ว่าง"}
+                                </span>
+                              </td>
+                              <td className="px-5 py-3 text-secondary">{s.bookedByEmail ? s.bookedByEmail.split("@")[0] : "—"}</td>
+                              <td className="px-5 py-3 text-secondary">{s.bookedByEmail || "—"}</td>
+                              {callerRole === "admin" && (
+                                <td className="px-5 py-3">
+                                  <button onClick={() => handleDeleteSlot(s._id)} className="text-red-500 hover:text-red-700 text-sm font-medium cursor-pointer">ลบ</button>
+                                </td>
+                              )}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
+      )}
+
+      {/* Detail modal */}
+      {detail && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+          onClick={(e) => { if (e.target === e.currentTarget) setDetail(null); }}>
+          <div role="dialog" aria-modal="true" className="relative w-full max-w-lg max-h-[80vh] flex flex-col rounded-2xl shadow-2xl bg-card border border-border">
+            <div className="flex items-start justify-between gap-4 px-6 py-5 border-b border-border-subtle">
+              <div>
+                <h3 className="text-base font-semibold text-foreground">{detail.name} {detail.surname}</h3>
+                <p className="text-xs text-muted mt-0.5">{detail.email}</p>
+              </div>
+              <button onClick={() => setDetail(null)} className="p-3 -mr-1 text-muted hover:text-secondary transition-colors cursor-pointer" aria-label="Close">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="overflow-y-auto flex-1 px-6 py-5 space-y-4">
+              {detail.photo && (
+                <div className="flex justify-center">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={detail.photo} alt={detail.name} className="w-24 h-24 rounded-full object-cover border-2 border-border" />
+                </div>
+              )}
+              {([
+                ["ชื่อเล่น", detail.nickname],
+                ["เบอร์โทร", detail.phone],
+                ["ช่องทางติดต่อ", detail.contactChannel],
+                ["ภาค", detail.educationType === "regular" ? "ปกติ" : "พิเศษ"],
+                ["รอบสัมภาษณ์", detail.interviewSlot ? `${detail.interviewSlot.date} ${detail.interviewSlot.startTime}-${detail.interviewSlot.endTime}` : "ยังไม่ได้จอง"],
+                ["วันที่สมัคร", new Date(detail.createdAt).toLocaleString("th-TH")],
+                ...Object.entries(detail.answers ?? {}).map(([k, v]) => [k, v || "—"]),
+              ] as [string, string][]).map(([k, v]) => (
+                <div key={k} className="rounded-xl bg-hover px-4 py-3">
+                  <p className="text-xs font-medium text-muted mb-1">{k}</p>
+                  <p className="text-sm text-secondary whitespace-pre-wrap break-words">{v}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete confirmation */}
+      {confirmDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+          onClick={(e) => { if (e.target === e.currentTarget && !deleting) setConfirmDelete(null); }}>
+          <div role="dialog" aria-modal="true" className="w-full max-w-md rounded-2xl shadow-2xl bg-card border border-border p-6">
+            <div className="flex items-start gap-4 mb-4">
+              <div className="shrink-0 w-10 h-10 rounded-full bg-red-50 dark:bg-red-900/30 flex items-center justify-center">
+                <svg className="w-5 h-5 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="font-semibold text-foreground">ลบใบสมัครของ {confirmDelete.name}?</h3>
+                <p className="mt-1 text-sm text-secondary">การกระทำนี้ไม่สามารถย้อนกลับได้</p>
+              </div>
+            </div>
+            <div className="flex items-center justify-end gap-3">
+              <button onClick={() => setConfirmDelete(null)} disabled={deleting} className="px-4 py-2 text-sm font-medium text-secondary hover:bg-hover rounded-lg transition-colors cursor-pointer">ยกเลิก</button>
+              <button onClick={handleDeleteApp} disabled={deleting} className="px-4 py-2 text-sm font-medium bg-red-600 text-white hover:bg-red-700 disabled:opacity-60 rounded-lg transition-colors cursor-pointer">{deleting ? "กำลังลบ..." : "ลบ"}</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
 /* ─── PAGE ───────────────────────────────────────────────────────── */
-type Tab = "projects" | "candidates" | "team" | "users";
+type Tab = "projects" | "candidates" | "team" | "users" | "club";
 
 export default function AdminPage() {
   const router = useRouter();
@@ -1853,6 +2270,7 @@ export default function AdminPage() {
             { id: "candidates" as Tab, label: "สมัครประธาน",   icon: "M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" },
             { id: "team" as Tab,       label: "ชุมนุมนิสิต",   icon: "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" },
             { id: "users" as Tab,      label: "Users",          icon: "M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" },
+            { id: "club" as Tab,       label: "สมัครชุมนุม",    icon: "M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" },
           ]).map(({ id, label, icon }) => (
             <button key={id} id={`tab-${id}`} onClick={() => setTab(id)}
               role="tab"
@@ -1877,6 +2295,9 @@ export default function AdminPage() {
         </div>
         <div role="tabpanel" id="panel-users" aria-labelledby="tab-users" hidden={tab !== "users"}>
           <UsersTab callerEmail={callerEmail} callerRole={(role as Role) ?? "staff"} />
+        </div>
+        <div role="tabpanel" id="panel-club" aria-labelledby="tab-club" hidden={tab !== "club"}>
+          <ClubTab callerRole={(role as Role) ?? "staff"} />
         </div>
 
       </div>
