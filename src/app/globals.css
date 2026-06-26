@@ -234,8 +234,13 @@ body {
 
 /* Selection */
 ::selection {
-  background: oklch(0.54 0.200 260 / 0.15);
+  background: oklch(0.54 0.200 260 / 0.25);
   color: oklch(0.25 0.100 260);
+}
+
+.dark ::selection {
+  background: oklch(0.54 0.200 260 / 0.45);
+  color: oklch(0.96 0.005 250);
 }
 
 /* Focus ring */
