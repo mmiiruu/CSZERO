@@ -1,26 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
-import { cs101Config } from "@/config/events/cs101";
-import { helloWorldConfig } from "@/config/events/hello-world";
 import { isRegistrationOpen } from "@/lib/registration";
-import {
-  getRegistrationCapacityStatus,
-  type RegistrationEventKey,
-} from "@/lib/registrationCapacity";
-
-const REGISTRATION_CONFIG = {
-  "cs101": cs101Config.registration,
-  "hello-world": helloWorldConfig.registration,
-} as const;
+import { getRegistrationCapacityStatus } from "@/lib/registrationCapacity";
+import { ALLOWED_EVENTS, REGISTRATION_CONFIG, type AllowedEvent } from "@/lib/eventRegistry";
 
 export async function GET(req: NextRequest) {
   try {
     const event = req.nextUrl.searchParams.get("event");
-    if (event !== "cs101" && event !== "hello-world") {
+    if (!event || !ALLOWED_EVENTS.includes(event as AllowedEvent)) {
       return NextResponse.json({ error: "Invalid event type" }, { status: 400 });
     }
-
-    const registration = REGISTRATION_CONFIG[event as RegistrationEventKey];
-    const capacity = await getRegistrationCapacityStatus(event as RegistrationEventKey, registration);
+    const ev = event as AllowedEvent;
+    const registration = REGISTRATION_CONFIG[ev];
+    const capacity = await getRegistrationCapacityStatus(ev, registration);
 
     return NextResponse.json(
       {

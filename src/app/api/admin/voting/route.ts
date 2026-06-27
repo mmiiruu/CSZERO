@@ -1,12 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
 import clientPromise from "@/lib/mongodb-client";
-
-async function getCallerRole(email: string) {
-  const db = (await clientPromise).db();
-  const user = await db.collection("users").findOne({ email });
-  return user?.role || "user";
-}
+import { requireAdmin, isGuardError } from "@/lib/guards";
 
 async function getSettings() {
   const db = (await clientPromise).db();
@@ -26,14 +20,8 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await auth();
-    if (!session?.user?.email) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-    const role = await getCallerRole(session.user.email);
-    if (role !== "admin") {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
+    const guard = await requireAdmin();
+    if (isGuardError(guard)) return guard.error;
 
     const { open } = await req.json();
     if (typeof open !== "boolean") {

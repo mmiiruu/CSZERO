@@ -1,8 +1,9 @@
 import dbConnect from "@/lib/mongodb";
 import Registration from "@/models/Registration";
 import type { RegistrationConfig } from "@/lib/registration";
+import type { AllowedEvent } from "@/lib/eventRegistry";
 
-export type RegistrationEventKey = "cs101" | "hello-world";
+export type RegistrationEventKey = AllowedEvent;
 
 export type RegistrationCapacityStatus = {
   total: number | null;
@@ -12,7 +13,7 @@ export type RegistrationCapacityStatus = {
 };
 
 export async function getRegistrationCapacityStatus(
-  event: RegistrationEventKey,
+  event: AllowedEvent,
   registration: RegistrationConfig
 ): Promise<RegistrationCapacityStatus> {
   await dbConnect();

@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
-import clientPromise from "@/lib/mongodb-client";
 import dbConnect from "@/lib/mongodb";
 import CandidateApplication from "@/models/CandidateApplication";
 import { candidateRegistrationConfig } from "@/config/candidate";
 import { isRegistrationOpen } from "@/lib/registration";
+import { requireAuth, requireAdmin, requireStaff, getCallerRole, isGuardError } from "@/lib/guards";
 
 const MAX_STR = 200;
 const MAX_TEXT = 3000;
@@ -13,27 +12,16 @@ function clean(v: unknown, max = MAX_STR): string {
   return typeof v === "string" ? v.trim().slice(0, max) : "";
 }
 
-async function getCallerRole(email: string): Promise<string> {
-  const db = (await clientPromise).db();
-  const user = await db.collection("users").findOne({ email });
-  return user?.role || "user";
-}
-
 export async function POST(req: NextRequest) {
   try {
-    const session = await auth();
-    if (!session?.user?.email) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const authResult = await requireAuth();
+    if (isGuardError(authResult)) return authResult.error;
 
-    const callerRole = await getCallerRole(session.user.email);
+    const callerRole = await getCallerRole(authResult.email);
     const isAdminOrStaff = callerRole === "admin" || callerRole === "staff";
 
     if (!isRegistrationOpen(candidateRegistrationConfig) && !isAdminOrStaff) {
-      return NextResponse.json(
-        { error: "Candidate registration is not open" },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: "Candidate registration is not open" }, { status: 403 });
     }
 
     const body = await req.json();
@@ -52,7 +40,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    const email = session.user.email.trim().toLowerCase();
+    const email = authResult.email.trim().toLowerCase();
 
     await dbConnect();
     const existing = await CandidateApplication.findOne({ email });
@@ -108,14 +96,8 @@ export async function POST(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   try {
-    const session = await auth();
-    if (!session?.user?.email) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-    const callerRole = await getCallerRole(session.user.email);
-    if (callerRole !== "admin") {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
+    const guard = await requireAdmin();
+    if (isGuardError(guard)) return guard.error;
 
     const { id } = await req.json();
     if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
@@ -133,14 +115,8 @@ export async function DELETE(req: NextRequest) {
 
 export async function GET() {
   try {
-    const session = await auth();
-    if (!session?.user?.email) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-    const callerRole = await getCallerRole(session.user.email);
-    if (callerRole !== "admin" && callerRole !== "staff") {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
+    const guard = await requireStaff();
+    if (isGuardError(guard)) return guard.error;
 
     await dbConnect();
     const applications = await CandidateApplication.find().sort({ createdAt: -1 }).lean();

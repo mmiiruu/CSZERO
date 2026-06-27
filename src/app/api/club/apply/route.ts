@@ -2,16 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import dbConnect from "@/lib/mongodb";
 import ClubApplication from "@/models/ClubApplication";
-
-function sanitizeAnswers(input: unknown): Record<string, string> {
-  if (!input || typeof input !== "object" || Array.isArray(input)) return {};
-  const out: Record<string, string> = {};
-  for (const [k, v] of Object.entries(input as Record<string, unknown>)) {
-    if (typeof k !== "string" || v == null) continue;
-    out[k.slice(0, 100)] = String(v).slice(0, 2000);
-  }
-  return out;
-}
+import { sanitizeAnswers } from "@/lib/registrationIntake";
 
 export async function GET() {
   try {

@@ -2,6 +2,7 @@ import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
 import { MongoDBAdapter } from "@auth/mongodb-adapter";
 import clientPromise from "@/lib/mongodb-client";
+import { getUserRole } from "@/lib/userRepo";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   trustHost: true,
@@ -32,9 +33,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.id = user.id;
       }
       if (token.email) {
-        const db = (await clientPromise).db();
-        const dbUser = await db.collection("users").findOne({ email: token.email });
-        token.role = dbUser?.role || "user";
+        token.role = await getUserRole(token.email);
       }
       return token;
     },
