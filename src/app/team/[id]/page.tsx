@@ -37,28 +37,28 @@ function MemberPageSkeleton() {
   return (
     <div className="min-h-screen bg-background">
 
-      {/* Dark hero zone — skeleton-dark elements on bg-slate-900 */}
-      <div className="bg-slate-900 pt-20 pb-14 px-4 sm:px-6">
+      {/* Hero zone */}
+      <div className="bg-card dark:bg-slate-900 border-b border-border pt-20 pb-14 px-4 sm:px-6">
         <div className="max-w-3xl mx-auto">
 
           {/* Back link */}
-          <div className="skeleton-dark w-24 h-4 rounded mb-10" />
+          <div className="skeleton w-24 h-4 rounded mb-10" />
 
           <div className="flex items-end gap-6 sm:gap-8">
             {/* Square avatar */}
-            <div className="skeleton-dark w-24 h-24 sm:w-32 sm:h-32 shrink-0 rounded-2xl" />
+            <div className="skeleton w-24 h-24 sm:w-32 sm:h-32 shrink-0 rounded-2xl" />
             <div className="pb-1 space-y-3">
               {/* Role label */}
-              <div className="skeleton-dark w-24 h-3 rounded" />
+              <div className="skeleton w-24 h-3 rounded" />
               {/* Name */}
-              <div className="skeleton-dark w-48 sm:w-64 h-9 sm:h-11 rounded-md" />
+              <div className="skeleton w-48 sm:w-64 h-9 sm:h-11 rounded-md" />
             </div>
           </div>
 
           {/* Bio lines */}
           <div className="mt-8 space-y-2.5">
-            <div className="skeleton-dark w-full max-w-lg h-4 rounded" />
-            <div className="skeleton-dark w-3/4 max-w-xs h-4 rounded" />
+            <div className="skeleton w-full max-w-lg h-4 rounded" />
+            <div className="skeleton w-3/4 max-w-xs h-4 rounded" />
           </div>
 
         </div>
@@ -138,13 +138,13 @@ export default function TeamMemberPage() {
   return (
     <div className="min-h-screen bg-background motion-safe:animate-fade-in">
 
-      {/* ── Dark editorial hero ──────────────────────────────────────────── */}
-      <div className="bg-slate-900 pt-20 pb-14 px-4 sm:px-6">
+      {/* ── Hero ──────────────────────────────────────────────────────────── */}
+      <div className="bg-card dark:bg-slate-900 border-b border-border pt-20 pb-14 px-4 sm:px-6">
         <div className="max-w-3xl mx-auto">
 
           <Link
             href="/team"
-            className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-slate-200 transition-colors duration-200 mb-10"
+            className="inline-flex items-center gap-2 text-sm text-secondary hover:text-foreground transition-colors duration-200 mb-10"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -173,20 +173,20 @@ export default function TeamMemberPage() {
             </div>
 
             <div className="pb-1 min-w-0">
-              <p className="text-xs font-mono text-blue-400 uppercase tracking-widest mb-2">
+              <p className="text-xs font-mono text-primary uppercase tracking-widest mb-2">
                 {member.role}
               </p>
-              <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-none break-words">
+              <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-black text-foreground tracking-tight leading-none break-words">
                 {member.nickname || member.name}
               </h1>
               {member.nickname && (
-                <p className="mt-1 text-slate-400 text-base sm:text-lg">{member.name}</p>
+                <p className="mt-1 text-secondary text-base sm:text-lg">{member.name}</p>
               )}
             </div>
           </div>
 
           {member.bio && (
-            <p className="mt-8 text-slate-400 leading-relaxed max-w-lg text-sm sm:text-base">
+            <p className="mt-8 text-secondary leading-relaxed max-w-lg text-sm sm:text-base">
               {member.bio}
             </p>
           )}
