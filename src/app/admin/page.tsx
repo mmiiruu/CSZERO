@@ -2253,6 +2253,7 @@ export default function AdminPage() {
   const { theme, toggleTheme } = useTheme();
   const dark = theme === "dark";
   const [tab, setTab] = useState<Tab>("projects");
+  const [seenTabs, setSeenTabs] = useState<Set<Tab>>(new Set<Tab>(["projects"]));
   const [role, setRole] = useState<string | null>(null);
   const [callerEmail, setCallerEmail] = useState("");
 
@@ -2311,7 +2312,7 @@ export default function AdminPage() {
             { id: "users" as Tab,      label: "Users",          icon: "M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" },
             { id: "club" as Tab,       label: "สมัครชุมนุม",    icon: "M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" },
           ]).map(({ id, label, icon }) => (
-            <button key={id} id={`tab-${id}`} onClick={() => setTab(id)}
+            <button key={id} id={`tab-${id}`} onClick={() => { setTab(id); setSeenTabs((p) => new Set([...p, id])); }}
               role="tab"
               aria-selected={tab === id}
               aria-controls={`panel-${id}`}
@@ -2322,21 +2323,21 @@ export default function AdminPage() {
           ))}
         </div>
 
-        {/* Tab content */}
+        {/* Tab content — lazy: only mount a panel after it has been visited */}
         <div role="tabpanel" id="panel-projects" aria-labelledby="tab-projects" hidden={tab !== "projects"}>
-          <ProjectsTab callerRole={(role as Role) ?? "staff"} />
+          {seenTabs.has("projects") && <ProjectsTab callerRole={(role as Role) ?? "staff"} />}
         </div>
         <div role="tabpanel" id="panel-candidates" aria-labelledby="tab-candidates" hidden={tab !== "candidates"}>
-          <CandidatesTab callerRole={(role as Role) ?? "staff"} />
+          {seenTabs.has("candidates") && <CandidatesTab callerRole={(role as Role) ?? "staff"} />}
         </div>
         <div role="tabpanel" id="panel-team" aria-labelledby="tab-team" hidden={tab !== "team"}>
-          <TeamTab callerRole={(role as Role) ?? "staff"} />
+          {seenTabs.has("team") && <TeamTab callerRole={(role as Role) ?? "staff"} />}
         </div>
         <div role="tabpanel" id="panel-users" aria-labelledby="tab-users" hidden={tab !== "users"}>
-          <UsersTab callerEmail={callerEmail} callerRole={(role as Role) ?? "staff"} />
+          {seenTabs.has("users") && <UsersTab callerEmail={callerEmail} callerRole={(role as Role) ?? "staff"} />}
         </div>
         <div role="tabpanel" id="panel-club" aria-labelledby="tab-club" hidden={tab !== "club"}>
-          <ClubTab callerRole={(role as Role) ?? "staff"} />
+          {seenTabs.has("club") && <ClubTab callerRole={(role as Role) ?? "staff"} />}
         </div>
 
       </div>

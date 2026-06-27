@@ -29,7 +29,7 @@ export async function requireStaff(): Promise<GuardResult> {
   if (!session?.user?.email) {
     return { error: NextResponse.json({ error: "Unauthorized" }, { status: 401 }) };
   }
-  const role = await getUserRole(session.user.email);
+  const role = ((session.user as any).role as Role) || "user";
   if (role !== "admin" && role !== "staff") {
     return { error: NextResponse.json({ error: "Forbidden" }, { status: 403 }) };
   }
@@ -41,7 +41,7 @@ export async function requireAdmin(): Promise<GuardResult> {
   if (!session?.user?.email) {
     return { error: NextResponse.json({ error: "Unauthorized" }, { status: 401 }) };
   }
-  const role = await getUserRole(session.user.email);
+  const role = ((session.user as any).role as Role) || "user";
   if (role !== "admin") {
     return { error: NextResponse.json({ error: "Forbidden: admin role required" }, { status: 403 }) };
   }
