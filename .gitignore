@@ -43,3 +43,14 @@ next-env.d.ts
 #claude
 .claude
 .agents
+
+# sensitive data & db scripts — never commit
+mongo-backup/
+*-backup-*.json
+insert_user.js
+query_user.js
+query_user.ts
+scratch.js
+test-db.js
+scripts/
+*.xlsx
