@@ -4,81 +4,11 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { upload } from "@vercel/blob/client";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
+import ImageUploadWithCrop from "@/components/ui/ImageUploadWithCrop";
 import { candidateRegistrationConfig as cfg } from "@/config/candidate";
 import { isRegistrationOpen, getClosesAtMs } from "@/lib/registration";
-
-function ImageUpload({ value, onChange }: { value: string; onChange: (url: string) => void }) {
-  const [status, setStatus] = useState<"idle" | "uploading" | "error">("idle");
-  const [errMsg, setErrMsg] = useState("");
-
-  const handleFile = async (file: File) => {
-    if (file.size > 8 * 1024 * 1024) { setErrMsg("ไฟล์ต้องไม่เกิน 8 MB"); setStatus("error"); return; }
-    setStatus("uploading"); setErrMsg("");
-    try {
-      const result = await upload(`candidates/${file.name}`, file, { access: "public", handleUploadUrl: "/api/upload" });
-      onChange(result.url);
-      setStatus("idle");
-    } catch (err) {
-      const raw = err instanceof Error ? err.message : "";
-      setErrMsg(/size|too large|exceed|limit/i.test(raw) ? "ไฟล์ต้องไม่เกิน 8 MB" : (raw || "อัปโหลดไม่สำเร็จ"));
-      setStatus("error");
-    }
-  };
-
-  return (
-    <div>
-      <p className="block text-sm font-medium text-foreground mb-2">{cfg.fields.image.label}</p>
-      <div className="flex items-center gap-5">
-        <div className="relative w-24 h-24 shrink-0">
-          {value ? (
-            <>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={value} alt="preview" className="w-24 h-24 rounded-full object-cover border-2 border-border shadow-sm" />
-              <label className="absolute inset-0 rounded-full flex items-center justify-center bg-black/40 opacity-0 hover:opacity-100 transition-opacity cursor-pointer">
-                <svg aria-hidden="true" className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                <input type="file" accept="image/jpeg,image/png,image/webp,image/heic" className="hidden" disabled={status === "uploading"} onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); e.target.value = ""; }} />
-              </label>
-              <button type="button" onClick={() => onChange("")} aria-label="ลบรูป" className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center shadow-sm hover:bg-red-600 transition-colors cursor-pointer">
-                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </>
-          ) : (
-            <label className={`w-24 h-24 rounded-full flex flex-col items-center justify-center gap-1 cursor-pointer border-2 border-dashed transition-colors ${status === "uploading" ? "border-blue-400 bg-blue-50 dark:bg-blue-900/20" : "border-border bg-hover hover:border-blue-400"}`}>
-              {status === "uploading" ? (
-                <svg aria-hidden="true" className="animate-spin w-5 h-5 text-blue-500" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                </svg>
-              ) : (
-                <>
-                  <svg aria-hidden="true" className="w-6 h-6 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                  <span className="text-[10px] text-muted leading-tight text-center">อัปโหลด<br/>รูป</span>
-                </>
-              )}
-              <input type="file" accept="image/jpeg,image/png,image/webp,image/heic" className="hidden" disabled={status === "uploading"} onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); e.target.value = ""; }} />
-            </label>
-          )}
-        </div>
-        <div className="text-xs text-muted space-y-1">
-          <p>JPG / PNG / WebP · สูงสุด 8 MB</p>
-          {errMsg && <p className="text-red-500">{errMsg}</p>}
-          {!value && !errMsg && <p className="text-muted">ไม่มีรูปจะใช้อักษรย่อแทน</p>}
-        </div>
-      </div>
-    </div>
-  );
-}
 
 type FormState = {
   name: string;
@@ -369,7 +299,7 @@ export default function CandidateRegisterPage() {
                   </div>
                   {errors.section && <p className="mt-1.5 text-xs text-red-500">{errors.section}</p>}
                 </div>
-                <ImageUpload value={form.image} onChange={(url) => update("image", url)} />
+                <ImageUploadWithCrop value={form.image} onChange={(url) => update("image", url)} label={cfg.fields.image.label} />
                 <Input
                   label={cfg.fields.motto.label}
                   placeholder={cfg.fields.motto.placeholder}

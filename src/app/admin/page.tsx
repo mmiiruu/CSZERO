@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useTheme } from "@/components/providers/ThemeProvider";
 import { DEPARTMENTS } from "@/config/team";
 import { upload } from "@vercel/blob/client";
+import ImageUploadWithCrop from "@/components/ui/ImageUploadWithCrop";
 import { helloWorldFormConfig } from "@/config/forms/hello-world-register";
 import { cs101FormConfig } from "@/config/forms/cs101-register";
 
@@ -1233,10 +1234,11 @@ function CandidatesTab({ callerRole }: { callerRole: Role }) {
 
             <div className="overflow-y-auto flex-1 px-6 py-5 space-y-4">
               {/* Image */}
-              <div>
-                <p className="text-sm font-medium text-foreground mb-2">รูปตนเอง</p>
-                <TeamImageUpload prefix="candidates" value={editForm.image} onChange={(url) => setEditForm((f) => f ? { ...f, image: url } : f)} />
-              </div>
+              <ImageUploadWithCrop
+                prefix="candidates"
+                value={editForm.image}
+                onChange={(url) => setEditForm((f) => f ? { ...f, image: url } : f)}
+              />
 
               {/* Name */}
               <div>
