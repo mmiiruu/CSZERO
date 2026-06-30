@@ -870,6 +870,7 @@ type CandidateApplication = {
   dutyAnswer?: string;
   visionAnswer?: string;
   strengthWeaknessAnswer?: string;
+  conflictAnswer?: string;
   // Legacy
   studentId?: string;
   year?: string;
@@ -890,6 +891,12 @@ type Voter = {
   createdAt: string;
 };
 
+type CandidateEditForm = {
+  name: string; nickname: string; section: string; image: string; motto: string;
+  videoUrl: string; dutyAnswer: string; visionAnswer: string;
+  strengthWeaknessAnswer: string; conflictAnswer: string;
+};
+
 function CandidatesTab({ callerRole }: { callerRole: Role }) {
   const [apps, setApps] = useState<CandidateApplication[]>([]);
   const [loading, setLoading] = useState(true);
@@ -905,6 +912,9 @@ function CandidatesTab({ callerRole }: { callerRole: Role }) {
   const [votingToggling, setVotingToggling] = useState(false);
   const [voterModal, setVoterModal] = useState<{ app: CandidateApplication; voters: Voter[] } | null>(null);
   const [voterLoading, setVoterLoading] = useState(false);
+  const [editApp, setEditApp] = useState<CandidateApplication | null>(null);
+  const [editForm, setEditForm] = useState<CandidateEditForm | null>(null);
+  const [editSaving, setEditSaving] = useState(false);
 
   const showToast = (msg: string, ok: boolean) => {
     setToast({ msg, ok });
@@ -921,6 +931,41 @@ function CandidatesTab({ callerRole }: { callerRole: Role }) {
       setVoterModal({ app, voters: [] });
     } finally {
       setVoterLoading(false);
+    }
+  };
+
+  const openEdit = (a: CandidateApplication) => {
+    setEditApp(a);
+    setEditForm({
+      name: a.name, nickname: a.nickname || "", section: a.section || "",
+      image: a.image || "", motto: a.motto || "", videoUrl: a.videoUrl || "",
+      dutyAnswer: a.dutyAnswer || "", visionAnswer: a.visionAnswer || "",
+      strengthWeaknessAnswer: a.strengthWeaknessAnswer || "", conflictAnswer: a.conflictAnswer || "",
+    });
+  };
+
+  const handleEditSave = async () => {
+    if (!editApp || !editForm) return;
+    setEditSaving(true);
+    try {
+      const res = await fetch(`/api/admin/candidate-applications/${editApp._id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(editForm),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setApps((p) => p.map((a) => a._id === editApp._id ? { ...a, ...editForm } : a));
+        showToast("✓ อัปเดตข้อมูลแล้ว", true);
+        setEditApp(null);
+        setEditForm(null);
+      } else {
+        showToast(`✗ ${data.error}`, false);
+      }
+    } catch {
+      showToast("✗ Network error", false);
+    } finally {
+      setEditSaving(false);
     }
   };
 
@@ -1105,6 +1150,14 @@ function CandidatesTab({ callerRole }: { callerRole: Role }) {
                         <button onClick={() => setDetail(a)} className="text-primary hover:text-primary-dark text-sm font-medium cursor-pointer">View</button>
                         {callerRole === "admin" && (
                           <button
+                            onClick={() => openEdit(a)}
+                            className="text-sm font-medium text-amber-600 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-300 cursor-pointer transition-colors"
+                          >
+                            แก้ไข
+                          </button>
+                        )}
+                        {callerRole === "admin" && (
+                          <button
                             onClick={() => setConfirmDelete(a)}
                             className="text-sm font-medium text-red-500 hover:text-red-700 dark:hover:text-red-400 cursor-pointer transition-colors"
                           >
@@ -1158,6 +1211,138 @@ function CandidatesTab({ callerRole }: { callerRole: Role }) {
                   )}
                 </div>
               ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit application modal */}
+      {editApp && editForm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+          onClick={(e) => { if (e.target === e.currentTarget && !editSaving) { setEditApp(null); setEditForm(null); } }}>
+          <div role="dialog" aria-modal="true" className="relative w-full max-w-xl max-h-[90vh] flex flex-col rounded-2xl shadow-2xl bg-card border border-border">
+            <div className="flex items-center justify-between gap-4 px-6 py-5 border-b border-border-subtle shrink-0">
+              <h3 className="text-base font-semibold text-foreground">แก้ไขใบสมัคร — {editApp.name}</h3>
+              <button onClick={() => { setEditApp(null); setEditForm(null); }} disabled={editSaving}
+                className="p-2 -mr-1 text-muted hover:text-secondary transition-colors cursor-pointer" aria-label="Close">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="overflow-y-auto flex-1 px-6 py-5 space-y-4">
+              {/* Image */}
+              <div>
+                <p className="text-sm font-medium text-foreground mb-2">รูปตนเอง</p>
+                <TeamImageUpload prefix="candidates" value={editForm.image} onChange={(url) => setEditForm((f) => f ? { ...f, image: url } : f)} />
+              </div>
+
+              {/* Name */}
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1">ชื่อจริง-นามสกุล (ใส่คำนำหน้า)</label>
+                <input
+                  value={editForm.name}
+                  onChange={(e) => setEditForm((f) => f ? { ...f, name: e.target.value } : f)}
+                  className="w-full px-3 py-2 text-sm border border-border rounded-lg bg-card text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/30 focus-visible:border-blue-500"
+                />
+              </div>
+
+              {/* Nickname */}
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1">ชื่อเล่น</label>
+                <input
+                  value={editForm.nickname}
+                  onChange={(e) => setEditForm((f) => f ? { ...f, nickname: e.target.value } : f)}
+                  className="w-full px-3 py-2 text-sm border border-border rounded-lg bg-card text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/30 focus-visible:border-blue-500"
+                />
+              </div>
+
+              {/* Section */}
+              <div>
+                <p className="text-sm font-medium text-foreground mb-2">ภาค</p>
+                <div className="flex gap-2">
+                  {(["ปกติ", "พิเศษ"] as const).map((s) => (
+                    <button key={s} type="button"
+                      onClick={() => setEditForm((f) => f ? { ...f, section: s } : f)}
+                      className={`px-5 py-2 rounded-xl text-sm font-medium transition-colors cursor-pointer ${editForm.section === s ? "bg-blue-600 text-white shadow-sm" : "bg-card border border-border text-secondary hover:bg-hover"}`}>
+                      ภาค{s}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Motto */}
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1">คติประจำใจ</label>
+                <input
+                  value={editForm.motto}
+                  onChange={(e) => setEditForm((f) => f ? { ...f, motto: e.target.value } : f)}
+                  className="w-full px-3 py-2 text-sm border border-border rounded-lg bg-card text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/30 focus-visible:border-blue-500"
+                />
+              </div>
+
+              {/* Video URL */}
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1">ลิงก์คลิปวิดีโอ (YouTube)</label>
+                <input
+                  value={editForm.videoUrl}
+                  onChange={(e) => setEditForm((f) => f ? { ...f, videoUrl: e.target.value } : f)}
+                  placeholder="https://youtu.be/..."
+                  className="w-full px-3 py-2 text-sm border border-border rounded-lg bg-card text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/30 focus-visible:border-blue-500"
+                />
+              </div>
+
+              {/* dutyAnswer */}
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1">หน้าที่ของประธานรุ่นคืออะไร</label>
+                <textarea rows={3}
+                  value={editForm.dutyAnswer}
+                  onChange={(e) => setEditForm((f) => f ? { ...f, dutyAnswer: e.target.value } : f)}
+                  className="w-full px-3 py-2 text-sm border border-border rounded-lg bg-card text-foreground resize-y focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/30 focus-visible:border-blue-500"
+                />
+              </div>
+
+              {/* visionAnswer */}
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1">แนวคิดหรือกิจกรรมที่อยากผลักดัน</label>
+                <textarea rows={3}
+                  value={editForm.visionAnswer}
+                  onChange={(e) => setEditForm((f) => f ? { ...f, visionAnswer: e.target.value } : f)}
+                  className="w-full px-3 py-2 text-sm border border-border rounded-lg bg-card text-foreground resize-y focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/30 focus-visible:border-blue-500"
+                />
+              </div>
+
+              {/* strengthWeaknessAnswer */}
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1">จุดแข็งและจุดอ่อนของตัวเอง</label>
+                <textarea rows={3}
+                  value={editForm.strengthWeaknessAnswer}
+                  onChange={(e) => setEditForm((f) => f ? { ...f, strengthWeaknessAnswer: e.target.value } : f)}
+                  className="w-full px-3 py-2 text-sm border border-border rounded-lg bg-card text-foreground resize-y focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/30 focus-visible:border-blue-500"
+                />
+              </div>
+
+              {/* conflictAnswer */}
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1">จัดการความขัดแย้งระหว่างเพื่อนในทีม</label>
+                <textarea rows={3}
+                  value={editForm.conflictAnswer}
+                  onChange={(e) => setEditForm((f) => f ? { ...f, conflictAnswer: e.target.value } : f)}
+                  className="w-full px-3 py-2 text-sm border border-border rounded-lg bg-card text-foreground resize-y focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/30 focus-visible:border-blue-500"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-border-subtle shrink-0">
+              <button onClick={() => { setEditApp(null); setEditForm(null); }} disabled={editSaving}
+                className="px-4 py-2 text-sm font-medium text-secondary hover:bg-hover rounded-lg transition-colors cursor-pointer">
+                ยกเลิก
+              </button>
+              <button onClick={handleEditSave} disabled={editSaving || !editForm?.name.trim() || !editForm?.nickname.trim() || !editForm?.section}
+                className="px-4 py-2 text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60 rounded-lg transition-colors cursor-pointer">
+                {editSaving ? "กำลังบันทึก..." : "บันทึก"}
+              </button>
             </div>
           </div>
         </div>
@@ -1275,7 +1460,7 @@ function CandidatesTab({ callerRole }: { callerRole: Role }) {
 }
 
 /* ─── Team Image Upload ──────────────────────────────────────────── */
-function TeamImageUpload({ value, onChange }: { value: string; onChange: (url: string) => void }) {
+function TeamImageUpload({ value, onChange, prefix = "team" }: { value: string; onChange: (url: string) => void; prefix?: string }) {
   const [status, setStatus] = useState<"idle" | "uploading" | "error">("idle");
   const [errMsg, setErrMsg] = useState("");
 
@@ -1283,7 +1468,7 @@ function TeamImageUpload({ value, onChange }: { value: string; onChange: (url: s
     if (file.size > 8 * 1024 * 1024) { setErrMsg("ต้องอัปโหลดน้อยกว่า 8 MB"); setStatus("error"); return; }
     setStatus("uploading"); setErrMsg("");
     try {
-      const result = await upload(`team/${file.name}`, file, { access: "public", handleUploadUrl: "/api/upload" });
+      const result = await upload(`${prefix}/${file.name}`, file, { access: "public", handleUploadUrl: "/api/upload" });
       onChange(result.url);
       setStatus("idle");
     } catch (err) {

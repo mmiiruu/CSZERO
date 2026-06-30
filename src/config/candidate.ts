@@ -26,6 +26,7 @@ export interface CandidateRegistrationConfig extends RegistrationConfig {
 export const candidateRegistrationConfig: CandidateRegistrationConfig = {
   open: true,
   opensAt: "2026-06-24T05:00:00.000Z",
+  closesAt: "2026-06-30T17:00:00.000Z",
   comingSoon: {
     title: "เปิดรับสมัครเร็วๆ นี้",
     message: "การสมัครเป็นประธานรุ่นยังไม่เปิดสำหรับนิสิตทั่วไป",

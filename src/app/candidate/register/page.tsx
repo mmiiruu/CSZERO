@@ -8,6 +8,7 @@ import { upload } from "@vercel/blob/client";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import { candidateRegistrationConfig as cfg } from "@/config/candidate";
+import { isRegistrationOpen, getClosesAtMs } from "@/lib/registration";
 
 function ImageUpload({ value, onChange }: { value: string; onChange: (url: string) => void }) {
   const [status, setStatus] = useState<"idle" | "uploading" | "error">("idle");
@@ -127,6 +128,26 @@ function ComingSoon() {
   );
 }
 
+function RegistrationClosed() {
+  return (
+    <div className="min-h-screen flex items-center justify-center px-4 bg-background">
+      <div className="text-center max-w-md">
+        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-red-50 dark:bg-red-900/30 text-red-500 dark:text-red-400 mb-5">
+          <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          </svg>
+        </div>
+        <h2 className="text-2xl font-bold text-foreground mb-3">ปิดรับสมัครแล้ว</h2>
+        <p className="text-secondary mb-6 text-sm leading-relaxed">หมดเวลาสมัครเป็นประธานรุ่นแล้ว ขอบคุณทุกคนที่สนใจ</p>
+        <Link href="/"
+          className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors text-sm">
+          กลับหน้าหลัก
+        </Link>
+      </div>
+    </div>
+  );
+}
+
 function AuthGate() {
   return (
     <div className="min-h-screen flex items-center justify-center px-4 bg-background">
@@ -201,7 +222,10 @@ export default function CandidateRegisterPage() {
   const [submitted, setSubmitted] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
+  const registrationOpen = isRegistrationOpen(cfg);
+  const isClosed = cfg.open && !registrationOpen && (getClosesAtMs(cfg) ?? 0) <= Date.now();
   const showComingSoon = status === "authenticated" && !cfg.open && !isAdminOrStaff;
+  const showClosed = isClosed && !isAdminOrStaff;
 
   const update = <K extends keyof FormState>(key: K, value: FormState[K]) => {
     setForm((f) => ({ ...f, [key]: value }));
@@ -263,6 +287,7 @@ export default function CandidateRegisterPage() {
   };
 
   if (status === "loading") return <Loading />;
+  if (showClosed) return <RegistrationClosed />;
   if (status === "unauthenticated") return <AuthGate />;
   if (showComingSoon) return <ComingSoon />;
   if (submitted) return <SuccessScreen />;
@@ -276,12 +301,12 @@ export default function CandidateRegisterPage() {
         <div className="text-center mb-8 motion-safe:animate-fade-in">
           <h1 className="text-3xl font-bold text-foreground mb-2">{cfg.pageTitle}</h1>
           <p className="text-secondary text-sm max-w-lg mx-auto">{cfg.pageSubtitle}</p>
-          {!cfg.open && isAdminOrStaff && (
+          {(!registrationOpen) && isAdminOrStaff && (
             <p className="mt-4 inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium bg-pink-50 dark:bg-pink-900/30 text-pink-600 dark:text-pink-400 border border-pink-200 dark:border-pink-800 rounded-full">
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
-              ปิดสำหรับนิสิตทั่วไป (แอดมินทดสอบฟอร์มได้)
+              {isClosed ? "ปิดรับสมัครแล้ว" : "ปิดสำหรับนิสิตทั่วไป"} (แอดมินทดสอบฟอร์มได้)
             </p>
           )}
         </div>
