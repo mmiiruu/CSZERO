@@ -100,7 +100,7 @@ function CandidateModal({
               style={{ backgroundColor: getMemberColor(c.name) }}
             >
               {c.image
-                ? <img src={c.image} alt={c.name} loading="lazy" className="w-full h-full object-cover object-top" />
+                ? <img src={c.image} alt={c.name} loading="lazy" className="w-full h-full object-cover object-center" />
                 : (c.nickname || c.name).charAt(0)
               }
             </div>
@@ -226,7 +226,7 @@ function CandidateCard({
         style={{ backgroundColor: getMemberColor(c.name) }}
       >
         {c.image
-          ? <img src={c.image} alt="" loading="lazy" className="w-full h-full object-cover object-top" />
+          ? <img src={c.image} alt="" loading="lazy" className="w-full h-full object-cover object-center" />
           : <span>{(c.nickname || c.name).charAt(0)}</span>
         }
         {/* Opacity-based overlay — avoids background-color paint on every frame */}
