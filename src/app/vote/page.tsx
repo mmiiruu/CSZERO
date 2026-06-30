@@ -18,6 +18,7 @@ interface Candidate {
   dutyAnswer: string;
   visionAnswer: string;
   strengthWeaknessAnswer: string;
+  voteCount?: number;
 }
 
 const WRITTEN_QA = [
@@ -33,12 +34,14 @@ function CandidateModal({
   voting,
   onVote,
   onClose,
+  isAdmin,
 }: {
   candidate: Candidate;
   hasVoted: boolean;
   voting: string | null;
   onVote: (id: string) => void;
   onClose: () => void;
+  isAdmin: boolean;
 }) {
   const closeRef = useRef<HTMLButtonElement>(null);
   const c = candidate;
@@ -106,11 +109,21 @@ function CandidateModal({
                 <h2 id="modal-candidate-name" className="text-lg font-bold text-foreground leading-tight">{c.name}</h2>
                 {c.nickname && <span className="text-sm text-muted">({c.nickname})</span>}
               </div>
-              {c.section && (
-                <span className="inline-block px-2 py-0.5 text-xs font-medium rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800">
-                  ภาค{c.section}
-                </span>
-              )}
+              <div className="flex items-center gap-2 flex-wrap">
+                {c.section && (
+                  <span className="inline-block px-2 py-0.5 text-xs font-medium rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800">
+                    ภาค{c.section}
+                  </span>
+                )}
+                {isAdmin && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-semibold rounded-full bg-pink-50 dark:bg-pink-900/30 text-pink-600 dark:text-pink-400 border border-pink-200 dark:border-pink-800">
+                    <svg aria-hidden="true" className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 3l14 9-14 9V3z" />
+                    </svg>
+                    {c.voteCount ?? 0} โหวต
+                  </span>
+                )}
+              </div>
             </div>
             <button
               ref={closeRef}
@@ -192,10 +205,12 @@ function CandidateCard({
   candidate,
   hasVoted,
   onClick,
+  isAdmin,
 }: {
   candidate: Candidate;
   hasVoted: boolean;
   onClick: () => void;
+  isAdmin: boolean;
 }) {
   const c = candidate;
   return (
@@ -227,9 +242,16 @@ function CandidateCard({
             <p className="font-semibold text-foreground truncate">{c.name}</p>
             {c.nickname && <p className="text-sm text-muted">({c.nickname})</p>}
           </div>
-          {hasVoted && (
-            <span className="shrink-0 mt-0.5 text-xs text-green-600 dark:text-green-400 font-medium">โหวตแล้ว</span>
-          )}
+          <div className="shrink-0 mt-0.5 flex flex-col items-end gap-1">
+            {hasVoted && (
+              <span className="text-xs text-green-600 dark:text-green-400 font-medium">โหวตแล้ว</span>
+            )}
+            {isAdmin && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-semibold rounded-full bg-pink-50 dark:bg-pink-900/30 text-pink-600 dark:text-pink-400 border border-pink-200 dark:border-pink-800">
+                {c.voteCount ?? 0} โหวต
+              </span>
+            )}
+          </div>
         </div>
         {c.motto && (
           <p className="text-xs text-secondary mt-2 line-clamp-2 leading-relaxed italic">&ldquo;{c.motto}&rdquo;</p>
@@ -376,6 +398,7 @@ export default function VotePage() {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [votingOpen, setVotingOpen] = useState(false);
   const [hasVoted, setHasVoted] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [voting, setVoting] = useState<string | null>(null);
   const [error, setError] = useState("");
@@ -391,6 +414,7 @@ export default function VotePage() {
         setVotingOpen(data.votingOpen ?? false);
         if (Array.isArray(data.candidates)) setCandidates(data.candidates);
         setHasVoted(data.hasVoted || false);
+        setIsAdmin(data.isAdmin ?? false);
       })
       .catch(() => setError(voteConfig.messages.failedToLoad))
       .finally(() => setLoading(false));
@@ -539,6 +563,7 @@ export default function VotePage() {
                 candidate={c}
                 hasVoted={hasVoted}
                 onClick={() => setActiveCandidate(c)}
+                isAdmin={isAdmin}
               />
             ))}
           </div>
@@ -553,6 +578,7 @@ export default function VotePage() {
           voting={voting}
           onVote={handleVote}
           onClose={() => setActiveCandidate(null)}
+          isAdmin={isAdmin}
         />
       )}
 

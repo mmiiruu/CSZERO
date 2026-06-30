@@ -16,10 +16,11 @@ async function isVotingOpen(): Promise<boolean> {
 export async function GET(_req: NextRequest) {
   try {
     const session = await auth();
+    const isAdmin = ((session?.user as any)?.role as string) === "admin";
     const open = await isVotingOpen();
 
     if (!open) {
-      return NextResponse.json({ votingOpen: false, candidates: [], hasVoted: false });
+      return NextResponse.json({ votingOpen: false, candidates: [], hasVoted: false, isAdmin });
     }
 
     await dbConnect();
@@ -42,9 +43,10 @@ export async function GET(_req: NextRequest) {
       dutyAnswer: a.dutyAnswer || "",
       visionAnswer: a.visionAnswer || "",
       strengthWeaknessAnswer: a.strengthWeaknessAnswer || "",
+      ...(isAdmin ? { voteCount: a.voteCount ?? 0 } : {}),
     }));
 
-    return NextResponse.json({ votingOpen: true, candidates, hasVoted });
+    return NextResponse.json({ votingOpen: true, candidates, hasVoted, isAdmin });
   } catch (error) {
     console.error("Fetch votes error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
