@@ -1122,7 +1122,7 @@ function CandidatesTab({ callerRole }: { callerRole: Role }) {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border-subtle bg-hover">
-                  {["ชื่อ","อีเมล","ชื่อเล่น","ภาค","โหวต","Actions"].map((h) => (
+                  {["ชื่อ","อีเมล","ชื่อเล่น","ภาค",...(callerRole === "admin" ? ["โหวต"] : []),"Actions"].map((h) => (
                     <th key={h} className="text-left px-6 py-4 text-secondary font-medium">{h}</th>
                   ))}
                 </tr>
@@ -1134,18 +1134,20 @@ function CandidatesTab({ callerRole }: { callerRole: Role }) {
                     <td className="px-6 py-4 text-secondary">{a.email}</td>
                     <td className="px-6 py-4 text-secondary">{a.nickname || a.role || "—"}</td>
                     <td className="px-6 py-4 text-secondary">{a.section ? `ภาค${a.section}` : "—"}</td>
-                    <td className="px-6 py-4">
-                      <button
-                        onClick={() => handleViewVoters(a)}
-                        className="inline-flex items-center gap-1.5 text-sm font-semibold text-blue-600 dark:text-blue-400 hover:underline cursor-pointer"
-                      >
-                        {a.voteCount ?? 0}
-                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                        </svg>
-                      </button>
-                    </td>
+                    {callerRole === "admin" && (
+                      <td className="px-6 py-4">
+                        <button
+                          onClick={() => handleViewVoters(a)}
+                          className="inline-flex items-center gap-1.5 text-sm font-semibold text-blue-600 dark:text-blue-400 hover:underline cursor-pointer"
+                        >
+                          {a.voteCount ?? 0}
+                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                          </svg>
+                        </button>
+                      </td>
+                    )}
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <button onClick={() => setDetail(a)} className="text-primary hover:text-primary-dark text-sm font-medium cursor-pointer">View</button>

@@ -1,22 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
-import clientPromise from "@/lib/mongodb-client";
 import dbConnect from "@/lib/mongodb";
 import Vote from "@/models/Vote";
+import { requireAdmin, isGuardError } from "@/lib/guards";
 
-async function requireAdminOrStaff() {
-  const session = await auth();
-  if (!session?.user?.email) return null;
-  const db = (await clientPromise).db();
-  const user = await db.collection("users").findOne({ email: session.user.email });
-  const role: string = user?.role || "user";
-  return role === "admin" || role === "staff" ? role : null;
-}
 
 export async function GET(req: NextRequest) {
   try {
-    const role = await requireAdminOrStaff();
-    if (!role) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    const guard = await requireAdmin();
+    if (isGuardError(guard)) return guard.error;
 
     const candidateId = req.nextUrl.searchParams.get("candidateId");
 
