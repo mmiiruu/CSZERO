@@ -178,7 +178,6 @@ export default function ImageUploadWithCrop({
                 onChange={(_, pct) => setCrop(pct)}
                 onComplete={(c) => setCompletedCrop(c)}
                 aspect={1}
-                circularCrop
                 minWidth={50}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
