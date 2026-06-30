@@ -175,7 +175,7 @@ export default function ImageUploadWithCrop({
             <div className="flex justify-center px-6 py-5 max-h-[60vh] overflow-auto">
               <ReactCrop
                 crop={crop}
-                onChange={(_, pct) => setCrop(pct)}
+                onChange={(c) => setCrop(c)}
                 onComplete={(c) => setCompletedCrop(c)}
                 aspect={1}
                 minWidth={50}
