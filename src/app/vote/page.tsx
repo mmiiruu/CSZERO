@@ -176,7 +176,7 @@ function CandidateModal({
             return (
               <div key={key}>
                 <p className="text-xs font-semibold text-muted uppercase tracking-wide mb-2">{q}</p>
-                <p className="text-sm text-secondary leading-relaxed whitespace-pre-wrap">{answer}</p>
+                <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{answer}</p>
               </div>
             );
           })}
