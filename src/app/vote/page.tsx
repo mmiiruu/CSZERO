@@ -271,8 +271,6 @@ function CandidateCard({
   );
 }
 
-const STUDENT_ID_RE = /^69104[05]\d{4}$/;
-
 function isKuEmail(email?: string | null) {
   return !!email && email.toLowerCase().endsWith("@ku.th");
 }
@@ -280,11 +278,13 @@ function isKuEmail(email?: string | null) {
 /* ─── Pre-vote verification modal ──────────────────────────────── */
 function VerifyModal({
   email,
+  section,
   onConfirm,
   onClose,
   loading,
 }: {
   email: string;
+  section: "ปกติ" | "พิเศษ";
   onConfirm: (studentId: string, voterName: string) => void;
   onClose: () => void;
   loading: boolean;
@@ -292,8 +292,10 @@ function VerifyModal({
   const [studentId, setStudentId] = useState("");
   const [voterName, setVoterName] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+  const idPrefix = section === "ปกติ" ? "691040" : "691045";
+  const idRe = section === "ปกติ" ? /^691040\d{4}$/ : /^691045\d{4}$/;
   const emailOk = isKuEmail(email);
-  const idOk = STUDENT_ID_RE.test(studentId.trim());
+  const idOk = idRe.test(studentId.trim());
   const nameOk = voterName.trim().length > 0;
   const canSubmit = emailOk && idOk && nameOk && !loading;
 
@@ -315,7 +317,7 @@ function VerifyModal({
     >
       <div role="dialog" aria-modal="true" aria-labelledby="verify-title" className="w-full max-w-sm bg-card border border-border rounded-2xl shadow-2xl p-6">
         <h2 id="verify-title" className="text-lg font-bold text-foreground mb-1">ยืนยันตัวตนก่อนโหวต</h2>
-        <p className="text-sm text-secondary mb-5">ใช้ได้เฉพาะนิสิต CS KU รุ่น 69 เท่านั้น</p>
+        <p className="text-sm text-secondary mb-5">ใช้ได้เฉพาะนิสิต CS KU รุ่น 68 ภาค{section} เท่านั้น</p>
 
         {/* Email check */}
         <div className={`flex items-start gap-3 p-3.5 rounded-xl mb-4 ${emailOk ? "bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800" : "bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800"}`}>
@@ -361,11 +363,11 @@ function VerifyModal({
             maxLength={10}
             value={studentId}
             onChange={(e) => setStudentId(e.target.value.replace(/\D/g, ""))}
-            placeholder="691040____ หรือ 691045____"
+            placeholder={`${idPrefix}xxxx`}
             className="w-full bg-background border border-border rounded-xl px-4 py-3 text-foreground placeholder:text-muted text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-[colors,shadow]"
           />
           {studentId.length > 0 && !idOk && (
-            <p className="mt-1.5 text-xs text-red-500">รหัสนิสิตต้องขึ้นต้นด้วย 691040 หรือ 691045 (10 หลัก)</p>
+            <p className="mt-1.5 text-xs text-red-500">รหัสนิสิตต้องขึ้นต้นด้วย {idPrefix} (10 หลัก)</p>
           )}
         </div>
 
@@ -586,6 +588,7 @@ export default function VotePage() {
       {pendingVoteId && (
         <VerifyModal
           email={session?.user?.email ?? ""}
+          section={selectedSection!}
           onConfirm={(sid, name) => handleConfirmedVote(sid, name)}
           onClose={() => setPendingVoteId(null)}
           loading={!!voting}
