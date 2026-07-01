@@ -338,7 +338,7 @@ function VerifyModal({
         {/* Full name input */}
         <div className="mb-4">
           <label htmlFor="voter-name" className="block text-sm font-medium text-foreground mb-1.5">
-            ชื่อจริง นามสกุล (ภาษาอังกฤษ)
+            ชื่อจริง นามสกุล (ภาษาไทย)
           </label>
           <input
             ref={inputRef}
@@ -346,7 +346,7 @@ function VerifyModal({
             type="text"
             value={voterName}
             onChange={(e) => setVoterName(e.target.value)}
-            placeholder="Firstname Lastname"
+            placeholder="ชื่อจริง นามสกุล"
             className="w-full bg-background border border-border rounded-xl px-4 py-3 text-foreground placeholder:text-muted text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-[colors,shadow]"
           />
         </div>
