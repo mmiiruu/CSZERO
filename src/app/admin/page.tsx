@@ -913,6 +913,7 @@ function CandidatesTab({ callerRole }: { callerRole: Role }) {
   const [votingToggling, setVotingToggling] = useState(false);
   const [voterModal, setVoterModal] = useState<{ app: CandidateApplication; voters: Voter[] } | null>(null);
   const [voterLoading, setVoterLoading] = useState(false);
+  const [deletingVoterId, setDeletingVoterId] = useState<string | null>(null);
   const [editApp, setEditApp] = useState<CandidateApplication | null>(null);
   const [editForm, setEditForm] = useState<CandidateEditForm | null>(null);
   const [editSaving, setEditSaving] = useState(false);
@@ -920,6 +921,28 @@ function CandidatesTab({ callerRole }: { callerRole: Role }) {
   const showToast = (msg: string, ok: boolean) => {
     setToast({ msg, ok });
     setTimeout(() => setToast(null), 3500);
+  };
+
+  const handleDeleteVote = async (voteId: string) => {
+    if (!confirm("ลบโหวตนี้?")) return;
+    setDeletingVoterId(voteId);
+    try {
+      const res = await fetch(`/api/admin/votes/${voteId}`, { method: "DELETE" });
+      if (!res.ok) throw new Error();
+      setVoterModal((prev) => {
+        if (!prev) return prev;
+        return { ...prev, voters: prev.voters.filter((v) => v._id !== voteId) };
+      });
+      setApps((prev) => prev.map((a) => {
+        if (!voterModal || a._id !== voterModal.app._id) return a;
+        return { ...a, voteCount: Math.max(0, (a.voteCount ?? 1) - 1) };
+      }));
+      showToast("ลบโหวตสำเร็จ", true);
+    } catch {
+      showToast("ลบโหวตไม่สำเร็จ", false);
+    } finally {
+      setDeletingVoterId(null);
+    }
   };
 
   const handleViewVoters = async (app: CandidateApplication) => {
@@ -1438,9 +1461,10 @@ function CandidatesTab({ callerRole }: { callerRole: Role }) {
                   <thead>
                     <tr className="border-b border-border-subtle bg-hover">
                       <th className="text-left px-6 py-3 text-secondary font-medium">#</th>
-                      <th className="text-left px-6 py-3 text-secondary font-medium">ชื่อ-นามสกุล (EN)</th>
+                      <th className="text-left px-6 py-3 text-secondary font-medium">ชื่อ-นามสกุล</th>
                       <th className="text-left px-6 py-3 text-secondary font-medium">อีเมล</th>
                       <th className="text-left px-6 py-3 text-secondary font-medium">รหัสนิสิต</th>
+                      <th className="px-6 py-3" />
                     </tr>
                   </thead>
                   <tbody>
@@ -1450,6 +1474,15 @@ function CandidatesTab({ callerRole }: { callerRole: Role }) {
                         <td className="px-6 py-3 text-foreground">{v.voterName || "—"}</td>
                         <td className="px-6 py-3 text-foreground">{v.voterEmail || "—"}</td>
                         <td className="px-6 py-3 text-foreground font-mono">{v.studentId || "—"}</td>
+                        <td className="px-6 py-3">
+                          <button
+                            onClick={() => handleDeleteVote(v._id)}
+                            disabled={deletingVoterId === v._id}
+                            className="text-xs px-2.5 py-1 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/40 border border-red-200 dark:border-red-800 transition-colors cursor-pointer disabled:opacity-40"
+                          >
+                            {deletingVoterId === v._id ? "..." : "ลบ"}
+                          </button>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
