@@ -1437,7 +1437,7 @@ function CandidatesTab({ callerRole }: { callerRole: Role }) {
       {voterModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
           onClick={(e) => { if (e.target === e.currentTarget) setVoterModal(null); }}>
-          <div role="dialog" aria-modal="true" className="relative w-full max-w-lg max-h-[80vh] flex flex-col rounded-2xl shadow-2xl bg-card border border-border">
+          <div role="dialog" aria-modal="true" className="relative w-full max-w-2xl max-h-[80vh] flex flex-col rounded-2xl shadow-2xl bg-card border border-border">
             <div className="flex items-start justify-between gap-4 px-6 py-5 border-b border-border-subtle">
               <div>
                 <h3 className="text-base font-semibold text-foreground">ผู้โหวต — {voterModal.app.name}</h3>
@@ -1457,36 +1457,25 @@ function CandidatesTab({ callerRole }: { callerRole: Role }) {
               ) : voterModal.voters.length === 0 ? (
                 <p className="text-center text-muted py-12 text-sm">ยังไม่มีผู้โหวต</p>
               ) : (
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-border-subtle bg-hover">
-                      <th className="text-left px-6 py-3 text-secondary font-medium">#</th>
-                      <th className="text-left px-6 py-3 text-secondary font-medium">ชื่อ-นามสกุล</th>
-                      <th className="text-left px-6 py-3 text-secondary font-medium">อีเมล</th>
-                      <th className="text-left px-6 py-3 text-secondary font-medium">รหัสนิสิต</th>
-                      <th className="px-6 py-3" />
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {voterModal.voters.map((v, i) => (
-                      <tr key={v._id} className="border-b border-border-subtle hover:bg-hover transition-colors">
-                        <td className="px-6 py-3 text-muted">{i + 1}</td>
-                        <td className="px-6 py-3 text-foreground">{v.voterName || "—"}</td>
-                        <td className="px-6 py-3 text-foreground">{v.voterEmail || "—"}</td>
-                        <td className="px-6 py-3 text-foreground font-mono">{v.studentId || "—"}</td>
-                        <td className="px-6 py-3">
-                          <button
-                            onClick={() => handleDeleteVote(v._id)}
-                            disabled={deletingVoterId === v._id}
-                            className="text-xs px-2.5 py-1 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/40 border border-red-200 dark:border-red-800 transition-colors cursor-pointer disabled:opacity-40"
-                          >
-                            {deletingVoterId === v._id ? "..." : "ลบ"}
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                <div className="divide-y divide-border-subtle">
+                  {voterModal.voters.map((v, i) => (
+                    <div key={v._id} className="flex items-center gap-3 px-5 py-3 hover:bg-hover transition-colors">
+                      <span className="text-xs text-muted w-5 shrink-0">{i + 1}</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-foreground truncate">{v.voterName || "—"}</p>
+                        <p className="text-xs text-muted truncate">{v.voterEmail || "—"}</p>
+                        <p className="text-xs font-mono text-secondary">{v.studentId || "—"}</p>
+                      </div>
+                      <button
+                        onClick={() => handleDeleteVote(v._id)}
+                        disabled={deletingVoterId === v._id}
+                        className="shrink-0 text-xs px-2.5 py-1 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/40 border border-red-200 dark:border-red-800 transition-colors cursor-pointer disabled:opacity-40"
+                      >
+                        {deletingVoterId === v._id ? "..." : "ลบ"}
+                      </button>
+                    </div>
+                  ))}
+                </div>
               )}
             </div>
           </div>
