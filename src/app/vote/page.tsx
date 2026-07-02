@@ -460,19 +460,6 @@ export default function VotePage() {
     </div>
   );
 
-  /* ── Auth gate ── */
-  if (status === "unauthenticated") return (
-    <div className="min-h-screen flex items-center justify-center px-4 bg-background">
-      <div className="text-center">
-        <h2 className="text-2xl font-bold text-foreground mb-3">{voteConfig.authGate.title}</h2>
-        <p className="text-secondary mb-6 text-sm">{voteConfig.authGate.description}</p>
-        <Link href="/auth/signin?callbackUrl=/vote" className="px-6 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors text-sm">
-          {voteConfig.authGate.signInLabel}
-        </Link>
-      </div>
-    </div>
-  );
-
   /* ── Voting closed ── */
   if (!votingOpen) return (
     <div className="min-h-screen flex items-center justify-center px-4 bg-background">
