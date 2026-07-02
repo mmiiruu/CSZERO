@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Button from "@/components/ui/Button";
 import { voteConfig } from "@/config/vote";
@@ -397,6 +398,7 @@ function VerifyModal({
 /* ─── Page ──────────────────────────────────────────────────────── */
 export default function VotePage() {
   const { data: session, status } = useSession();
+  const router = useRouter();
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [votingOpen, setVotingOpen] = useState(false);
   const [hasVoted, setHasVoted] = useState(false);
@@ -423,7 +425,7 @@ export default function VotePage() {
   }, []);
 
   const handleVote = (candidateId: string) => {
-    if (!session?.user) { setError(voteConfig.messages.mustBeSignedIn); return; }
+    if (!session?.user) { router.push("/auth/signin?callbackUrl=/vote"); return; }
     setPendingVoteId(candidateId);
   };
 
