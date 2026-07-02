@@ -20,7 +20,7 @@ export const navLinks: Array<{
   candidateRegistration?: boolean;
 }> = [
   { href: "/team", label: "ชุมนุมนิสิต", adminOnly: false },
-  { href: "/vote", label: "โหวต", adminOnly: true },
+  { href: "/vote", label: "โหวต" },
   { href: "/candidate/register", label: "สมัครประธาน", candidateRegistration: true },
   { href: "/club/apply", label: "สมัครชุมนุม", adminOnly: true },
 ];
