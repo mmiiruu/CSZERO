@@ -471,8 +471,8 @@ export default function VotePage() {
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>
-        <h2 className="text-2xl font-bold text-foreground mb-3">ยังไม่เปิดโหวต</h2>
-        <p className="text-secondary text-sm">รอประกาศจากทีมงานเพื่อเริ่มการเลือกตั้ง</p>
+        <h2 className="text-2xl font-bold text-foreground mb-3">รอการประกาศผล</h2>
+        <p className="text-secondary text-sm">โปรดรอการประกาศผลจากทีมงาน</p>
       </div>
     </div>
   );
