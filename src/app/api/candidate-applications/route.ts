@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import mongoose from "mongoose";
 import dbConnect from "@/lib/mongodb";
 import CandidateApplication from "@/models/CandidateApplication";
 import { candidateRegistrationConfig } from "@/config/candidate";
@@ -101,9 +100,7 @@ export async function DELETE(req: NextRequest) {
     if (isGuardError(guard)) return guard.error;
 
     const { id } = await req.json();
-    if (!id || typeof id !== "string" || !mongoose.Types.ObjectId.isValid(id)) {
-      return NextResponse.json({ error: "Missing id" }, { status: 400 });
-    }
+    if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
 
     await dbConnect();
     const deleted = await CandidateApplication.findByIdAndDelete(id);
