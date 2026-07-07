@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
@@ -14,12 +14,38 @@ const config = clubApplyFormConfig;
 
 const ACCENT = "#2563EB";
 
+type Slot = {
+  _id: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  capacity: number;
+  bookedCount: number;
+  isFull: boolean;
+};
+
+type BookedSlot = { date: string; startTime: string; endTime: string };
+
 function isChoiceField(field: ClubFormField): field is ChoiceField {
   return field.type === "choice";
 }
 
 function isImageField(field: ClubFormField): field is ImageField {
   return field.type === "image";
+}
+
+function groupByDate(slots: Slot[]): { date: string; slots: Slot[] }[] {
+  const map = new Map<string, Slot[]>();
+  for (const s of slots) {
+    if (!map.has(s.date)) map.set(s.date, []);
+    map.get(s.date)!.push(s);
+  }
+  return Array.from(map.entries()).map(([date, slots]) => ({ date, slots }));
+}
+
+function formatDate(dateStr: string) {
+  const d = new Date(dateStr + "T00:00:00");
+  return d.toLocaleDateString("th-TH", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
 }
 
 /* ── Step dots ──────────────────────────────────────────────────── */
@@ -158,24 +184,103 @@ function ImageUpload({
   );
 }
 
+/* ── Slot picker ────────────────────────────────────────────────── */
+function SlotPicker({
+  slots, selectedId, onSelect,
+}: {
+  slots: Slot[]; selectedId: string; onSelect: (id: string) => void;
+}) {
+  const grouped = groupByDate(slots);
+  const anyAvailable = slots.some((s) => !s.isFull);
+
+  if (!anyAvailable) {
+    return (
+      <div className="rounded-xl border border-border bg-hover p-8 text-center">
+        <p className="text-sm text-secondary">ยังไม่มีรอบสัมภาษณ์เปิดให้เลือกในขณะนี้ กรุณาลองใหม่อีกครั้ง</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {grouped.map((g) => (
+        <div key={g.date}>
+          <h3 className="text-sm font-bold text-foreground mb-3">{formatDate(g.date)}</h3>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            {g.slots.map((s) => {
+              const active = selectedId === s._id;
+              const remaining = s.capacity - s.bookedCount;
+              if (s.isFull) {
+                return (
+                  <div key={s._id} className="rounded-xl px-4 py-3 bg-hover border border-border-subtle" aria-disabled="true">
+                    <p className="text-sm font-semibold text-muted tabular-nums line-through decoration-1">{s.startTime} - {s.endTime}</p>
+                    <p className="text-xs text-muted mt-1">เต็มแล้ว</p>
+                  </div>
+                );
+              }
+              return (
+                <button key={s._id} type="button" onClick={() => onSelect(s._id)}
+                  aria-pressed={active}
+                  className={`text-left rounded-xl px-4 py-3 border-2 transition-all cursor-pointer ${
+                    active
+                      ? "border-blue-600 bg-blue-50 dark:bg-blue-900/30 shadow-sm"
+                      : "border-border bg-card hover:border-blue-300 dark:hover:border-blue-700"
+                  }`}>
+                  <p className={`text-sm font-semibold tabular-nums ${active ? "text-blue-700 dark:text-blue-300" : "text-foreground"}`}>
+                    {s.startTime} - {s.endTime}
+                  </p>
+                  <p className="text-xs text-muted mt-1">เหลือ {remaining}/{s.capacity} ที่</p>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 /* ── Success screen ─────────────────────────────────────────────── */
-function SuccessScreen() {
+function SuccessScreen({ slot }: { slot: BookedSlot | null }) {
   return (
     <div className="min-h-screen flex items-center justify-center px-4 bg-background">
       <div className="max-w-md w-full text-center motion-safe:animate-fade-in">
         <div className="text-6xl mb-6">{config.success.emoji}</div>
         <h1 className="text-3xl font-extrabold mb-3 text-foreground">{config.success.title}</h1>
-        <p className="text-secondary mb-8 leading-relaxed">{config.success.message}</p>
-        <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <Link href={config.success.slotsButton.href}
-            className="px-6 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-colors">
-            {config.success.slotsButton.label}
-          </Link>
+        <p className="text-secondary mb-6 leading-relaxed">{config.success.message}</p>
+        {slot && (
+          <div className="mb-8 bg-card border border-border rounded-2xl p-5 shadow-sm text-left">
+            <p className="text-xs font-semibold text-muted mb-1">รอบสัมภาษณ์ของคุณ</p>
+            <p className="text-sm font-semibold text-foreground">{formatDate(slot.date)}</p>
+            <p className="text-sm text-secondary">{slot.startTime} - {slot.endTime}</p>
+          </div>
+        )}
+        <div className="flex justify-center">
           <Link href={config.success.backButton.href}
             className="px-6 py-3 bg-card border border-border text-foreground rounded-xl font-semibold hover:bg-hover transition-colors">
             {config.success.backButton.label}
           </Link>
         </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Closed screen ──────────────────────────────────────────────── */
+function ApplicationClosed() {
+  return (
+    <div className="min-h-screen flex items-center justify-center px-4 bg-background">
+      <div className="text-center max-w-md">
+        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 mb-5">
+          <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6} aria-hidden="true">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <h2 className="text-2xl font-bold text-foreground mb-3">ยังไม่เปิดรับสมัครชุมนุมในขณะนี้</h2>
+        <p className="text-secondary mb-6 text-sm leading-relaxed">กรุณารอประกาศจากชุมนุม ติดตามข่าวสารได้ที่ Instagram</p>
+        <Link href="/" className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors text-sm">
+          กลับหน้าหลัก
+        </Link>
       </div>
     </div>
   );
@@ -200,6 +305,13 @@ export default function ClubApplyPage() {
   const [submitError, setSubmitError] = useState("");
   const [showDraftBanner, setShowDraftBanner] = useState(false);
   const [checkingStatus, setCheckingStatus] = useState(true);
+  const [applicationOpen, setApplicationOpen] = useState(false);
+  const [slots, setSlots] = useState<Slot[]>([]);
+  const [selectedSlotId, setSelectedSlotId] = useState("");
+  const [bookedSlot, setBookedSlot] = useState<BookedSlot | null>(null);
+
+  const role = (session?.user as { role?: string } | undefined)?.role;
+  const isAdminOrStaff = role === "admin" || role === "staff";
 
   useEffect(() => {
     if (draftRestored) setShowDraftBanner(true);
@@ -211,16 +323,30 @@ export default function ClubApplyPage() {
     }
   }, [session, formData.email, setField]);
 
+  const fetchSlots = useCallback(async () => {
+    try {
+      const res = await fetch("/api/club/slots");
+      const data = await res.json();
+      setApplicationOpen(data.applicationOpen ?? false);
+      setSlots(data.slots ?? []);
+    } catch {}
+  }, []);
+
   useEffect(() => {
     if (authStatus !== "authenticated") return;
-    fetch("/api/club/apply")
-      .then((r) => r.json())
-      .then((d) => {
-        if (d.applied && !isSuccess) router.replace("/club/apply?success=true");
+    Promise.all([
+      fetch("/api/club/apply").then((r) => r.json()),
+      fetchSlots(),
+    ])
+      .then(([d]) => {
+        if (d.applied) {
+          setBookedSlot(d.slot ?? null);
+          if (!isSuccess) router.replace("/club/apply?success=true");
+        }
       })
       .catch(() => {})
       .finally(() => setCheckingStatus(false));
-  }, [authStatus, router, isSuccess]);
+  }, [authStatus, router, isSuccess, fetchSlots]);
 
   if (authStatus === "loading" || checkingStatus) {
     return (
@@ -230,14 +356,25 @@ export default function ClubApplyPage() {
     );
   }
 
-  if (isSuccess) return <SuccessScreen />;
+  if (isSuccess) return <SuccessScreen slot={bookedSlot} />;
 
-  const currentStep = config.steps[step];
-  const isLast = step === config.steps.length - 1;
+  if (!applicationOpen && !isAdminOrStaff) return <ApplicationClosed />;
+
+  const totalSteps = config.steps.length + 1;
+  const isSlotStep = step === config.steps.length;
+  const currentStep = isSlotStep ? null : config.steps[step];
+  const isLast = isSlotStep;
 
   const validateStep = (): boolean => {
+    if (isSlotStep) {
+      if (!selectedSlotId) {
+        setSubmitError("กรุณาเลือกเวลาสัมภาษณ์");
+        return false;
+      }
+      return true;
+    }
     const errs: Record<string, string> = {};
-    for (const field of currentStep.fields) {
+    for (const field of currentStep!.fields) {
       if (!field.required) continue;
       const val = formData[field.name]?.trim();
       if (!val) {
@@ -287,11 +424,21 @@ export default function ClubApplyPage() {
           photo: formData.photo,
           educationType: formData.educationType,
           answers,
+          slotId: selectedSlotId,
         }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "เกิดข้อผิดพลาด");
+      if (!res.ok) {
+        if (res.status === 409 && data.error?.includes("เต็มแล้ว")) {
+          setSelectedSlotId("");
+          await fetchSlots();
+        }
+        throw new Error(data.error || "เกิดข้อผิดพลาด");
+      }
       clearDraft();
+      setBookedSlot(slots.find((s) => s._id === selectedSlotId)
+        ? { date: slots.find((s) => s._id === selectedSlotId)!.date, startTime: slots.find((s) => s._id === selectedSlotId)!.startTime, endTime: slots.find((s) => s._id === selectedSlotId)!.endTime }
+        : null);
       router.push("/club/apply?success=true");
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : "เกิดข้อผิดพลาด");
@@ -299,6 +446,8 @@ export default function ClubApplyPage() {
       setSubmitting(false);
     }
   };
+
+  const canSubmitSlotStep = !isSlotStep || slots.some((s) => !s.isFull);
 
   return (
     <div className="min-h-screen py-12 px-4 bg-background">
@@ -324,36 +473,45 @@ export default function ClubApplyPage() {
           </div>
         )}
 
-        <StepDots current={step} total={config.steps.length} labels={config.stepLabels} />
+        <StepDots current={step} total={totalSteps} labels={config.stepLabels} />
 
         {/* Form card */}
         <div className="bg-card rounded-2xl border border-border shadow-sm p-6 sm:p-8">
-          <h2 className="text-xl font-bold mb-1 text-foreground">{currentStep.title}</h2>
-          <p className="text-sm text-muted mb-6">{currentStep.description}</p>
-
-          <div className="space-y-5">
-            {currentStep.fields.map((field) => {
-              if (isChoiceField(field)) {
-                return <ChoiceButtons key={field.name} field={field} value={formData[field.name] || ""} onChange={(v) => setField(field.name, v)} error={errors[field.name]} />;
-              }
-              if (isImageField(field)) {
-                return <ImageUpload key={field.name} field={field} value={formData[field.name] || ""} onChange={(url) => setField(field.name, url)} error={errors[field.name]} />;
-              }
-              return (
-                <Input
-                  key={field.name}
-                  label={field.label}
-                  type={field.type === "textarea" ? undefined : field.type}
-                  as={field.type === "textarea" ? "textarea" : undefined}
-                  placeholder={field.placeholder}
-                  value={formData[field.name] || ""}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setField(field.name, e.target.value)}
-                  error={errors[field.name]}
-                  readOnly={field.name === "email"}
-                />
-              );
-            })}
-          </div>
+          {isSlotStep ? (
+            <>
+              <h2 className="text-xl font-bold mb-1 text-foreground">เลือกเวลาสัมภาษณ์</h2>
+              <p className="text-sm text-muted mb-6">เลือกรอบที่สะดวก แล้วกดส่งใบสมัคร</p>
+              <SlotPicker slots={slots} selectedId={selectedSlotId} onSelect={(id) => { setSelectedSlotId(id); setSubmitError(""); }} />
+            </>
+          ) : (
+            <>
+              <h2 className="text-xl font-bold mb-1 text-foreground">{currentStep!.title}</h2>
+              <p className="text-sm text-muted mb-6">{currentStep!.description}</p>
+              <div className="space-y-5">
+                {currentStep!.fields.map((field) => {
+                  if (isChoiceField(field)) {
+                    return <ChoiceButtons key={field.name} field={field} value={formData[field.name] || ""} onChange={(v) => setField(field.name, v)} error={errors[field.name]} />;
+                  }
+                  if (isImageField(field)) {
+                    return <ImageUpload key={field.name} field={field} value={formData[field.name] || ""} onChange={(url) => setField(field.name, url)} error={errors[field.name]} />;
+                  }
+                  return (
+                    <Input
+                      key={field.name}
+                      label={field.label}
+                      type={field.type === "textarea" ? undefined : field.type}
+                      as={field.type === "textarea" ? "textarea" : undefined}
+                      placeholder={field.placeholder}
+                      value={formData[field.name] || ""}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setField(field.name, e.target.value)}
+                      error={errors[field.name]}
+                      readOnly={field.name === "email"}
+                    />
+                  );
+                })}
+              </div>
+            </>
+          )}
 
           {submitError && (
             <div className="mt-4 p-3 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-sm text-red-600 dark:text-red-400">
@@ -370,7 +528,7 @@ export default function ClubApplyPage() {
               </button>
             )}
             {isLast ? (
-              <button type="button" onClick={handleSubmit} disabled={submitting}
+              <button type="button" onClick={handleSubmit} disabled={submitting || !canSubmitSlotStep}
                 className="flex-1 py-3 rounded-xl font-semibold text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-60 transition-colors cursor-pointer">
                 {submitting ? "กำลังส่ง..." : "ส่งใบสมัคร"}
               </button>

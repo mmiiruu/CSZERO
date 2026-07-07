@@ -69,7 +69,7 @@ export async function DELETE(req: NextRequest) {
 
     if (app.interviewSlotId) {
       await InterviewSlot.findByIdAndUpdate(app.interviewSlotId, {
-        $unset: { bookedBy: 1, bookedByEmail: 1 },
+        $pull: { bookings: { applicationId: app._id } },
       });
     }
 

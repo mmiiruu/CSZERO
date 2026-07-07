@@ -2010,7 +2010,7 @@ type ClubApp = {
 
 type AdminSlot = {
   _id: string; date: string; startTime: string; endTime: string;
-  bookedBy?: string; bookedByEmail?: string;
+  capacity: number; bookings: { applicationId: string; email: string }[];
 };
 
 function ClubTab({ callerRole }: { callerRole: Role }) {
@@ -2033,7 +2033,11 @@ function ClubTab({ callerRole }: { callerRole: Role }) {
   const [newSlotEnd, setNewSlotEnd] = useState("09:15");
   const [newSlotInterval, setNewSlotInterval] = useState(15);
   const [newSlotBulkEnd, setNewSlotBulkEnd] = useState("17:00");
+  const [newSlotCapacity, setNewSlotCapacity] = useState(4);
   const [creatingSingle, setCreatingSingle] = useState(false);
+  const [editingCapacityId, setEditingCapacityId] = useState<string | null>(null);
+  const [editingCapacityValue, setEditingCapacityValue] = useState(4);
+  const [savingCapacity, setSavingCapacity] = useState(false);
 
   const showToast = (msg: string, ok: boolean) => {
     setToast({ msg, ok });
@@ -2119,7 +2123,7 @@ function ClubTab({ callerRole }: { callerRole: Role }) {
       const res = await fetch("/api/admin/club/slots", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ date: newSlotDate, slots: slotsToCreate }),
+        body: JSON.stringify({ date: newSlotDate, slots: slotsToCreate, capacity: newSlotCapacity }),
       });
       const data = await res.json();
       if (res.ok) {
@@ -2144,6 +2148,26 @@ function ClubTab({ callerRole }: { callerRole: Role }) {
         showToast("✓ ลบ slot แล้ว", true);
       }
     } catch { showToast("✗ Network error", false); }
+  };
+
+  const handleSaveCapacity = async (id: string) => {
+    setSavingCapacity(true);
+    try {
+      const res = await fetch("/api/admin/club/slots", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, capacity: editingCapacityValue }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setSlots((p) => p.map((s) => (s._id === id ? { ...s, capacity: editingCapacityValue } : s)));
+        showToast("✓ อัปเดต capacity แล้ว", true);
+        setEditingCapacityId(null);
+      } else {
+        showToast(`✗ ${data.error}`, false);
+      }
+    } catch { showToast("✗ Network error", false); }
+    finally { setSavingCapacity(false); }
   };
 
   const handleExportExcel = async () => {
@@ -2201,7 +2225,7 @@ function ClubTab({ callerRole }: { callerRole: Role }) {
           <button onClick={handleToggleBooking} disabled={toggling}
             className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer disabled:opacity-60 flex items-center gap-2 ${bookingOpen ? "bg-green-600 text-white hover:bg-green-700" : "bg-card text-secondary border border-border hover:bg-hover"}`}>
             <span className={`w-2 h-2 rounded-full ${bookingOpen ? "bg-white" : "bg-muted"}`} aria-hidden="true" />
-            {toggling ? "..." : bookingOpen ? "จองเปิดอยู่" : "เปิดจอง"}
+            {toggling ? "..." : bookingOpen ? "รับสมัครอยู่" : "เปิดรับสมัคร"}
           </button>
         )}
       </div>
@@ -2308,13 +2332,21 @@ function ClubTab({ callerRole }: { callerRole: Role }) {
               <div className="mb-4">
                 <label className="block text-xs font-medium text-secondary mb-2">รอบละกี่นาที</label>
                 <div className="flex flex-wrap gap-2">
-                  {[10, 15, 20, 30].map((mins) => (
+                  {[10, 15, 20, 30, 60].map((mins) => (
                     <button key={mins} type="button" onClick={() => setNewSlotInterval(mins)}
                       className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${newSlotInterval === mins ? "bg-blue-600 text-white shadow-sm" : "bg-hover text-secondary border border-border hover:bg-card"}`}>
                       {mins} นาที
                     </button>
                   ))}
                 </div>
+              </div>
+
+              {/* Row 3: Capacity per slot */}
+              <div className="mb-4">
+                <label className="block text-xs font-medium text-secondary mb-1">จำนวนคนต่อ slot</label>
+                <input type="number" min={1} value={newSlotCapacity}
+                  onChange={(e) => setNewSlotCapacity(Math.max(1, parseInt(e.target.value) || 1))}
+                  className="w-24 px-3 py-2.5 border border-border rounded-lg text-sm bg-card text-foreground focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500" />
               </div>
 
               {/* Preview */}
@@ -2353,29 +2385,52 @@ function ClubTab({ callerRole }: { callerRole: Role }) {
                       <table className="w-full text-sm">
                         <thead>
                           <tr className="border-b border-border-subtle bg-hover">
-                            {["เวลา", "สถานะ", "ผู้จอง", "อีเมล", ...(callerRole === "admin" ? [""] : [])].map((h, i) => (
+                            {["เวลา", "จำนวนที่จอง", "อีเมลผู้จอง", ...(callerRole === "admin" ? [""] : [])].map((h, i) => (
                               <th key={`${h}-${i}`} className="text-left px-5 py-3 text-secondary font-medium">{h}</th>
                             ))}
                           </tr>
                         </thead>
                         <tbody>
-                          {dateSlots.map((s) => (
+                          {dateSlots.map((s) => {
+                            const bookings = s.bookings ?? [];
+                            const capacity = s.capacity ?? 1;
+                            const isFull = bookings.length >= capacity;
+                            const isEditing = editingCapacityId === s._id;
+                            return (
                             <tr key={s._id} className="border-b border-border-subtle hover:bg-hover transition-colors">
                               <td className="px-5 py-3 text-foreground font-medium">{s.startTime} - {s.endTime}</td>
                               <td className="px-5 py-3">
-                                <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${s.bookedBy ? "bg-teal-50 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400 border border-teal-200 dark:border-teal-800" : "bg-hover text-muted border border-border"}`}>
-                                  {s.bookedBy ? "จองแล้ว" : "ว่าง"}
-                                </span>
+                                <div className="flex items-center gap-2">
+                                  <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${isFull ? "bg-teal-50 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400 border border-teal-200 dark:border-teal-800" : "bg-hover text-muted border border-border"}`}>
+                                    {bookings.length} / {capacity}
+                                  </span>
+                                  {callerRole === "admin" && (isEditing ? (
+                                    <>
+                                      <input type="number" min={1} value={editingCapacityValue}
+                                        onChange={(e) => setEditingCapacityValue(Math.max(1, parseInt(e.target.value) || 1))}
+                                        className="w-16 px-2 py-1 border border-border rounded-lg text-xs bg-card text-foreground" />
+                                      <button onClick={() => handleSaveCapacity(s._id)} disabled={savingCapacity}
+                                        className="text-xs font-medium text-blue-600 hover:text-blue-700 cursor-pointer disabled:opacity-60">บันทึก</button>
+                                      <button onClick={() => setEditingCapacityId(null)}
+                                        className="text-xs font-medium text-secondary hover:text-foreground cursor-pointer">ยกเลิก</button>
+                                    </>
+                                  ) : (
+                                    <button onClick={() => { setEditingCapacityId(s._id); setEditingCapacityValue(capacity); }}
+                                      className="text-xs font-medium text-secondary hover:text-foreground cursor-pointer underline decoration-dotted">แก้ไข</button>
+                                  ))}
+                                </div>
                               </td>
-                              <td className="px-5 py-3 text-secondary">{s.bookedByEmail ? s.bookedByEmail.split("@")[0] : "—"}</td>
-                              <td className="px-5 py-3 text-secondary">{s.bookedByEmail || "—"}</td>
+                              <td className="px-5 py-3 text-secondary">
+                                {bookings.length > 0 ? bookings.map((b) => b.email).join(", ") : "—"}
+                              </td>
                               {callerRole === "admin" && (
                                 <td className="px-5 py-3">
                                   <button onClick={() => handleDeleteSlot(s._id)} className="text-red-500 hover:text-red-700 text-sm font-medium cursor-pointer">ลบ</button>
                                 </td>
                               )}
                             </tr>
-                          ))}
+                            );
+                          })}
                         </tbody>
                       </table>
                     </div>

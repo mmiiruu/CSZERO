@@ -22,7 +22,6 @@ export interface ClubApplyFormConfig {
     title: string;
     message: string;
     backButton: { label: string; href: string };
-    slotsButton: { label: string; href: string };
   };
 }
 
@@ -33,7 +32,7 @@ export const clubApplyFormConfig: ClubApplyFormConfig = {
     titleAccent: "CSKU",
     subtitle: "กรอกข้อมูลเพื่อสมัครเข้าชุมนุมนิสิตวิทยาการคอมพิวเตอร์",
   },
-  stepLabels: ["ข้อมูลพื้นฐาน", "การศึกษา & รูปถ่าย", "คำถาม"],
+  stepLabels: ["ข้อมูลพื้นฐาน", "การศึกษา & รูปถ่าย", "คำถาม", "เลือกเวลาสัมภาษณ์"],
   steps: [
     {
       title: "ข้อมูลพื้นฐาน",
@@ -103,8 +102,7 @@ export const clubApplyFormConfig: ClubApplyFormConfig = {
   success: {
     emoji: "🎉",
     title: "สมัครสำเร็จแล้ว!",
-    message: "กรุณารอประกาศเปิดจองรอบสัมภาษณ์ ติดตามข่าวสารได้ที่ Instagram ของชุมนุม",
+    message: "เราได้บันทึกรอบสัมภาษณ์ของคุณไว้แล้ว ติดตามข่าวสารเพิ่มเติมได้ที่ Instagram ของชุมนุม",
     backButton: { label: "กลับหน้าหลัก", href: "/" },
-    slotsButton: { label: "ดูรอบสัมภาษณ์", href: "/club/slots" },
   },
 };
