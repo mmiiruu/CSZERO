@@ -77,11 +77,7 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `try{var t=localStorage.getItem('theme');if(t==='dark'||(t===null&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark')}}catch(e){}`,
-          }}
-        />
+        <script src="/theme-init.js" />
       </head>
       <body className="min-h-full flex flex-col bg-background">
         <a

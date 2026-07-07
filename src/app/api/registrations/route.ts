@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import mongoose from "mongoose";
 import dbConnect from "@/lib/mongodb";
 import { requireAuth, requireAdmin, requireStaff, getCallerRole, isGuardError } from "@/lib/guards";
 import { submitRegistration } from "@/lib/registrationIntake";
@@ -36,7 +37,7 @@ export async function DELETE(req: NextRequest) {
     if (isGuardError(guard)) return guard.error;
 
     const { id } = await req.json();
-    if (!id || typeof id !== "string") {
+    if (!id || typeof id !== "string" || !mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json({ error: "Missing registration id" }, { status: 400 });
     }
 
