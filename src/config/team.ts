@@ -25,10 +25,10 @@ export function getMemberColor(id: string): string {
 
 export const DEPARTMENTS = [
   { key: "บริหาร",        label: "คณะกรรมการบริหาร", color: "oklch(0.546 0.245 263)", mono: "blue-500"    },
-  { key: "กิจกรรม",       label: "ฝ่ายกิจกรรม",       color: "oklch(0.666 0.179 58)",  mono: "amber-500"   },
-  { key: "ประชาสัมพันธ์", label: "ฝ่ายประชาสัมพันธ์", color: "oklch(0.586 0.253 18)",  mono: "rose-500"    },
-  { key: "วิชาการ",       label: "ฝ่ายวิชาการ",       color: "oklch(0.596 0.145 163)", mono: "emerald-500" },
   { key: "ธุรการ",        label: "ฝ่ายธุรการ",        color: "oklch(0.541 0.216 293)", mono: "violet-500"  },
+  { key: "วิชาการ",       label: "ฝ่ายวิชาการ",       color: "oklch(0.596 0.145 163)", mono: "emerald-500" },
+  { key: "ประชาสัมพันธ์", label: "ฝ่ายประชาสัมพันธ์", color: "oklch(0.586 0.253 18)",  mono: "rose-500"    },
+  { key: "กิจกรรม",       label: "ฝ่ายกิจกรรม",       color: "oklch(0.666 0.179 58)",  mono: "amber-500"   },
 ] as const;
 
 export type DepartmentKey = typeof DEPARTMENTS[number]["key"];
