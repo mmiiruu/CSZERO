@@ -6,6 +6,9 @@ import ClubApplication from "@/models/ClubApplication";
 import InterviewSlot from "@/models/InterviewSlot";
 import { sanitizeAnswers } from "@/lib/registrationIntake";
 import { isClubApplicationOpen } from "@/lib/clubSettings";
+import { DEPARTMENTS } from "@/config/team";
+
+const DEPARTMENT_KEYS = DEPARTMENTS.map((d) => d.key) as string[];
 
 export async function GET() {
   try {
@@ -43,7 +46,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { name, surname, nickname, phone, contactChannel, photo, educationType, answers, slotId } = body;
+    const { name, surname, nickname, phone, contactChannel, photo, educationType, interestedDepartment, answers, slotId } = body;
 
     if (!name?.trim() || !surname?.trim() || !nickname?.trim()) {
       return NextResponse.json({ error: "กรุณากรอกชื่อ นามสกุล และชื่อเล่น" }, { status: 400 });
@@ -56,6 +59,9 @@ export async function POST(req: NextRequest) {
     }
     if (!["regular", "special"].includes(educationType)) {
       return NextResponse.json({ error: "กรุณาเลือกประเภทการศึกษา" }, { status: 400 });
+    }
+    if (!DEPARTMENT_KEYS.includes(interestedDepartment)) {
+      return NextResponse.json({ error: "กรุณาเลือกฝ่ายที่สนใจ" }, { status: 400 });
     }
     if (!slotId || typeof slotId !== "string" || !mongoose.Types.ObjectId.isValid(slotId)) {
       return NextResponse.json({ error: "กรุณาเลือกเวลาสัมภาษณ์" }, { status: 400 });
@@ -78,6 +84,7 @@ export async function POST(req: NextRequest) {
       contactChannel: contactChannel.trim(),
       photo: photo.trim(),
       educationType,
+      interestedDepartment,
       answers: sanitizeAnswers(answers),
     });
 

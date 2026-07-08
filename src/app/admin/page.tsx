@@ -1574,6 +1574,7 @@ function TeamTab({ callerRole }: { callerRole: Role }) {
   const [confirmDelete, setConfirmDelete] = useState<TeamMemberAdmin | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
+  const [departmentFilter, setDepartmentFilter] = useState<string>("all");
 
   const showToast = (msg: string, ok: boolean) => {
     setToast({ msg, ok });
@@ -1655,7 +1656,7 @@ function TeamTab({ callerRole }: { callerRole: Role }) {
         </div>
       )}
 
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <span className="text-sm text-secondary">
           <strong className="font-semibold text-foreground">{members.length}</strong>
           <span className="ml-1.5">สมาชิก</span>
@@ -1671,11 +1672,26 @@ function TeamTab({ callerRole }: { callerRole: Role }) {
         </button>
       </div>
 
-      {loading ? (
+      <div className="flex flex-wrap gap-2 items-center mb-6">
+        <button onClick={() => setDepartmentFilter("all")}
+          className={`px-4 py-3 rounded-lg text-sm font-medium transition-colors cursor-pointer ${departmentFilter === "all" ? "bg-blue-600 text-white shadow-sm" : "bg-card text-secondary border border-border hover:bg-hover"}`}>
+          ทั้งหมด ({members.length})
+        </button>
+        {DEPARTMENTS.map((d) => (
+          <button key={d.key} onClick={() => setDepartmentFilter(d.key)}
+            className={`px-4 py-3 rounded-lg text-sm font-medium transition-colors cursor-pointer ${departmentFilter === d.key ? "bg-blue-600 text-white shadow-sm" : "bg-card text-secondary border border-border hover:bg-hover"}`}>
+            {d.label} ({members.filter((m) => m.department === d.key).length})
+          </button>
+        ))}
+      </div>
+
+      {(() => {
+        const filteredMembers = departmentFilter === "all" ? members : members.filter((m) => m.department === departmentFilter);
+        return loading ? (
         <div role="status" aria-label="กำลังโหลด..." className="flex items-center justify-center py-20">
           <div aria-hidden="true" className="w-8 h-8 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
         </div>
-      ) : members.length === 0 ? (
+      ) : filteredMembers.length === 0 ? (
         <div className="bg-card border border-border rounded-2xl p-12 text-center">
           <p className="text-muted">ยังไม่มีสมาชิก</p>
         </div>
@@ -1691,7 +1707,7 @@ function TeamTab({ callerRole }: { callerRole: Role }) {
                 </tr>
               </thead>
               <tbody>
-                {members.map((m) => (
+                {filteredMembers.map((m) => (
                   <tr key={m._id} className="border-b border-border-subtle hover:bg-hover transition-colors">
                     <td className="px-6 py-4 text-muted tabular-nums">{m.order}</td>
                     <td className="px-6 py-4 text-foreground font-medium">{m.name}</td>
@@ -1720,7 +1736,8 @@ function TeamTab({ callerRole }: { callerRole: Role }) {
             </table>
           </div>
         </div>
-      )}
+      );
+      })()}
 
       {/* Add/Edit Modal */}
       {modal && (
@@ -2004,6 +2021,7 @@ function ProjectsTab({ callerRole }: { callerRole: Role }) {
 type ClubApp = {
   _id: string; name: string; surname: string; nickname: string; email: string;
   phone: string; contactChannel: string; photo: string; educationType: string;
+  interestedDepartment?: string;
   answers: Record<string, string>; interviewSlotId?: string; createdAt: string;
   interviewSlot?: { date: string; startTime: string; endTime: string } | null;
 };
@@ -2026,6 +2044,7 @@ function ClubTab({ callerRole }: { callerRole: Role }) {
   const [confirmDelete, setConfirmDelete] = useState<ClubApp | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [sectionFilter, setSectionFilter] = useState<"all" | "regular" | "special">("all");
+  const [departmentFilter, setDepartmentFilter] = useState<string>("all");
 
   // Slot creation
   const [newSlotDate, setNewSlotDate] = useState("");
@@ -2171,14 +2190,16 @@ function ClubTab({ callerRole }: { callerRole: Role }) {
   };
 
   const handleExportExcel = async () => {
-    const filtered = sectionFilter === "all" ? apps : apps.filter((a) => a.educationType === sectionFilter);
+    let filtered = sectionFilter === "all" ? apps : apps.filter((a) => a.educationType === sectionFilter);
+    if (departmentFilter !== "all") filtered = filtered.filter((a) => a.interestedDepartment === departmentFilter);
     if (filtered.length === 0) return;
     const { default: ExcelJS } = await import("exceljs");
     const answerKeys = Array.from(new Set(filtered.flatMap((a) => Object.keys(a.answers ?? {}))));
-    const headers = ["ชื่อ", "นามสกุล", "ชื่อเล่น", "อีเมล", "เบอร์โทร", "ช่องทางติดต่อ", "ภาค", "รอบสัมภาษณ์", "วันที่สมัคร", ...answerKeys];
+    const headers = ["ชื่อ", "นามสกุล", "ชื่อเล่น", "อีเมล", "เบอร์โทร", "ช่องทางติดต่อ", "ภาค", "ฝ่ายที่สนใจ", "รอบสัมภาษณ์", "วันที่สมัคร", ...answerKeys];
     const rows = filtered.map((a) => [
       a.name, a.surname, a.nickname, a.email, a.phone, a.contactChannel,
       a.educationType === "regular" ? "ปกติ" : "พิเศษ",
+      a.interestedDepartment || "-",
       a.interviewSlot ? `${a.interviewSlot.date} ${a.interviewSlot.startTime}-${a.interviewSlot.endTime}` : "-",
       new Date(a.createdAt).toLocaleDateString("th-TH"),
       ...answerKeys.map((k) => a.answers?.[k] ?? "-"),
@@ -2201,7 +2222,8 @@ function ClubTab({ callerRole }: { callerRole: Role }) {
     URL.revokeObjectURL(url);
   };
 
-  const filteredApps = sectionFilter === "all" ? apps : apps.filter((a) => a.educationType === sectionFilter);
+  const filteredApps = (sectionFilter === "all" ? apps : apps.filter((a) => a.educationType === sectionFilter))
+    .filter((a) => departmentFilter === "all" || a.interestedDepartment === departmentFilter);
   const stats = { total: apps.length, regular: apps.filter((a) => a.educationType === "regular").length, special: apps.filter((a) => a.educationType === "special").length };
 
   // Group slots by date for display
@@ -2245,6 +2267,19 @@ function ClubTab({ callerRole }: { callerRole: Role }) {
             </button>
           </div>
 
+          <div className="flex flex-wrap gap-2 items-center mb-6">
+            <button onClick={() => setDepartmentFilter("all")}
+              className={`px-4 py-3 rounded-lg text-sm font-medium transition-colors cursor-pointer ${departmentFilter === "all" ? "bg-blue-600 text-white shadow-sm" : "bg-card text-secondary border border-border hover:bg-hover"}`}>
+              ทุกฝ่าย ({apps.length})
+            </button>
+            {DEPARTMENTS.map((d) => (
+              <button key={d.key} onClick={() => setDepartmentFilter(d.key)}
+                className={`px-4 py-3 rounded-lg text-sm font-medium transition-colors cursor-pointer ${departmentFilter === d.key ? "bg-blue-600 text-white shadow-sm" : "bg-card text-secondary border border-border hover:bg-hover"}`}>
+                {d.label} ({apps.filter((a) => a.interestedDepartment === d.key).length})
+              </button>
+            ))}
+          </div>
+
           {loadingApps ? (
             <div className="flex items-center justify-center py-20"><div className="w-8 h-8 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin" /></div>
           ) : filteredApps.length === 0 ? (
@@ -2255,7 +2290,7 @@ function ClubTab({ callerRole }: { callerRole: Role }) {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-border-subtle bg-hover">
-                      {["ชื่อ", "นามสกุล", "ชื่อเล่น", "อีเมล", "ภาค", "รอบสัมภาษณ์", "Actions"].map((h) => (
+                      {["ชื่อ", "นามสกุล", "ชื่อเล่น", "อีเมล", "ภาค", "ฝ่ายที่สนใจ", "รอบสัมภาษณ์", "Actions"].map((h) => (
                         <th key={h} className="text-left px-6 py-4 text-secondary font-medium">{h}</th>
                       ))}
                     </tr>
@@ -2268,6 +2303,7 @@ function ClubTab({ callerRole }: { callerRole: Role }) {
                         <td className="px-6 py-4 text-secondary">{a.nickname}</td>
                         <td className="px-6 py-4 text-secondary">{a.email}</td>
                         <td className="px-6 py-4 text-secondary">{a.educationType === "regular" ? "ปกติ" : "พิเศษ"}</td>
+                        <td className="px-6 py-4 text-secondary">{DEPARTMENTS.find((d) => d.key === a.interestedDepartment)?.label ?? a.interestedDepartment ?? "—"}</td>
                         <td className="px-6 py-4 text-secondary">
                           {a.interviewSlot ? `${a.interviewSlot.date} ${a.interviewSlot.startTime}` : <span className="text-muted">—</span>}
                         </td>
@@ -2470,6 +2506,7 @@ function ClubTab({ callerRole }: { callerRole: Role }) {
                 ["เบอร์โทร", detail.phone],
                 ["ช่องทางติดต่อ", detail.contactChannel],
                 ["ภาค", detail.educationType === "regular" ? "ปกติ" : "พิเศษ"],
+                ["ฝ่ายที่สนใจ", DEPARTMENTS.find((d) => d.key === detail.interestedDepartment)?.label ?? detail.interestedDepartment ?? "—"],
                 ["รอบสัมภาษณ์", detail.interviewSlot ? `${detail.interviewSlot.date} ${detail.interviewSlot.startTime}-${detail.interviewSlot.endTime}` : "ยังไม่ได้จอง"],
                 ["วันที่สมัคร", new Date(detail.createdAt).toLocaleString("th-TH")],
                 ...Object.entries(detail.answers ?? {}).map(([k, v]) => [k, v || "—"]),

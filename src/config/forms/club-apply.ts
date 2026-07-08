@@ -1,4 +1,5 @@
 import type { SimpleField, ChoiceField, ImageField } from "./hello-world-register";
+import { DEPARTMENTS } from "@/config/team";
 
 export type ClubFormField = SimpleField | ChoiceField | ImageField;
 
@@ -61,6 +62,15 @@ export const clubApplyFormConfig: ClubApplyFormConfig = {
             { value: "regular", label: "📘 ภาคปกติ" },
             { value: "special", label: "📗 ภาคพิเศษ" },
           ],
+        },
+        {
+          name: "interestedDepartment",
+          label: "ฝ่ายที่สนใจ",
+          type: "choice",
+          layout: "grid2",
+          theme: "purple",
+          required: true,
+          options: DEPARTMENTS.map((d) => ({ value: d.key, label: d.label })),
         },
         {
           name: "photo",

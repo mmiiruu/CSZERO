@@ -1,4 +1,7 @@
 import mongoose, { Schema, Document, Model, Types } from "mongoose";
+import { DEPARTMENTS } from "@/config/team";
+
+const DEPARTMENT_KEYS = DEPARTMENTS.map((d) => d.key);
 
 export interface IClubApplication extends Document {
   name: string;
@@ -9,6 +12,7 @@ export interface IClubApplication extends Document {
   contactChannel: string;
   photo: string;
   educationType: "regular" | "special";
+  interestedDepartment: string;
   answers: Record<string, unknown>;
   interviewSlotId?: Types.ObjectId;
   createdAt: Date;
@@ -25,6 +29,7 @@ const ClubApplicationSchema = new Schema<IClubApplication>(
     contactChannel: { type: String, required: true },
     photo: { type: String, required: true },
     educationType: { type: String, required: true, enum: ["regular", "special"] },
+    interestedDepartment: { type: String, required: true, enum: DEPARTMENT_KEYS },
     answers: { type: Schema.Types.Mixed, default: {} },
     interviewSlotId: { type: Schema.Types.ObjectId, ref: "InterviewSlot" },
   },

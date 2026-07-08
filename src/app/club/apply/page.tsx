@@ -405,7 +405,7 @@ export default function ClubApplyPage() {
     setSubmitting(true);
     setSubmitError("");
 
-    const topLevel = ["name", "surname", "nickname", "email", "phone", "contactChannel", "photo", "educationType"];
+    const topLevel = ["name", "surname", "nickname", "email", "phone", "contactChannel", "photo", "educationType", "interestedDepartment"];
     const answers: Record<string, string> = {};
     for (const [k, v] of Object.entries(formData)) {
       if (!topLevel.includes(k) && v) answers[k] = v;
@@ -423,6 +423,7 @@ export default function ClubApplyPage() {
           contactChannel: formData.contactChannel,
           photo: formData.photo,
           educationType: formData.educationType,
+          interestedDepartment: formData.interestedDepartment,
           answers,
           slotId: selectedSlotId,
         }),
