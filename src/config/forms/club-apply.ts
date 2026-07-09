@@ -41,7 +41,7 @@ export const clubApplyFormConfig: ClubApplyFormConfig = {
       fields: [
         { name: "name", label: "ชื่อ-นามสกุล", type: "text", placeholder: "เช่น สมชาย ใจดี", required: true },
         { name: "nickname", label: "ชื่อเล่น", type: "text", placeholder: "เช่น อาร์ม", required: true },
-        { name: "studentId", label: "รหัสนิสิต", type: "text", placeholder: "เช่น 6710500000", required: true },
+        { name: "studentId", label: "รหัสนิสิต", type: "text", placeholder: "69xxxxxxxx หรือ 68xxxxxxxx", required: true },
         { name: "email", label: "อีเมล", type: "email", placeholder: "your@email.com", required: true },
         { name: "phone", label: "เบอร์โทรศัพท์", type: "tel", placeholder: "08x-xxx-xxxx", required: true },
         { name: "contactChannel", label: "ช่องทางติดต่อ (IG, Line)", type: "text", placeholder: "เช่น IG: @armm หรือ Line: armcoder", required: true },
