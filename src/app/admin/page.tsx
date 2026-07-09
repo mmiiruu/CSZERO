@@ -4,7 +4,7 @@ import React, { useEffect, useState, useCallback, useMemo, useRef } from "react"
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTheme } from "@/components/providers/ThemeProvider";
-import { DEPARTMENTS } from "@/config/team";
+import { DEPARTMENTS, APPLICANT_DEPARTMENTS } from "@/config/team";
 import { upload } from "@vercel/blob/client";
 import ImageUploadWithCrop from "@/components/ui/ImageUploadWithCrop";
 import { helloWorldFormConfig } from "@/config/forms/hello-world-register";
@@ -2021,7 +2021,8 @@ function ProjectsTab({ callerRole }: { callerRole: Role }) {
 type ClubApp = {
   _id: string; name: string; surname: string; nickname: string; email: string;
   phone: string; contactChannel: string; photo: string; educationType: string;
-  interestedDepartment?: string;
+  preferredDepartment1?: string;
+  preferredDepartment2?: string;
   answers: Record<string, string>; interviewSlotId?: string; createdAt: string;
   interviewSlot?: { date: string; startTime: string; endTime: string } | null;
 };
@@ -2191,15 +2192,18 @@ function ClubTab({ callerRole }: { callerRole: Role }) {
 
   const handleExportExcel = async () => {
     let filtered = sectionFilter === "all" ? apps : apps.filter((a) => a.educationType === sectionFilter);
-    if (departmentFilter !== "all") filtered = filtered.filter((a) => a.interestedDepartment === departmentFilter);
+    if (departmentFilter !== "all") {
+      filtered = filtered.filter((a) => a.preferredDepartment1 === departmentFilter || a.preferredDepartment2 === departmentFilter);
+    }
     if (filtered.length === 0) return;
     const { default: ExcelJS } = await import("exceljs");
     const answerKeys = Array.from(new Set(filtered.flatMap((a) => Object.keys(a.answers ?? {}))));
-    const headers = ["ชื่อ", "นามสกุล", "ชื่อเล่น", "อีเมล", "เบอร์โทร", "ช่องทางติดต่อ", "ภาค", "ฝ่ายที่สนใจ", "รอบสัมภาษณ์", "วันที่สมัคร", ...answerKeys];
+    const headers = ["ชื่อ", "นามสกุล", "ชื่อเล่น", "อีเมล", "เบอร์โทร", "ช่องทางติดต่อ", "ภาค", "ตำแหน่งอันดับ 1", "ตำแหน่งอันดับ 2", "รอบสัมภาษณ์", "วันที่สมัคร", ...answerKeys];
     const rows = filtered.map((a) => [
       a.name, a.surname, a.nickname, a.email, a.phone, a.contactChannel,
       a.educationType === "regular" ? "ปกติ" : "พิเศษ",
-      a.interestedDepartment || "-",
+      a.preferredDepartment1 || "-",
+      a.preferredDepartment2 || "-",
       a.interviewSlot ? `${a.interviewSlot.date} ${a.interviewSlot.startTime}-${a.interviewSlot.endTime}` : "-",
       new Date(a.createdAt).toLocaleDateString("th-TH"),
       ...answerKeys.map((k) => a.answers?.[k] ?? "-"),
@@ -2223,7 +2227,7 @@ function ClubTab({ callerRole }: { callerRole: Role }) {
   };
 
   const filteredApps = (sectionFilter === "all" ? apps : apps.filter((a) => a.educationType === sectionFilter))
-    .filter((a) => departmentFilter === "all" || a.interestedDepartment === departmentFilter);
+    .filter((a) => departmentFilter === "all" || a.preferredDepartment1 === departmentFilter || a.preferredDepartment2 === departmentFilter);
   const stats = { total: apps.length, regular: apps.filter((a) => a.educationType === "regular").length, special: apps.filter((a) => a.educationType === "special").length };
 
   // Group slots by date for display
@@ -2272,10 +2276,10 @@ function ClubTab({ callerRole }: { callerRole: Role }) {
               className={`px-4 py-3 rounded-lg text-sm font-medium transition-colors cursor-pointer ${departmentFilter === "all" ? "bg-blue-600 text-white shadow-sm" : "bg-card text-secondary border border-border hover:bg-hover"}`}>
               ทุกฝ่าย ({apps.length})
             </button>
-            {DEPARTMENTS.map((d) => (
+            {APPLICANT_DEPARTMENTS.map((d) => (
               <button key={d.key} onClick={() => setDepartmentFilter(d.key)}
                 className={`px-4 py-3 rounded-lg text-sm font-medium transition-colors cursor-pointer ${departmentFilter === d.key ? "bg-blue-600 text-white shadow-sm" : "bg-card text-secondary border border-border hover:bg-hover"}`}>
-                {d.label} ({apps.filter((a) => a.interestedDepartment === d.key).length})
+                {d.label} ({apps.filter((a) => a.preferredDepartment1 === d.key || a.preferredDepartment2 === d.key).length})
               </button>
             ))}
           </div>
@@ -2290,7 +2294,7 @@ function ClubTab({ callerRole }: { callerRole: Role }) {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-border-subtle bg-hover">
-                      {["ชื่อ", "นามสกุล", "ชื่อเล่น", "อีเมล", "ภาค", "ฝ่ายที่สนใจ", "รอบสัมภาษณ์", "Actions"].map((h) => (
+                      {["ชื่อ", "นามสกุล", "ชื่อเล่น", "อีเมล", "ภาค", "ตำแหน่งที่อยากทำ", "รอบสัมภาษณ์", "Actions"].map((h) => (
                         <th key={h} className="text-left px-6 py-4 text-secondary font-medium">{h}</th>
                       ))}
                     </tr>
@@ -2303,7 +2307,10 @@ function ClubTab({ callerRole }: { callerRole: Role }) {
                         <td className="px-6 py-4 text-secondary">{a.nickname}</td>
                         <td className="px-6 py-4 text-secondary">{a.email}</td>
                         <td className="px-6 py-4 text-secondary">{a.educationType === "regular" ? "ปกติ" : "พิเศษ"}</td>
-                        <td className="px-6 py-4 text-secondary">{DEPARTMENTS.find((d) => d.key === a.interestedDepartment)?.label ?? a.interestedDepartment ?? "—"}</td>
+                        <td className="px-6 py-4 text-secondary text-xs">
+                          <div>1: {DEPARTMENTS.find((d) => d.key === a.preferredDepartment1)?.label ?? a.preferredDepartment1 ?? "—"}</div>
+                          <div>2: {DEPARTMENTS.find((d) => d.key === a.preferredDepartment2)?.label ?? a.preferredDepartment2 ?? "—"}</div>
+                        </td>
                         <td className="px-6 py-4 text-secondary">
                           {a.interviewSlot ? `${a.interviewSlot.date} ${a.interviewSlot.startTime}` : <span className="text-muted">—</span>}
                         </td>
@@ -2506,7 +2513,8 @@ function ClubTab({ callerRole }: { callerRole: Role }) {
                 ["เบอร์โทร", detail.phone],
                 ["ช่องทางติดต่อ", detail.contactChannel],
                 ["ภาค", detail.educationType === "regular" ? "ปกติ" : "พิเศษ"],
-                ["ฝ่ายที่สนใจ", DEPARTMENTS.find((d) => d.key === detail.interestedDepartment)?.label ?? detail.interestedDepartment ?? "—"],
+                ["ตำแหน่งที่อยากทำ อันดับ 1", DEPARTMENTS.find((d) => d.key === detail.preferredDepartment1)?.label ?? detail.preferredDepartment1 ?? "—"],
+                ["ตำแหน่งที่อยากทำ อันดับ 2", DEPARTMENTS.find((d) => d.key === detail.preferredDepartment2)?.label ?? detail.preferredDepartment2 ?? "—"],
                 ["รอบสัมภาษณ์", detail.interviewSlot ? `${detail.interviewSlot.date} ${detail.interviewSlot.startTime}-${detail.interviewSlot.endTime}` : "ยังไม่ได้จอง"],
                 ["วันที่สมัคร", new Date(detail.createdAt).toLocaleString("th-TH")],
                 ...Object.entries(detail.answers ?? {}).map(([k, v]) => [k, v || "—"]),

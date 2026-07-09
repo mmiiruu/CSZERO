@@ -1,5 +1,5 @@
 import type { SimpleField, ChoiceField, ImageField } from "./hello-world-register";
-import { DEPARTMENTS } from "@/config/team";
+import { APPLICANT_DEPARTMENTS } from "@/config/team";
 
 export type ClubFormField = SimpleField | ChoiceField | ImageField;
 
@@ -33,7 +33,7 @@ export const clubApplyFormConfig: ClubApplyFormConfig = {
     titleAccent: "CSKU",
     subtitle: "กรอกข้อมูลเพื่อสมัครเข้าชุมนุมนิสิตวิทยาการคอมพิวเตอร์",
   },
-  stepLabels: ["ข้อมูลพื้นฐาน", "การศึกษา & รูปถ่าย", "คำถาม", "เลือกเวลาสัมภาษณ์"],
+  stepLabels: ["ข้อมูลพื้นฐาน", "คำถาม", "เลือกเวลาสัมภาษณ์"],
   steps: [
     {
       title: "ข้อมูลพื้นฐาน",
@@ -45,15 +45,9 @@ export const clubApplyFormConfig: ClubApplyFormConfig = {
         { name: "email", label: "อีเมล", type: "email", placeholder: "your@email.com", required: true },
         { name: "phone", label: "เบอร์โทรศัพท์", type: "tel", placeholder: "08x-xxx-xxxx", required: true },
         { name: "contactChannel", label: "ช่องทางติดต่อ (IG, Line)", type: "text", placeholder: "เช่น IG: @armm หรือ Line: armcoder", required: true },
-      ],
-    },
-    {
-      title: "การศึกษา & รูปถ่าย",
-      description: "ข้อมูลการศึกษาและรูปถ่ายของคุณ",
-      fields: [
         {
           name: "educationType",
-          label: "ประเภทการศึกษา",
+          label: "ภาค",
           type: "choice",
           layout: "flex",
           theme: "purple",
@@ -62,15 +56,6 @@ export const clubApplyFormConfig: ClubApplyFormConfig = {
             { value: "regular", label: "📘 ภาคปกติ" },
             { value: "special", label: "📗 ภาคพิเศษ" },
           ],
-        },
-        {
-          name: "interestedDepartment",
-          label: "ฝ่ายที่สนใจ",
-          type: "choice",
-          layout: "grid2",
-          theme: "purple",
-          required: true,
-          options: DEPARTMENTS.map((d) => ({ value: d.key, label: d.label })),
         },
         {
           name: "photo",
@@ -87,23 +72,41 @@ export const clubApplyFormConfig: ClubApplyFormConfig = {
       fields: [
         {
           name: "motivation",
-          label: "ทำไมถึงอยากเข้าชุมนุม CS?",
+          label: "ทำไมถึงอยากเข้าชุมนุมนิสิต?",
           type: "textarea",
           placeholder: "เล่าเหตุผลที่สนใจเข้าร่วมชุมนุม...",
           required: true,
         },
         {
-          name: "skills",
-          label: "ความสามารถพิเศษหรือทักษะที่มี",
-          type: "textarea",
-          placeholder: "เช่น เขียนโปรแกรม, ออกแบบกราฟิก, ถ่ายภาพ...",
+          name: "preferredDepartment1",
+          label: "ตำแหน่งที่อยากทำ — อันดับ 1",
+          type: "choice",
+          layout: "grid2",
+          theme: "purple",
           required: true,
+          options: APPLICANT_DEPARTMENTS.map((d) => ({ value: d.key, label: d.label })),
+        },
+        {
+          name: "preferredDepartment2",
+          label: "ตำแหน่งที่อยากทำ — อันดับ 2",
+          type: "choice",
+          layout: "grid2",
+          theme: "purple",
+          required: true,
+          options: APPLICANT_DEPARTMENTS.map((d) => ({ value: d.key, label: d.label })),
         },
         {
           name: "expectations",
-          label: "สิ่งที่คาดหวังจากการเข้าชุมนุม",
+          label: "คาดหวังอะไรจากชุมนุมนิสิต",
           type: "textarea",
           placeholder: "อยากได้อะไรกลับไปจากการเข้าร่วม...",
+          required: true,
+        },
+        {
+          name: "selfIntro",
+          label: "แนะนำตัวเองให้พี่จำเราได้",
+          type: "textarea",
+          placeholder: "เล่าอะไรก็ได้ที่ทำให้พี่ๆ จำคุณได้...",
           required: true,
         },
       ],

@@ -6,9 +6,10 @@ import ClubApplication from "@/models/ClubApplication";
 import InterviewSlot from "@/models/InterviewSlot";
 import { sanitizeAnswers } from "@/lib/registrationIntake";
 import { isClubApplicationOpen } from "@/lib/clubSettings";
-import { DEPARTMENTS } from "@/config/team";
+import { notifyClubApplication } from "@/lib/discord";
+import { APPLICANT_DEPARTMENTS } from "@/config/team";
 
-const DEPARTMENT_KEYS = DEPARTMENTS.map((d) => d.key) as string[];
+const APPLICANT_DEPARTMENT_KEYS = APPLICANT_DEPARTMENTS.map((d) => d.key) as string[];
 
 export async function GET() {
   try {
@@ -46,7 +47,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { name, surname, nickname, phone, contactChannel, photo, educationType, interestedDepartment, answers, slotId } = body;
+    const { name, surname, nickname, phone, contactChannel, photo, educationType, preferredDepartment1, preferredDepartment2, answers, slotId } = body;
 
     if (!name?.trim() || !surname?.trim() || !nickname?.trim()) {
       return NextResponse.json({ error: "กรุณากรอกชื่อ นามสกุล และชื่อเล่น" }, { status: 400 });
@@ -60,8 +61,14 @@ export async function POST(req: NextRequest) {
     if (!["regular", "special"].includes(educationType)) {
       return NextResponse.json({ error: "กรุณาเลือกประเภทการศึกษา" }, { status: 400 });
     }
-    if (!DEPARTMENT_KEYS.includes(interestedDepartment)) {
-      return NextResponse.json({ error: "กรุณาเลือกฝ่ายที่สนใจ" }, { status: 400 });
+    if (!APPLICANT_DEPARTMENT_KEYS.includes(preferredDepartment1)) {
+      return NextResponse.json({ error: "กรุณาเลือกตำแหน่งที่อยากทำ อันดับ 1" }, { status: 400 });
+    }
+    if (!APPLICANT_DEPARTMENT_KEYS.includes(preferredDepartment2)) {
+      return NextResponse.json({ error: "กรุณาเลือกตำแหน่งที่อยากทำ อันดับ 2" }, { status: 400 });
+    }
+    if (preferredDepartment1 === preferredDepartment2) {
+      return NextResponse.json({ error: "อันดับ 1 และอันดับ 2 ต้องไม่ซ้ำกัน" }, { status: 400 });
     }
     if (!slotId || typeof slotId !== "string" || !mongoose.Types.ObjectId.isValid(slotId)) {
       return NextResponse.json({ error: "กรุณาเลือกเวลาสัมภาษณ์" }, { status: 400 });
@@ -84,7 +91,8 @@ export async function POST(req: NextRequest) {
       contactChannel: contactChannel.trim(),
       photo: photo.trim(),
       educationType,
-      interestedDepartment,
+      preferredDepartment1,
+      preferredDepartment2,
       answers: sanitizeAnswers(answers),
     });
 
@@ -102,6 +110,19 @@ export async function POST(req: NextRequest) {
 
       await ClubApplication.findByIdAndUpdate(application._id, {
         $set: { interviewSlotId: reserved._id },
+      });
+
+      // Fire-and-forget — don't let webhook failure affect the response
+      notifyClubApplication({
+        name: name.trim(),
+        surname: surname.trim(),
+        nickname: nickname.trim(),
+        email,
+        educationType,
+        preferredDepartment1,
+        preferredDepartment2,
+        interviewSlot: { date: reserved.date, startTime: reserved.startTime, endTime: reserved.endTime },
+        answers: sanitizeAnswers(answers),
       });
     } catch (reserveError) {
       // Slot reservation failed after the application was created — roll it back

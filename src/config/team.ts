@@ -33,6 +33,10 @@ export const DEPARTMENTS = [
 
 export type DepartmentKey = typeof DEPARTMENTS[number]["key"];
 
+// Departments a club applicant can apply into — excludes "บริหาร" since that
+// committee is elected/appointed, not something a new applicant picks.
+export const APPLICANT_DEPARTMENTS = DEPARTMENTS.filter((d) => d.key !== "บริหาร");
+
 export interface FallbackMember {
   _id: string;
   name: string;

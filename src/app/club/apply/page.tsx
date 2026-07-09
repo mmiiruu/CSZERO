@@ -405,7 +405,7 @@ export default function ClubApplyPage() {
     setSubmitting(true);
     setSubmitError("");
 
-    const topLevel = ["name", "surname", "nickname", "email", "phone", "contactChannel", "photo", "educationType", "interestedDepartment"];
+    const topLevel = ["name", "surname", "nickname", "email", "phone", "contactChannel", "photo", "educationType", "preferredDepartment1", "preferredDepartment2"];
     const answers: Record<string, string> = {};
     for (const [k, v] of Object.entries(formData)) {
       if (!topLevel.includes(k) && v) answers[k] = v;
@@ -423,7 +423,8 @@ export default function ClubApplyPage() {
           contactChannel: formData.contactChannel,
           photo: formData.photo,
           educationType: formData.educationType,
-          interestedDepartment: formData.interestedDepartment,
+          preferredDepartment1: formData.preferredDepartment1,
+          preferredDepartment2: formData.preferredDepartment2,
           answers,
           slotId: selectedSlotId,
         }),
@@ -491,7 +492,24 @@ export default function ClubApplyPage() {
               <div className="space-y-5">
                 {currentStep!.fields.map((field) => {
                   if (isChoiceField(field)) {
-                    return <ChoiceButtons key={field.name} field={field} value={formData[field.name] || ""} onChange={(v) => setField(field.name, v)} error={errors[field.name]} />;
+                    const isRankedDepartment = field.name === "preferredDepartment1" || field.name === "preferredDepartment2";
+                    const displayField = field.name === "preferredDepartment2"
+                      ? { ...field, options: field.options.filter((o) => o.value !== formData.preferredDepartment1) }
+                      : field;
+                    return (
+                      <ChoiceButtons
+                        key={field.name}
+                        field={displayField}
+                        value={formData[field.name] || ""}
+                        onChange={(v) => {
+                          setField(field.name, v);
+                          if (isRankedDepartment && field.name === "preferredDepartment1" && v === formData.preferredDepartment2) {
+                            setField("preferredDepartment2", "");
+                          }
+                        }}
+                        error={errors[field.name]}
+                      />
+                    );
                   }
                   if (isImageField(field)) {
                     return <ImageUpload key={field.name} field={field} value={formData[field.name] || ""} onChange={(url) => setField(field.name, url)} error={errors[field.name]} />;
