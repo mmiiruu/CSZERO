@@ -45,6 +45,67 @@ export async function GET() {
   }
 }
 
+export async function PATCH(req: NextRequest) {
+  try {
+    const session = await auth();
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    const role = await getCallerRole(session.user.email);
+    if (role !== "admin") {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    const { id, slotId } = await req.json();
+    if (!id || !slotId) {
+      return NextResponse.json({ error: "Missing id or slotId" }, { status: 400 });
+    }
+
+    await dbConnect();
+    const app = await ClubApplication.findById(id);
+    if (!app) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
+    if (app.interviewSlotId?.toString() === slotId) {
+      return NextResponse.json({ error: "อยู่ในรอบนี้อยู่แล้ว" }, { status: 400 });
+    }
+
+    const reserved = await InterviewSlot.findOneAndUpdate(
+      { _id: slotId, $expr: { $lt: [{ $size: "$bookings" }, "$capacity"] } },
+      { $push: { bookings: { applicationId: app._id, email: app.email } } },
+      { new: true }
+    );
+    if (!reserved) {
+      return NextResponse.json({ error: "รอบเวลานี้เต็มแล้ว" }, { status: 409 });
+    }
+
+    try {
+      if (app.interviewSlotId) {
+        await InterviewSlot.findByIdAndUpdate(app.interviewSlotId, {
+          $pull: { bookings: { applicationId: app._id } },
+        });
+      }
+      await ClubApplication.findByIdAndUpdate(app._id, {
+        $set: { interviewSlotId: reserved._id },
+      });
+    } catch (updateError) {
+      // Roll back the new reservation so the applicant doesn't end up double-booked
+      await InterviewSlot.findByIdAndUpdate(reserved._id, {
+        $pull: { bookings: { applicationId: app._id } },
+      });
+      throw updateError;
+    }
+
+    return NextResponse.json({
+      message: "ย้ายรอบสัมภาษณ์แล้ว",
+      slot: { _id: reserved._id, date: reserved.date, startTime: reserved.startTime, endTime: reserved.endTime },
+    });
+  } catch (error) {
+    console.error("Admin move club application error:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
+}
+
 export async function DELETE(req: NextRequest) {
   try {
     const session = await auth();

@@ -2046,6 +2046,9 @@ function ClubTab({ callerRole }: { callerRole: Role }) {
   const [deleting, setDeleting] = useState(false);
   const [sectionFilter, setSectionFilter] = useState<"all" | "regular" | "special">("all");
   const [departmentFilter, setDepartmentFilter] = useState<string>("all");
+  const [moveTarget, setMoveTarget] = useState<ClubApp | null>(null);
+  const [movingSlotId, setMovingSlotId] = useState("");
+  const [moving, setMoving] = useState(false);
 
   // Slot creation
   const [newSlotDate, setNewSlotDate] = useState("");
@@ -2119,6 +2122,34 @@ function ClubTab({ callerRole }: { callerRole: Role }) {
       }
     } catch { showToast("✗ Network error", false); }
     finally { setDeleting(false); setConfirmDelete(null); }
+  };
+
+  const handleMoveApplication = async () => {
+    if (!moveTarget || !movingSlotId) return;
+    setMoving(true);
+    try {
+      const res = await fetch("/api/admin/club/applications", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: moveTarget._id, slotId: movingSlotId }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        const oldSlotId = moveTarget.interviewSlotId;
+        setApps((p) => p.map((a) => (a._id === moveTarget._id ? { ...a, interviewSlotId: data.slot._id, interviewSlot: data.slot } : a)));
+        setSlots((p) => p.map((s) => {
+          if (s._id === oldSlotId) return { ...s, bookings: s.bookings.filter((b) => b.applicationId !== moveTarget._id) };
+          if (s._id === data.slot._id) return { ...s, bookings: [...s.bookings, { applicationId: moveTarget._id, email: moveTarget.email }] };
+          return s;
+        }));
+        showToast(`✓ ย้าย ${moveTarget.name} แล้ว`, true);
+        setMoveTarget(null);
+        setMovingSlotId("");
+      } else {
+        showToast(`✗ ${data.error}`, false);
+      }
+    } catch { showToast("✗ Network error", false); }
+    finally { setMoving(false); }
   };
 
   const handleCreateSlots = async (bulk: boolean) => {
@@ -2318,7 +2349,10 @@ function ClubTab({ callerRole }: { callerRole: Role }) {
                           <div className="flex items-center gap-3">
                             <button onClick={() => setDetail(a)} className="text-primary hover:text-primary-dark text-sm font-medium cursor-pointer">View</button>
                             {callerRole === "admin" && (
-                              <button onClick={() => setConfirmDelete(a)} className="text-red-500 hover:text-red-700 dark:hover:text-red-400 text-sm font-medium cursor-pointer">ลบ</button>
+                              <>
+                                <button onClick={() => { setMoveTarget(a); setMovingSlotId(""); }} className="text-secondary hover:text-foreground text-sm font-medium cursor-pointer">ย้ายเวลา</button>
+                                <button onClick={() => setConfirmDelete(a)} className="text-red-500 hover:text-red-700 dark:hover:text-red-400 text-sm font-medium cursor-pointer">ลบ</button>
+                              </>
                             )}
                           </div>
                         </td>
@@ -2549,6 +2583,61 @@ function ClubTab({ callerRole }: { callerRole: Role }) {
             <div className="flex items-center justify-end gap-3">
               <button onClick={() => setConfirmDelete(null)} disabled={deleting} className="px-4 py-2 text-sm font-medium text-secondary hover:bg-hover rounded-lg transition-colors cursor-pointer">ยกเลิก</button>
               <button onClick={handleDeleteApp} disabled={deleting} className="px-4 py-2 text-sm font-medium bg-red-600 text-white hover:bg-red-700 disabled:opacity-60 rounded-lg transition-colors cursor-pointer">{deleting ? "กำลังลบ..." : "ลบ"}</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Move interview slot */}
+      {moveTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+          onClick={(e) => { if (e.target === e.currentTarget && !moving) { setMoveTarget(null); setMovingSlotId(""); } }}>
+          <div role="dialog" aria-modal="true" className="w-full max-w-lg max-h-[85vh] flex flex-col rounded-2xl shadow-2xl bg-card border border-border">
+            <div className="px-6 py-5 border-b border-border-subtle shrink-0">
+              <h3 className="font-semibold text-foreground">ย้ายรอบสัมภาษณ์ของ {moveTarget.name}</h3>
+              <p className="mt-1 text-sm text-secondary">
+                รอบปัจจุบัน: {moveTarget.interviewSlot ? `${moveTarget.interviewSlot.date} ${moveTarget.interviewSlot.startTime}-${moveTarget.interviewSlot.endTime}` : "ยังไม่มี"}
+              </p>
+            </div>
+            <div className="overflow-y-auto flex-1 px-6 py-5 space-y-6">
+              {Array.from(slotsByDate.entries()).map(([date, dateSlots]) => {
+                const selectable = dateSlots.filter((s) => s._id !== moveTarget.interviewSlotId);
+                if (selectable.length === 0) return null;
+                return (
+                  <div key={date}>
+                    <h4 className="text-sm font-bold text-foreground mb-3">{date}</h4>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                      {selectable.map((s) => {
+                        const isFull = s.bookings.length >= s.capacity;
+                        const active = movingSlotId === s._id;
+                        if (isFull) {
+                          return (
+                            <div key={s._id} className="rounded-xl px-4 py-3 bg-hover border border-border-subtle" aria-disabled="true">
+                              <p className="text-sm font-semibold text-muted tabular-nums line-through decoration-1">{s.startTime} - {s.endTime}</p>
+                              <p className="text-xs text-muted mt-1">เต็มแล้ว</p>
+                            </div>
+                          );
+                        }
+                        return (
+                          <button key={s._id} type="button" onClick={() => setMovingSlotId(s._id)}
+                            className={`text-left rounded-xl px-4 py-3 border-2 transition-all cursor-pointer ${
+                              active
+                                ? "border-blue-600 bg-blue-50 dark:bg-blue-900/30 shadow-sm"
+                                : "border-border bg-card hover:border-blue-300 dark:hover:border-blue-700"
+                            }`}>
+                            <p className={`text-sm font-semibold tabular-nums ${active ? "text-blue-700 dark:text-blue-300" : "text-foreground"}`}>{s.startTime} - {s.endTime}</p>
+                            <p className="text-xs text-muted mt-1">เหลือ {s.capacity - s.bookings.length}/{s.capacity} ที่</p>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-border-subtle shrink-0">
+              <button onClick={() => { setMoveTarget(null); setMovingSlotId(""); }} disabled={moving} className="px-4 py-2 text-sm font-medium text-secondary hover:bg-hover rounded-lg transition-colors cursor-pointer">ยกเลิก</button>
+              <button onClick={handleMoveApplication} disabled={moving || !movingSlotId} className="px-4 py-2 text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60 rounded-lg transition-colors cursor-pointer">{moving ? "กำลังย้าย..." : "ย้าย"}</button>
             </div>
           </div>
         </div>
