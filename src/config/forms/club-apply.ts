@@ -33,15 +33,15 @@ export const clubApplyFormConfig: ClubApplyFormConfig = {
     titleAccent: "CSKU",
     subtitle: "กรอกข้อมูลเพื่อสมัครเข้าชุมนุมนิสิตวิทยาการคอมพิวเตอร์",
   },
-  stepLabels: ["ข้อมูลพื้นฐาน", "คำถาม", "เลือกเวลาสัมภาษณ์"],
+  stepLabels: ["ข้อมูลพื้นฐาน", "เลือกฝ่าย", "คำถาม", "เลือกเวลาสัมภาษณ์"],
   steps: [
     {
       title: "ข้อมูลพื้นฐาน",
       description: "บอกเราว่าคุณเป็นใคร",
       fields: [
-        { name: "name", label: "ชื่อ", type: "text", placeholder: "เช่น สมชาย", required: true },
-        { name: "surname", label: "นามสกุล", type: "text", placeholder: "เช่น ใจดี", required: true },
+        { name: "name", label: "ชื่อ-นามสกุล", type: "text", placeholder: "เช่น สมชาย ใจดี", required: true },
         { name: "nickname", label: "ชื่อเล่น", type: "text", placeholder: "เช่น อาร์ม", required: true },
+        { name: "studentId", label: "รหัสนิสิต", type: "text", placeholder: "เช่น 6710500000", required: true },
         { name: "email", label: "อีเมล", type: "email", placeholder: "your@email.com", required: true },
         { name: "phone", label: "เบอร์โทรศัพท์", type: "tel", placeholder: "08x-xxx-xxxx", required: true },
         { name: "contactChannel", label: "ช่องทางติดต่อ (IG, Line)", type: "text", placeholder: "เช่น IG: @armm หรือ Line: armcoder", required: true },
@@ -67,16 +67,9 @@ export const clubApplyFormConfig: ClubApplyFormConfig = {
       ],
     },
     {
-      title: "คำถาม",
-      description: "ตอบคำถามเพื่อให้เรารู้จักคุณมากขึ้น",
+      title: "เลือกฝ่าย",
+      description: "ตำแหน่งที่อยากทำ เรียงลำดับความสนใจ",
       fields: [
-        {
-          name: "motivation",
-          label: "ทำไมถึงอยากเข้าชุมนุมนิสิต?",
-          type: "textarea",
-          placeholder: "เล่าเหตุผลที่สนใจเข้าร่วมชุมนุม...",
-          required: true,
-        },
         {
           name: "preferredDepartment1",
           label: "ตำแหน่งที่อยากทำ — อันดับ 1",
@@ -94,6 +87,33 @@ export const clubApplyFormConfig: ClubApplyFormConfig = {
           theme: "purple",
           required: true,
           options: APPLICANT_DEPARTMENTS.map((d) => ({ value: d.key, label: d.label })),
+        },
+      ],
+    },
+    {
+      title: "คำถาม",
+      description: "ตอบคำถามเพื่อให้เรารู้จักคุณมากขึ้น",
+      fields: [
+        {
+          name: "motivation",
+          label: "ทำไมถึงอยากเข้าชุมนุมนิสิต?",
+          type: "textarea",
+          placeholder: "เล่าเหตุผลที่สนใจเข้าร่วมชุมนุม...",
+          required: true,
+        },
+        {
+          name: "departmentReason1",
+          label: "ทำไมถึงเลือกฝ่ายนี้เป็นอันดับ 1 เพราะอะไร",
+          type: "textarea",
+          placeholder: "เล่าเหตุผล...",
+          required: true,
+        },
+        {
+          name: "departmentReason2",
+          label: "ทำไมถึงเลือกฝ่ายนี้เป็นอันดับ 2 เพราะอะไร",
+          type: "textarea",
+          placeholder: "เล่าเหตุผล...",
+          required: true,
         },
         {
           name: "expectations",

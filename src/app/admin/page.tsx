@@ -2019,7 +2019,7 @@ function ProjectsTab({ callerRole }: { callerRole: Role }) {
 
 /* ─── Club Tab ──────────────────────────────────────────────────── */
 type ClubApp = {
-  _id: string; name: string; surname: string; nickname: string; email: string;
+  _id: string; name: string; nickname: string; studentId: string; email: string;
   phone: string; contactChannel: string; photo: string; educationType: string;
   preferredDepartment1?: string;
   preferredDepartment2?: string;
@@ -2198,9 +2198,9 @@ function ClubTab({ callerRole }: { callerRole: Role }) {
     if (filtered.length === 0) return;
     const { default: ExcelJS } = await import("exceljs");
     const answerKeys = Array.from(new Set(filtered.flatMap((a) => Object.keys(a.answers ?? {}))));
-    const headers = ["ชื่อ", "นามสกุล", "ชื่อเล่น", "อีเมล", "เบอร์โทร", "ช่องทางติดต่อ", "ภาค", "ตำแหน่งอันดับ 1", "ตำแหน่งอันดับ 2", "รอบสัมภาษณ์", "วันที่สมัคร", ...answerKeys];
+    const headers = ["ชื่อ-นามสกุล", "ชื่อเล่น", "รหัสนิสิต", "อีเมล", "เบอร์โทร", "ช่องทางติดต่อ", "ภาค", "ตำแหน่งอันดับ 1", "ตำแหน่งอันดับ 2", "รอบสัมภาษณ์", "วันที่สมัคร", ...answerKeys];
     const rows = filtered.map((a) => [
-      a.name, a.surname, a.nickname, a.email, a.phone, a.contactChannel,
+      a.name, a.nickname, a.studentId, a.email, a.phone, a.contactChannel,
       a.educationType === "regular" ? "ปกติ" : "พิเศษ",
       a.preferredDepartment1 || "-",
       a.preferredDepartment2 || "-",
@@ -2294,7 +2294,7 @@ function ClubTab({ callerRole }: { callerRole: Role }) {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-border-subtle bg-hover">
-                      {["ชื่อ", "นามสกุล", "ชื่อเล่น", "อีเมล", "ภาค", "ตำแหน่งที่อยากทำ", "รอบสัมภาษณ์", "Actions"].map((h) => (
+                      {["ชื่อ-นามสกุล", "ชื่อเล่น", "รหัสนิสิต", "อีเมล", "ภาค", "ตำแหน่งที่อยากทำ", "รอบสัมภาษณ์", "Actions"].map((h) => (
                         <th key={h} className="text-left px-6 py-4 text-secondary font-medium">{h}</th>
                       ))}
                     </tr>
@@ -2303,8 +2303,8 @@ function ClubTab({ callerRole }: { callerRole: Role }) {
                     {filteredApps.map((a) => (
                       <tr key={a._id} className="border-b border-border-subtle hover:bg-hover transition-colors">
                         <td className="px-6 py-4 text-foreground font-medium">{a.name}</td>
-                        <td className="px-6 py-4 text-secondary">{a.surname}</td>
                         <td className="px-6 py-4 text-secondary">{a.nickname}</td>
+                        <td className="px-6 py-4 text-secondary">{a.studentId}</td>
                         <td className="px-6 py-4 text-secondary">{a.email}</td>
                         <td className="px-6 py-4 text-secondary">{a.educationType === "regular" ? "ปกติ" : "พิเศษ"}</td>
                         <td className="px-6 py-4 text-secondary text-xs">
@@ -2492,7 +2492,7 @@ function ClubTab({ callerRole }: { callerRole: Role }) {
           <div role="dialog" aria-modal="true" className="relative w-full max-w-lg max-h-[80vh] flex flex-col rounded-2xl shadow-2xl bg-card border border-border">
             <div className="flex items-start justify-between gap-4 px-6 py-5 border-b border-border-subtle">
               <div>
-                <h3 className="text-base font-semibold text-foreground">{detail.name} {detail.surname}</h3>
+                <h3 className="text-base font-semibold text-foreground">{detail.name}</h3>
                 <p className="text-xs text-muted mt-0.5">{detail.email}</p>
               </div>
               <button onClick={() => setDetail(null)} className="p-3 -mr-1 text-muted hover:text-secondary transition-colors cursor-pointer" aria-label="Close">
@@ -2510,6 +2510,7 @@ function ClubTab({ callerRole }: { callerRole: Role }) {
               )}
               {([
                 ["ชื่อเล่น", detail.nickname],
+                ["รหัสนิสิต", detail.studentId],
                 ["เบอร์โทร", detail.phone],
                 ["ช่องทางติดต่อ", detail.contactChannel],
                 ["ภาค", detail.educationType === "regular" ? "ปกติ" : "พิเศษ"],

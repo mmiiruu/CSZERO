@@ -47,10 +47,13 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { name, surname, nickname, phone, contactChannel, photo, educationType, preferredDepartment1, preferredDepartment2, answers, slotId } = body;
+    const { name, nickname, studentId, phone, contactChannel, photo, educationType, preferredDepartment1, preferredDepartment2, answers, slotId } = body;
 
-    if (!name?.trim() || !surname?.trim() || !nickname?.trim()) {
-      return NextResponse.json({ error: "กรุณากรอกชื่อ นามสกุล และชื่อเล่น" }, { status: 400 });
+    if (!name?.trim() || !nickname?.trim()) {
+      return NextResponse.json({ error: "กรุณากรอกชื่อ-นามสกุล และชื่อเล่น" }, { status: 400 });
+    }
+    if (!studentId?.trim()) {
+      return NextResponse.json({ error: "กรุณากรอกรหัสนิสิต" }, { status: 400 });
     }
     if (!phone?.trim() || !contactChannel?.trim()) {
       return NextResponse.json({ error: "กรุณากรอกเบอร์โทรและช่องทางติดต่อ" }, { status: 400 });
@@ -84,8 +87,8 @@ export async function POST(req: NextRequest) {
 
     const application = await ClubApplication.create({
       name: name.trim(),
-      surname: surname.trim(),
       nickname: nickname.trim(),
+      studentId: studentId.trim(),
       email,
       phone: phone.trim(),
       contactChannel: contactChannel.trim(),
@@ -115,8 +118,8 @@ export async function POST(req: NextRequest) {
       // Fire-and-forget — don't let webhook failure affect the response
       notifyClubApplication({
         name: name.trim(),
-        surname: surname.trim(),
         nickname: nickname.trim(),
+        studentId: studentId.trim(),
         email,
         educationType,
         preferredDepartment1,

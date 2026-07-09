@@ -9,6 +9,11 @@ import { clubApplyFormConfig, type ClubFormField } from "@/config/forms/club-app
 import type { ChoiceField, ImageField } from "@/config/forms/hello-world-register";
 import { upload } from "@vercel/blob/client";
 import { useFormDraft } from "@/lib/useFormDraft";
+import { APPLICANT_DEPARTMENTS } from "@/config/team";
+
+function departmentLabel(key: string): string {
+  return APPLICANT_DEPARTMENTS.find((d) => d.key === key)?.label ?? "ฝ่ายนี้";
+}
 
 const config = clubApplyFormConfig;
 
@@ -405,7 +410,7 @@ export default function ClubApplyPage() {
     setSubmitting(true);
     setSubmitError("");
 
-    const topLevel = ["name", "surname", "nickname", "email", "phone", "contactChannel", "photo", "educationType", "preferredDepartment1", "preferredDepartment2"];
+    const topLevel = ["name", "nickname", "studentId", "email", "phone", "contactChannel", "photo", "educationType", "preferredDepartment1", "preferredDepartment2"];
     const answers: Record<string, string> = {};
     for (const [k, v] of Object.entries(formData)) {
       if (!topLevel.includes(k) && v) answers[k] = v;
@@ -417,8 +422,8 @@ export default function ClubApplyPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: formData.name,
-          surname: formData.surname,
           nickname: formData.nickname,
+          studentId: formData.studentId,
           phone: formData.phone,
           contactChannel: formData.contactChannel,
           photo: formData.photo,
@@ -514,10 +519,16 @@ export default function ClubApplyPage() {
                   if (isImageField(field)) {
                     return <ImageUpload key={field.name} field={field} value={formData[field.name] || ""} onChange={(url) => setField(field.name, url)} error={errors[field.name]} />;
                   }
+                  let label = field.label;
+                  if (field.name === "departmentReason1") {
+                    label = `ทำไมถึงเลือกฝ่าย ${departmentLabel(formData.preferredDepartment1)} เป็นอันดับ 1 เพราะอะไร`;
+                  } else if (field.name === "departmentReason2") {
+                    label = `ทำไมถึงเลือกฝ่าย ${departmentLabel(formData.preferredDepartment2)} เป็นอันดับ 2 เพราะอะไร`;
+                  }
                   return (
                     <Input
                       key={field.name}
-                      label={field.label}
+                      label={label}
                       type={field.type === "textarea" ? undefined : field.type}
                       as={field.type === "textarea" ? "textarea" : undefined}
                       placeholder={field.placeholder}

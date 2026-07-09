@@ -75,8 +75,8 @@ export async function notifyRegistration(data: RegistrationEvent): Promise<void>
 
 type ClubApplicationEvent = {
   name: string;
-  surname: string;
   nickname: string;
+  studentId: string;
   email: string;
   educationType: "regular" | "special";
   preferredDepartment1: string;
@@ -108,9 +108,10 @@ export async function notifyClubApplication(data: ClubApplicationEvent): Promise
         title: "🏫 ใบสมัครชุมนุมนิสิตใหม่",
         color: 0x2563eb,
         fields: [
-          { name: "ชื่อ-นามสกุล", value: defang(`${data.name} ${data.surname}`), inline: true },
+          { name: "ชื่อ-นามสกุล", value: defang(data.name), inline: true },
           { name: "ชื่อเล่น", value: defang(data.nickname), inline: true },
           { name: "ภาค", value: data.educationType === "regular" ? "ปกติ" : "พิเศษ", inline: true },
+          { name: "รหัสนิสิต", value: defang(data.studentId), inline: true },
           { name: "อีเมล", value: defang(data.email), inline: false },
           { name: "ตำแหน่งที่อยากทำ", value: `อันดับ 1: ${defang(data.preferredDepartment1)}\nอันดับ 2: ${defang(data.preferredDepartment2)}`, inline: false },
           { name: "รอบสัมภาษณ์", value: `${data.interviewSlot.date} ${data.interviewSlot.startTime}-${data.interviewSlot.endTime}`, inline: false },

@@ -5,8 +5,8 @@ const APPLICANT_DEPARTMENT_KEYS = APPLICANT_DEPARTMENTS.map((d) => d.key);
 
 export interface IClubApplication extends Document {
   name: string;
-  surname: string;
   nickname: string;
+  studentId: string;
   email: string;
   phone: string;
   contactChannel: string;
@@ -23,8 +23,8 @@ export interface IClubApplication extends Document {
 const ClubApplicationSchema = new Schema<IClubApplication>(
   {
     name: { type: String, required: true },
-    surname: { type: String, required: true },
     nickname: { type: String, required: true },
+    studentId: { type: String, required: true },
     email: { type: String, required: true },
     phone: { type: String, required: true },
     contactChannel: { type: String, required: true },
