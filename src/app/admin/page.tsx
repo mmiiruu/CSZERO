@@ -2049,6 +2049,14 @@ function ClubTab({ callerRole }: { callerRole: Role }) {
   const [moveTarget, setMoveTarget] = useState<ClubApp | null>(null);
   const [movingSlotId, setMovingSlotId] = useState("");
   const [moving, setMoving] = useState(false);
+  const [editApp, setEditApp] = useState<ClubApp | null>(null);
+  const [editForm, setEditForm] = useState<{
+    name: string; nickname: string; studentId: string; email: string; phone: string;
+    contactChannel: string; educationType: string;
+    preferredDepartment1: string; preferredDepartment2: string;
+    answers: Record<string, string>;
+  } | null>(null);
+  const [savingEdit, setSavingEdit] = useState(false);
 
   // Slot creation
   const [newSlotDate, setNewSlotDate] = useState("");
@@ -2150,6 +2158,44 @@ function ClubTab({ callerRole }: { callerRole: Role }) {
       }
     } catch { showToast("✗ Network error", false); }
     finally { setMoving(false); }
+  };
+
+  const openEdit = (a: ClubApp) => {
+    setEditApp(a);
+    setEditForm({
+      name: a.name,
+      nickname: a.nickname,
+      studentId: a.studentId,
+      email: a.email,
+      phone: a.phone,
+      contactChannel: a.contactChannel,
+      educationType: a.educationType,
+      preferredDepartment1: a.preferredDepartment1 ?? "",
+      preferredDepartment2: a.preferredDepartment2 ?? "",
+      answers: { ...(a.answers ?? {}) },
+    });
+  };
+
+  const handleEditSave = async () => {
+    if (!editApp || !editForm) return;
+    setSavingEdit(true);
+    try {
+      const res = await fetch(`/api/admin/club/applications/${editApp._id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(editForm),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setApps((p) => p.map((a) => (a._id === editApp._id ? { ...a, ...editForm } : a)));
+        showToast(`✓ แก้ไข ${editForm.name} แล้ว`, true);
+        setEditApp(null);
+        setEditForm(null);
+      } else {
+        showToast(`✗ ${data.error}`, false);
+      }
+    } catch { showToast("✗ Network error", false); }
+    finally { setSavingEdit(false); }
   };
 
   const handleCreateSlots = async (bulk: boolean) => {
@@ -2350,6 +2396,7 @@ function ClubTab({ callerRole }: { callerRole: Role }) {
                             <button onClick={() => setDetail(a)} className="text-primary hover:text-primary-dark text-sm font-medium cursor-pointer">View</button>
                             {callerRole === "admin" && (
                               <>
+                                <button onClick={() => openEdit(a)} className="text-secondary hover:text-foreground text-sm font-medium cursor-pointer">แก้ไข</button>
                                 <button onClick={() => { setMoveTarget(a); setMovingSlotId(""); }} className="text-secondary hover:text-foreground text-sm font-medium cursor-pointer">ย้ายเวลา</button>
                                 <button onClick={() => setConfirmDelete(a)} className="text-red-500 hover:text-red-700 dark:hover:text-red-400 text-sm font-medium cursor-pointer">ลบ</button>
                               </>
@@ -2638,6 +2685,110 @@ function ClubTab({ callerRole }: { callerRole: Role }) {
             <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-border-subtle shrink-0">
               <button onClick={() => { setMoveTarget(null); setMovingSlotId(""); }} disabled={moving} className="px-4 py-2 text-sm font-medium text-secondary hover:bg-hover rounded-lg transition-colors cursor-pointer">ยกเลิก</button>
               <button onClick={handleMoveApplication} disabled={moving || !movingSlotId} className="px-4 py-2 text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60 rounded-lg transition-colors cursor-pointer">{moving ? "กำลังย้าย..." : "ย้าย"}</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit applicant */}
+      {editApp && editForm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+          onClick={(e) => { if (e.target === e.currentTarget && !savingEdit) { setEditApp(null); setEditForm(null); } }}>
+          <div role="dialog" aria-modal="true" className="w-full max-w-lg max-h-[85vh] flex flex-col rounded-2xl shadow-2xl bg-card border border-border">
+            <div className="flex items-start justify-between gap-4 px-6 py-5 border-b border-border-subtle shrink-0">
+              <h3 className="font-semibold text-foreground">แก้ไขข้อมูลของ {editApp.name}</h3>
+              <button onClick={() => { setEditApp(null); setEditForm(null); }} className="p-3 -mr-1 text-muted hover:text-secondary transition-colors cursor-pointer" aria-label="Close">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="overflow-y-auto flex-1 px-6 py-5 space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-secondary mb-1">ชื่อ-นามสกุล</label>
+                  <input value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                    className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-card text-foreground focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500" />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-secondary mb-1">ชื่อเล่น</label>
+                  <input value={editForm.nickname} onChange={(e) => setEditForm({ ...editForm, nickname: e.target.value })}
+                    className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-card text-foreground focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500" />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-secondary mb-1">รหัสนิสิต</label>
+                  <input value={editForm.studentId} onChange={(e) => setEditForm({ ...editForm, studentId: e.target.value })}
+                    className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-card text-foreground focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500" />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-secondary mb-1">อีเมล</label>
+                  <input type="email" value={editForm.email} onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                    className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-card text-foreground focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500" />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-secondary mb-1">เบอร์โทร</label>
+                  <input value={editForm.phone} onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
+                    className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-card text-foreground focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500" />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-secondary mb-1">ช่องทางติดต่อ</label>
+                  <input value={editForm.contactChannel} onChange={(e) => setEditForm({ ...editForm, contactChannel: e.target.value })}
+                    className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-card text-foreground focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500" />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-secondary mb-2">ภาค</label>
+                <div className="flex gap-2">
+                  {([{ key: "regular", label: "ปกติ" }, { key: "special", label: "พิเศษ" }] as const).map((o) => (
+                    <button key={o.key} type="button" onClick={() => setEditForm({ ...editForm, educationType: o.key })}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${editForm.educationType === o.key ? "bg-blue-600 text-white shadow-sm" : "bg-hover text-secondary border border-border hover:bg-card"}`}>
+                      {o.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-secondary mb-2">ตำแหน่งที่อยากทำ อันดับ 1</label>
+                <div className="flex flex-wrap gap-2">
+                  {APPLICANT_DEPARTMENTS.map((d) => (
+                    <button key={d.key} type="button" onClick={() => setEditForm({ ...editForm, preferredDepartment1: d.key })}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${editForm.preferredDepartment1 === d.key ? "bg-blue-600 text-white shadow-sm" : "bg-hover text-secondary border border-border hover:bg-card"}`}>
+                      {d.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-secondary mb-2">ตำแหน่งที่อยากทำ อันดับ 2</label>
+                <div className="flex flex-wrap gap-2">
+                  {APPLICANT_DEPARTMENTS.map((d) => (
+                    <button key={d.key} type="button" onClick={() => setEditForm({ ...editForm, preferredDepartment2: d.key })}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${editForm.preferredDepartment2 === d.key ? "bg-blue-600 text-white shadow-sm" : "bg-hover text-secondary border border-border hover:bg-card"}`}>
+                      {d.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {Object.keys(editForm.answers).length > 0 && (
+                <div className="space-y-3">
+                  {Object.entries(editForm.answers).map(([k, v]) => (
+                    <div key={k}>
+                      <label className="block text-xs font-medium text-secondary mb-1">{k}</label>
+                      <textarea value={v} onChange={(e) => setEditForm({ ...editForm, answers: { ...editForm.answers, [k]: e.target.value } })}
+                        rows={2}
+                        className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-card text-foreground focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500" />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-border-subtle shrink-0">
+              <button onClick={() => { setEditApp(null); setEditForm(null); }} disabled={savingEdit} className="px-4 py-2 text-sm font-medium text-secondary hover:bg-hover rounded-lg transition-colors cursor-pointer">ยกเลิก</button>
+              <button onClick={handleEditSave} disabled={savingEdit} className="px-4 py-2 text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60 rounded-lg transition-colors cursor-pointer">{savingEdit ? "กำลังบันทึก..." : "บันทึก"}</button>
             </div>
           </div>
         </div>
