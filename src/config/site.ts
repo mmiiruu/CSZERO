@@ -66,12 +66,6 @@ export const homePage = {
     title: "ทีมงาน CSKU",
     description: "นิสิต CS ที่ออกแบบกิจกรรม ดูแลชุมชน และขับเคลื่อน CSKU ให้เดินหน้าต่อ",
     viewAllLabel: "ดูสมาชิกทั้งหมด",
-    preview: [
-      { name: "Alex Chen", role: "ประธาน" },
-      { name: "Sari W.", role: "รองประธาน" },
-      { name: "Mike T.", role: "หัวหน้าฝ่ายเทคนิค" },
-      { name: "Ploy K.", role: "หัวหน้าฝ่ายกิจกรรม" },
-    ],
   },
   cta: {
     title: "ติดตาม CSKU",

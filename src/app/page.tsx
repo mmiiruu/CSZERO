@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useSession } from "next-auth/react";
 import { homePage, site } from "@/config/site";
 import { cs101Config } from "@/config/events/cs101";
@@ -14,8 +15,20 @@ const { hero, eventsSection, teamSection, cta } = homePage;
 const cs101Card = cs101Config.homeCard;
 const hwCard = helloWorldConfig.homeCard;
 
+const TEAM_PREVIEW_LIMIT = 8;
+
+interface TeamPreviewMember {
+  _id: string;
+  name: string;
+  nickname: string;
+  role: string;
+  image: string;
+  isHead: boolean;
+}
+
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
+  const [teamMembers, setTeamMembers] = useState<TeamPreviewMember[]>([]);
   const { data: session } = useSession();
   const role = (session?.user as { role?: string } | undefined)?.role;
   const isAdmin = role === "admin" || role === "staff";
@@ -23,6 +36,17 @@ export default function Home() {
   const canSeeHelloWorld = isAdmin;
   const canSeeCs101 = isAdmin;
   const visibleEventCount = (canSeeCs101 ? 1 : 0) + (canSeeHelloWorld ? 1 : 0);
+
+  useEffect(() => {
+    fetch("/api/team")
+      .then((res) => res.json())
+      .then((data) => { if (Array.isArray(data)) setTeamMembers(data); })
+      .catch(() => {});
+  }, []);
+
+  const teamPreview = [...teamMembers]
+    .sort((a, b) => (a.isHead === b.isHead ? 0 : a.isHead ? -1 : 1))
+    .slice(0, TEAM_PREVIEW_LIMIT);
 
   return (
     <div className="relative">
@@ -140,7 +164,7 @@ export default function Home() {
       </section>
 
       {/* Team Preview — gated; the /team page itself is admin/staff-only */}
-      {canSeeTeam && (
+      {canSeeTeam && teamPreview.length > 0 && (
       <section aria-labelledby="team-heading" className="py-20 px-4 bg-card">
         <div className="max-w-6xl mx-auto">
           <ScrollReveal className="text-center mb-16">
@@ -150,20 +174,27 @@ export default function Home() {
           </ScrollReveal>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-            {teamSection.preview.map((member, i) => (
-              <Link key={i} href="/team" className="group rounded-2xl motion-safe:active:scale-[0.98] transition-transform duration-100">
-                <div className="bg-card border border-border rounded-2xl p-6 text-center hover:shadow-md hover:border-blue-200 dark:hover:border-blue-700 transition-[colors,shadow] duration-300 h-full">
-                  <div
-                    className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center text-xl font-bold text-white motion-safe:group-hover:scale-110 transition-transform duration-300"
-                    style={{ backgroundColor: getMemberColor(member.name), ...DOT_PATTERN }}
-                  >
-                    {member.name.charAt(0)}
+            {teamPreview.map((member) => {
+              const displayName = member.nickname || member.name;
+              return (
+                <Link key={member._id} href="/team" className="group rounded-2xl motion-safe:active:scale-[0.98] transition-transform duration-100">
+                  <div className="bg-card border border-border rounded-2xl p-6 text-center hover:shadow-md hover:border-blue-200 dark:hover:border-blue-700 transition-[colors,shadow] duration-300 h-full">
+                    <div
+                      className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center text-xl font-bold text-white motion-safe:group-hover:scale-110 transition-transform duration-300 overflow-hidden"
+                      style={{ backgroundColor: getMemberColor(member._id), ...DOT_PATTERN }}
+                    >
+                      {member.image ? (
+                        <Image src={member.image} alt={displayName} width={128} height={128} quality={90} className="w-full h-full object-cover" loading="lazy" />
+                      ) : (
+                        <span aria-hidden="true">{displayName.charAt(0)}</span>
+                      )}
+                    </div>
+                    <h3 className="text-foreground font-semibold text-sm">{displayName}</h3>
+                    <p className="text-secondary text-xs mt-1">{member.role}</p>
                   </div>
-                  <h3 className="text-foreground font-semibold text-sm">{member.name}</h3>
-                  <p className="text-secondary text-xs mt-1">{member.role}</p>
-                </div>
-              </Link>
-            ))}
+                </Link>
+              );
+            })}
           </div>
 
           <div className="text-center mt-10">

@@ -2273,15 +2273,25 @@ function ClubTab({ callerRole }: { callerRole: Role }) {
       filtered = filtered.filter((a) => a.preferredDepartment1 === departmentFilter || a.preferredDepartment2 === departmentFilter);
     }
     if (filtered.length === 0) return;
+    const sorted = [...filtered].sort((a, b) => {
+      if (!a.interviewSlot && !b.interviewSlot) return 0;
+      if (!a.interviewSlot) return 1;
+      if (!b.interviewSlot) return -1;
+      return (
+        a.interviewSlot.date.localeCompare(b.interviewSlot.date) ||
+        a.interviewSlot.startTime.localeCompare(b.interviewSlot.startTime)
+      );
+    });
     const { default: ExcelJS } = await import("exceljs");
-    const answerKeys = Array.from(new Set(filtered.flatMap((a) => Object.keys(a.answers ?? {}))));
-    const headers = ["ชื่อ-นามสกุล", "ชื่อเล่น", "รหัสนิสิต", "อีเมล", "เบอร์โทร", "ช่องทางติดต่อ", "ภาค", "ตำแหน่งอันดับ 1", "ตำแหน่งอันดับ 2", "รอบสัมภาษณ์", "วันที่สมัคร", ...answerKeys];
-    const rows = filtered.map((a) => [
+    const answerKeys = Array.from(new Set(sorted.flatMap((a) => Object.keys(a.answers ?? {}))));
+    const headers = ["ชื่อ-นามสกุล", "ชื่อเล่น", "รหัสนิสิต", "อีเมล", "เบอร์โทร", "ช่องทางติดต่อ", "ภาค", "ตำแหน่งอันดับ 1", "ตำแหน่งอันดับ 2", "วันที่สัมภาษณ์", "เวลาสัมภาษณ์", "วันที่สมัคร", ...answerKeys];
+    const rows = sorted.map((a) => [
       a.name, a.nickname, a.studentId, a.email, a.phone, a.contactChannel,
       a.educationType === "regular" ? "ปกติ" : "พิเศษ",
       a.preferredDepartment1 || "-",
       a.preferredDepartment2 || "-",
-      a.interviewSlot ? `${a.interviewSlot.date} ${a.interviewSlot.startTime}-${a.interviewSlot.endTime}` : "-",
+      a.interviewSlot ? a.interviewSlot.date : "-",
+      a.interviewSlot ? `${a.interviewSlot.startTime}-${a.interviewSlot.endTime}` : "-",
       new Date(a.createdAt).toLocaleDateString("th-TH"),
       ...answerKeys.map((k) => a.answers?.[k] ?? "-"),
     ]);
